@@ -174,6 +174,14 @@ export interface DependencyUpdate {
   notes?: string;
 }
 
+export interface InitiativeHistoryEntry {
+  id: number;
+  initiativeId: number;
+  oldStatus: InitiativeStatus;
+  newStatus: InitiativeStatus;
+  changedAt: string;
+}
+
 export interface RiskCategory {
   id: number;
   name: string;

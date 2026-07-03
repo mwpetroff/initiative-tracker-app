@@ -31,6 +31,7 @@ import type {
   HealthStatus,
   HeatmapData,
   Initiative,
+  InitiativeHistoryEntry,
   InitiativeInput,
   InitiativeUpdate,
   ListInitiativesParams,
@@ -871,6 +872,83 @@ export function useListInitiativeDependencies<TData = Awaited<ReturnType<typeof 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getListInitiativeDependenciesQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListInitiativeHistoryUrl = (id: number,) => {
+
+
+
+
+  return `/api/initiatives/${id}/history`
+}
+
+/**
+ * @summary List status-change history for an initiative
+ */
+export const listInitiativeHistory = async (id: number, options?: RequestInit): Promise<InitiativeHistoryEntry[]> => {
+
+  return customFetch<InitiativeHistoryEntry[]>(getListInitiativeHistoryUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListInitiativeHistoryQueryKey = (id: number,) => {
+    return [
+    `/api/initiatives/${id}/history`
+    ] as const;
+    }
+
+
+export const getListInitiativeHistoryQueryOptions = <TData = Awaited<ReturnType<typeof listInitiativeHistory>>, TError = ErrorType<unknown>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listInitiativeHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListInitiativeHistoryQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listInitiativeHistory>>> = ({ signal }) => listInitiativeHistory(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listInitiativeHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListInitiativeHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof listInitiativeHistory>>>
+export type ListInitiativeHistoryQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List status-change history for an initiative
+ */
+
+export function useListInitiativeHistory<TData = Awaited<ReturnType<typeof listInitiativeHistory>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listInitiativeHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListInitiativeHistoryQueryOptions(id,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

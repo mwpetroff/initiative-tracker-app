@@ -35,7 +35,7 @@ A web app for tracking company initiatives across departments — status, priori
 ## Product
 
 - **Dashboard** — high-level summary of initiative status and department breakdowns.
-- **Initiatives** — full CRUD list with status/quarter filters, owner/department/priority/progress tracking, dependency management per initiative, and an "Export to Excel" button that downloads a formatted `.xlsx` snapshot of current status.
+- **Initiatives** — full CRUD list with status/quarter filters, owner/department/priority/progress tracking, dependency management per initiative, an "Export to Excel" button that downloads a formatted `.xlsx` snapshot of current status, and a per-initiative "Status History" audit trail (see below).
 - **Heatmap** — a department × dependency risk matrix; on mobile the Department column stays pinned (sticky) while scrolling horizontally through dependency columns.
 - **Quarterly Goals** — initiatives viewed against the current fiscal quarter.
 - **Settings** — tabbed page: General (fiscal quarter start date), Departments (CRUD), Risk Categories (CRUD). Old `/departments` and `/risk-categories` URLs redirect here with the correct tab pre-selected.
@@ -49,6 +49,7 @@ A web app for tracking company initiatives across departments — status, priori
 - **Centralized DB error handling.** `artifacts/api-server/src/lib/db-errors.ts` exposes `isUniqueViolation`/`isForeignKeyViolation`, used by a shared Express error-handling middleware in `app.ts` so routes don't hand-roll pg error-code checks. drizzle-orm wraps the underlying pg error, so the real error code is at `err.cause.code` (not `err.code`) — the helper checks both.
 - **Settings is a hardened singleton.** `getOrCreateSettings()` uses a fixed id (`SINGLETON_ID = 1`) with `onConflictDoNothing` upsert instead of select-then-insert, so concurrent first-access requests can't create duplicate rows.
 - **Test suite.** Vitest + Supertest contract tests in `artifacts/api-server/src/routes/*.test.ts` run against the real dev Postgres DB (no mocks/containers) using distinctive "Contract Test..." names and explicit FK-safe cleanup in `afterAll`. Frontend unit tests (quarter logic, Excel export) live under `artifacts/initiative-tracker/src/lib/*.test.ts`.
+- **Status history / audit trail.** `initiative_history` table (`lib/db/src/schema/initiative-history.ts`) records `oldStatus`/`newStatus`/`changedAt` whenever `PATCH /api/initiatives/:id` actually changes the `status` field (inserted inside the same `db.transaction()` as the update; no entry on same-value or non-status updates). Exposed via `GET /api/initiatives/:id/history` (newest first) and shown in the Initiative Detail dialog's "Status History" section.
 
 ## User preferences
 

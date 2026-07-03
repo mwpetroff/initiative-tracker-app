@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { and, eq } from "drizzle-orm";
-import { db, initiativesTable } from "@workspace/db";
+import { and, desc, eq } from "drizzle-orm";
+import { db, initiativesTable, initiativeHistoryTable } from "@workspace/db";
 import {
   ListInitiativesQueryParams,
   CreateInitiativeBody,
@@ -12,6 +12,8 @@ import {
   CreateInitiativeResponse,
   GetInitiativeResponse,
   UpdateInitiativeResponse,
+  ListInitiativeHistoryParams,
+  ListInitiativeHistoryResponse,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -105,11 +107,29 @@ router.patch("/initiatives/:id", async (req, res): Promise<void> => {
     updateValues.targetDate = toDateString(targetDate);
   }
 
-  const [initiative] = await db
-    .update(initiativesTable)
-    .set(updateValues)
-    .where(eq(initiativesTable.id, params.data.id))
-    .returning();
+  const initiative = await db.transaction(async (tx) => {
+    const [existing] = await tx.select().from(initiativesTable).where(eq(initiativesTable.id, params.data.id));
+
+    if (!existing) {
+      return undefined;
+    }
+
+    const [updated] = await tx
+      .update(initiativesTable)
+      .set(updateValues)
+      .where(eq(initiativesTable.id, params.data.id))
+      .returning();
+
+    if (parsed.data.status !== undefined && parsed.data.status !== existing.status) {
+      await tx.insert(initiativeHistoryTable).values({
+        initiativeId: params.data.id,
+        oldStatus: existing.status,
+        newStatus: parsed.data.status,
+      });
+    }
+
+    return updated;
+  });
 
   if (!initiative) {
     res.status(404).json({ error: "Initiative not found" });
@@ -117,6 +137,22 @@ router.patch("/initiatives/:id", async (req, res): Promise<void> => {
   }
 
   res.json(UpdateInitiativeResponse.parse(initiative));
+});
+
+router.get("/initiatives/:id/history", async (req, res): Promise<void> => {
+  const params = ListInitiativeHistoryParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const history = await db
+    .select()
+    .from(initiativeHistoryTable)
+    .where(eq(initiativeHistoryTable.initiativeId, params.data.id))
+    .orderBy(desc(initiativeHistoryTable.changedAt));
+
+  res.json(ListInitiativeHistoryResponse.parse(history));
 });
 
 router.delete("/initiatives/:id", async (req, res): Promise<void> => {

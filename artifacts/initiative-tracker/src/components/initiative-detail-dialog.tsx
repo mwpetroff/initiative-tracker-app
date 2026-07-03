@@ -5,7 +5,9 @@ import {
   useDeleteDependency,
   useListDepartments,
   useListRiskCategories,
+  useListInitiativeHistory,
   getListInitiativeDependenciesQueryKey,
+  getListInitiativeHistoryQueryKey,
   getListDependenciesQueryKey,
   getGetDashboardSummaryQueryKey,
   getGetDependencyHeatmapQueryKey,
@@ -46,6 +48,9 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
   const { data: riskCategories } = useListRiskCategories();
   const { data: dependencies, isLoading } = useListInitiativeDependencies(initiative?.id ?? 0, {
     query: { enabled: Boolean(initiative), queryKey: getListInitiativeDependenciesQueryKey(initiative?.id ?? 0) },
+  });
+  const { data: history, isLoading: isHistoryLoading } = useListInitiativeHistory(initiative?.id ?? 0, {
+    query: { enabled: Boolean(initiative), queryKey: getListInitiativeHistoryQueryKey(initiative?.id ?? 0) },
   });
 
   const [depFormOpen, setDepFormOpen] = useState(false);
@@ -177,6 +182,34 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
                 </TableBody>
               </Table>
             </div>
+          )}
+        </div>
+
+        <div className="mt-2">
+          <h3 className="font-semibold text-sm mb-2">Status History</h3>
+          {isHistoryLoading ? (
+            <p className="text-sm text-muted-foreground">Loading history...</p>
+          ) : history?.length ? (
+            <ul className="space-y-2 max-h-40 overflow-y-auto pr-1">
+              {history.map((entry) => (
+                <li key={entry.id} className="flex items-center justify-between text-sm">
+                  <span>
+                    <Badge variant="outline" className="mr-1">
+                      {entry.oldStatus}
+                    </Badge>
+                    →
+                    <Badge variant="secondary" className="ml-1">
+                      {entry.newStatus}
+                    </Badge>
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(entry.changedAt).toLocaleString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">No status changes recorded yet.</p>
           )}
         </div>
 

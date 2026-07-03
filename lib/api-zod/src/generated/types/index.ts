@@ -21,6 +21,7 @@ export * from './heatmapCellMaxRiskLevel';
 export * from './heatmapColumn';
 export * from './heatmapData';
 export * from './initiative';
+export * from './initiativeHistoryEntry';
 export * from './initiativeInput';
 export * from './initiativePriority';
 export * from './initiativeStatus';

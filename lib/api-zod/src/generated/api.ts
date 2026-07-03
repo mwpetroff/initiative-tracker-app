@@ -291,6 +291,23 @@ export const ListInitiativeDependenciesResponse = zod.array(ListInitiativeDepend
 
 
 /**
+ * @summary List status-change history for an initiative
+ */
+export const ListInitiativeHistoryParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ListInitiativeHistoryResponseItem = zod.object({
+  "id": zod.number(),
+  "initiativeId": zod.number(),
+  "oldStatus": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
+  "newStatus": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
+  "changedAt": zod.coerce.date()
+})
+export const ListInitiativeHistoryResponse = zod.array(ListInitiativeHistoryResponseItem)
+
+
+/**
  * @summary List all dependencies
  */
 export const ListDependenciesResponseItem = zod.object({

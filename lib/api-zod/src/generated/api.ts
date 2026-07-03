@@ -472,6 +472,7 @@ export const GetDashboardSummaryResponse = zod.object({
   "totalInitiatives": zod.number(),
   "activeInitiatives": zod.number(),
   "blockedInitiatives": zod.number(),
+  "overdueInitiatives": zod.number(),
   "highRiskDependencies": zod.number(),
   "departmentBreakdown": zod.array(zod.object({
   "departmentId": zod.number(),
@@ -486,10 +487,12 @@ export const GetDashboardSummaryResponse = zod.object({
 })),
   "recentActivity": zod.array(zod.object({
   "id": zod.number(),
+  "initiativeId": zod.number(),
   "title": zod.string(),
   "departmentName": zod.string(),
-  "status": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
-  "updatedAt": zod.coerce.date()
+  "oldStatus": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
+  "newStatus": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
+  "changedAt": zod.coerce.date()
 }))
 })
 
@@ -515,7 +518,14 @@ export const GetDependencyHeatmapResponse = zod.object({
   "columnKey": zod.string(),
   "dependencyCount": zod.number(),
   "maxRiskLevel": zod.union([zod.literal('low'),zod.literal('medium'),zod.literal('high'),zod.literal('critical'),zod.literal(null)]).nullable(),
-  "riskScore": zod.number()
+  "riskScore": zod.number(),
+  "dependencies": zod.array(zod.object({
+  "dependencyId": zod.number(),
+  "initiativeId": zod.number(),
+  "initiativeTitle": zod.string(),
+  "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']),
+  "notes": zod.string()
+}))
 }))
 })
 

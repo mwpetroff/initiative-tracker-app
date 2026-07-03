@@ -9,8 +9,10 @@ import type { InitiativeStatus } from './initiativeStatus';
 
 export interface RecentActivityItem {
   id: number;
+  initiativeId: number;
   title: string;
   departmentName: string;
-  status: InitiativeStatus;
-  updatedAt: Date;
+  oldStatus: InitiativeStatus;
+  newStatus: InitiativeStatus;
+  changedAt: Date;
 }

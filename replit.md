@@ -34,9 +34,9 @@ A web app for tracking company initiatives across departments — status, priori
 
 ## Product
 
-- **Dashboard** — high-level summary of initiative status and department breakdowns.
-- **Initiatives** — full CRUD list with status/quarter/search filters, owner/department/priority/progress tracking, dependency management per initiative, an "Export to Excel" button that downloads a formatted `.xlsx` snapshot of current status, and a per-initiative "Status History" audit trail (see below). The list is paginated (9 per page) and search matches title/owner case-insensitively; filters/search reset pagination to page 1.
-- **Heatmap** — a department × dependency risk matrix; on mobile the Department column stays pinned (sticky) while scrolling horizontally through dependency columns.
+- **Dashboard** — high-level summary of initiative status and department breakdowns. Includes an "Overdue" stat card (initiatives past target date and not completed) and a "Recent Activity" feed driven by real status changes from `initiative_history` (shows "old → new" status badges per entry, newest first, limit 10).
+- **Initiatives** — full CRUD list with status/quarter/search filters, owner/department/priority/progress tracking, dependency management per initiative, an "Export to Excel" button that downloads a formatted `.xlsx` snapshot of current status, and a per-initiative "Status History" audit trail (see below). The list is paginated (9 per page) and search matches title/owner case-insensitively; filters/search reset pagination to page 1. Overdue initiatives get a red "overdue" badge and red due-date text (`isInitiativeOverdue` in `src/lib/initiative-filters.ts`, unit-tested; completed initiatives are never overdue, comparison is against local midnight today). The detail dialog shows Start and Target dates.
+- **Heatmap** — a department × dependency risk matrix; on mobile the Department column stays pinned (sticky) while scrolling horizontally through dependency columns. Clicking a populated cell opens a drill-down dialog listing that cell's dependencies (initiative title, risk-level badge, notes), sorted highest risk first — the heatmap API returns a `dependencies` array per cell.
 - **Quarterly Goals** — initiatives viewed against the current fiscal quarter.
 - **Settings** — tabbed page: General (fiscal quarter start date), Departments (CRUD), Risk Categories (CRUD). Old `/departments` and `/risk-categories` URLs redirect here with the correct tab pre-selected.
 

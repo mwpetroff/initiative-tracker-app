@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { HeatmapCellDependency } from './heatmapCellDependency';
 import type { HeatmapCellMaxRiskLevel } from './heatmapCellMaxRiskLevel';
 
 export interface HeatmapCell {
@@ -14,4 +15,5 @@ export interface HeatmapCell {
   /** @nullable */
   maxRiskLevel: HeatmapCellMaxRiskLevel;
   riskScore: number;
+  dependencies: HeatmapCellDependency[];
 }

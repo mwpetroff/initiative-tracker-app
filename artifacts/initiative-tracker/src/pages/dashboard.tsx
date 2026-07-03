@@ -1,6 +1,7 @@
 import { useGetDashboardSummary } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { AlertCircle, Target, Activity, PauseCircle } from "lucide-react";
+import { AlertCircle, Target, Activity, PauseCircle, CalendarClock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { PageLoading, PageError } from "@/components/page-state";
 
 export default function Dashboard() {
@@ -21,7 +22,7 @@ export default function Dashboard() {
         <p className="text-muted-foreground mt-2">Overview of initiatives and risks.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Initiatives</CardTitle>
@@ -47,6 +48,15 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{summary.blockedInitiatives}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
+            <CalendarClock className="h-4 w-4 text-destructive" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{summary.overdueInitiatives}</div>
           </CardContent>
         </Card>
         <Card>
@@ -92,7 +102,7 @@ export default function Dashboard() {
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest initiative updates.</CardDescription>
+            <CardDescription>Latest status changes.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -100,15 +110,29 @@ export default function Dashboard() {
                 <div key={activity.id} className="flex items-start gap-4">
                   <div className="space-y-1">
                     <p className="text-sm font-medium leading-none">{activity.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {activity.departmentName} • {activity.status}
-                    </p>
+                    <div className="text-sm text-muted-foreground flex items-center gap-1 flex-wrap">
+                      <span>{activity.departmentName}</span>
+                      <span>•</span>
+                      <Badge variant="outline" className="font-normal">
+                        {activity.oldStatus}
+                      </Badge>
+                      <span>→</span>
+                      <Badge
+                        variant={activity.newStatus === "blocked" ? "destructive" : "secondary"}
+                        className="font-normal"
+                      >
+                        {activity.newStatus}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="ml-auto text-xs text-muted-foreground">
-                    {new Date(activity.updatedAt).toLocaleDateString()}
+                  <div className="ml-auto text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(activity.changedAt).toLocaleDateString()}
                   </div>
                 </div>
               ))}
+              {!summary.recentActivity.length && (
+                <p className="text-sm text-muted-foreground">No status changes recorded yet.</p>
+              )}
             </div>
           </CardContent>
         </Card>

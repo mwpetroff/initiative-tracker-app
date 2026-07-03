@@ -653,22 +653,26 @@ components:
 
     RecentActivityItem:
       type: object
-      required: [id, title, departmentName, status, updatedAt]
+      required: [id, initiativeId, title, departmentName, oldStatus, newStatus, changedAt]
       properties:
         id: { type: integer }
+        initiativeId: { type: integer }
         title: { type: string }
         departmentName: { type: string }
-        status:
+        oldStatus:
           $ref: "#/components/schemas/InitiativeStatus"
-        updatedAt: { type: string, format: date-time }
+        newStatus:
+          $ref: "#/components/schemas/InitiativeStatus"
+        changedAt: { type: string, format: date-time }
 
     DashboardSummary:
       type: object
-      required: [totalInitiatives, activeInitiatives, blockedInitiatives, highRiskDependencies, departmentBreakdown, recentActivity]
+      required: [totalInitiatives, activeInitiatives, blockedInitiatives, overdueInitiatives, highRiskDependencies, departmentBreakdown, recentActivity]
       properties:
         totalInitiatives: { type: integer }
         activeInitiatives: { type: integer }
         blockedInitiatives: { type: integer }
+        overdueInitiatives: { type: integer }
         highRiskDependencies: { type: integer }
         departmentBreakdown:
           type: array
@@ -687,9 +691,20 @@ components:
         label: { type: string }
         isExternal: { type: boolean }
 
+    HeatmapCellDependency:
+      type: object
+      required: [dependencyId, initiativeId, initiativeTitle, riskLevel, notes]
+      properties:
+        dependencyId: { type: integer }
+        initiativeId: { type: integer }
+        initiativeTitle: { type: string }
+        riskLevel:
+          $ref: "#/components/schemas/RiskLevel"
+        notes: { type: string }
+
     HeatmapCell:
       type: object
-      required: [rowDepartmentId, columnKey, dependencyCount, maxRiskLevel, riskScore]
+      required: [rowDepartmentId, columnKey, dependencyCount, maxRiskLevel, riskScore, dependencies]
       properties:
         rowDepartmentId: { type: integer }
         columnKey: { type: string }
@@ -698,6 +713,10 @@ components:
           type: ["string", "null"]
           enum: [low, medium, high, critical, null]
         riskScore: { type: integer }
+        dependencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/HeatmapCellDependency"
 
     HeatmapData:
       type: object

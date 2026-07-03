@@ -105,6 +105,11 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
           <span>Progress: {initiative.progress}%</span>
         </div>
 
+        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+          <span>Start: {new Date(initiative.startDate).toLocaleDateString()}</span>
+          <span>Target: {new Date(initiative.targetDate).toLocaleDateString()}</span>
+        </div>
+
         {initiative.quarterGoal && (
           <div className="rounded-md border bg-muted/50 p-3 text-sm space-y-1">
             <p className="font-semibold">Quarter Goal</p>

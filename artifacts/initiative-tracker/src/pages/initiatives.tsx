@@ -31,7 +31,7 @@ import { PageLoading, PageError, CardSkeletonGrid } from "@/components/page-stat
 import { useToast } from "@/hooks/use-toast";
 import { getFiscalQuarter } from "@/lib/quarter";
 import { exportInitiativesToExcel } from "@/lib/export-excel";
-import { filterInitiatives, paginate } from "@/lib/initiative-filters";
+import { filterInitiatives, paginate, isInitiativeOverdue } from "@/lib/initiative-filters";
 
 const STATUS_LABELS: Record<string, string> = {
   planning: "Planning",
@@ -225,9 +225,12 @@ export default function Initiatives() {
           >
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
-                <Badge variant={initiative.status === "blocked" ? "destructive" : "secondary"}>
-                  {initiative.status}
-                </Badge>
+                <div className="flex flex-wrap gap-1">
+                  <Badge variant={initiative.status === "blocked" ? "destructive" : "secondary"}>
+                    {initiative.status}
+                  </Badge>
+                  {isInitiativeOverdue(initiative) && <Badge variant="destructive">overdue</Badge>}
+                </div>
                 <Badge variant="outline">{initiative.priority}</Badge>
               </div>
               <CardTitle className="mt-4 text-lg">{initiative.title}</CardTitle>
@@ -251,7 +254,9 @@ export default function Initiatives() {
                 </div>
                 <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
                   <span>{initiative.owner}</span>
-                  <span>Due {new Date(initiative.targetDate).toLocaleDateString()}</span>
+                  <span className={isInitiativeOverdue(initiative) ? "text-destructive font-medium" : undefined}>
+                    Due {new Date(initiative.targetDate).toLocaleDateString()}
+                  </span>
                 </div>
                 <div className="flex items-center justify-end gap-1 pt-2 border-t" onClick={(e) => e.stopPropagation()}>
                   <Button

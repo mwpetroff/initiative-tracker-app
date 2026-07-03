@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { filterInitiatives, paginate } from "./initiative-filters";
+import { filterInitiatives, paginate, isInitiativeOverdue } from "./initiative-filters";
 import type { Initiative } from "@workspace/api-client-react";
 
 function makeInitiative(overrides: Partial<Initiative>): Initiative {
@@ -139,5 +139,34 @@ describe("paginate", () => {
     expect(result.totalPages).toBe(1);
     expect(result.currentPage).toBe(1);
     expect(result.items).toEqual([]);
+  });
+});
+
+describe("isInitiativeOverdue", () => {
+  const now = new Date("2026-07-03T15:30:00");
+
+  it("returns true when the target date is before today and status is not completed", () => {
+    const initiative = makeInitiative({ status: "in_progress", targetDate: "2026-07-01" });
+    expect(isInitiativeOverdue(initiative, now)).toBe(true);
+  });
+
+  it("returns false when the initiative is completed, even if past target date", () => {
+    const initiative = makeInitiative({ status: "completed", targetDate: "2026-01-01" });
+    expect(isInitiativeOverdue(initiative, now)).toBe(false);
+  });
+
+  it("returns false when the target date is today", () => {
+    const initiative = makeInitiative({ status: "in_progress", targetDate: "2026-07-03T00:00:00" });
+    expect(isInitiativeOverdue(initiative, now)).toBe(false);
+  });
+
+  it("returns false when the target date is in the future", () => {
+    const initiative = makeInitiative({ status: "planning", targetDate: "2026-12-31" });
+    expect(isInitiativeOverdue(initiative, now)).toBe(false);
+  });
+
+  it("returns false for an invalid target date", () => {
+    const initiative = makeInitiative({ status: "planning", targetDate: "not-a-date" });
+    expect(isInitiativeOverdue(initiative, now)).toBe(false);
   });
 });

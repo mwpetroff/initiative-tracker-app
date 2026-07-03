@@ -12,6 +12,7 @@ export interface DashboardSummary {
   totalInitiatives: number;
   activeInitiatives: number;
   blockedInitiatives: number;
+  overdueInitiatives: number;
   highRiskDependencies: number;
   departmentBreakdown: DepartmentStatusBreakdown[];
   recentActivity: RecentActivityItem[];

@@ -1,4 +1,5 @@
 - [Tailwind v4 CSS @import ordering](tailwind-css-import-order.md) — external font @import must precede @import "tailwindcss", not just @plugin/@theme.
 - [Fiscal quarter calculation](fiscal-quarters.md) — quarters anchor to month+day of a start date, not calendar Q1-Q4; verify "current quarter" against actual today, not assumed Jan-start quarters.
 - [Drizzle unique constraint naming](drizzle-constraint-naming.md) — hand-written SQL unique constraints must follow Drizzle's `<table>_<column>_unique` naming or `drizzle-kit push` treats it as a diff.
+- [Dev-DB test residue](dev-db-test-residue.md) — contract tests hit the real dev DB; incomplete cleanup pollutes "recent activity"-style feeds with test rows.
 - [Drizzle pg error wrapping](drizzle-pg-error-wrapping.md) — real pg error code is at `err.cause.code`, not `err.code`; verify DB-error-code helpers with a real constraint-triggering test.

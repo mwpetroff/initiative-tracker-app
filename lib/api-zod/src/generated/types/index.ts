@@ -17,6 +17,7 @@ export * from './dependencyUpdate';
 export * from './errorResponse';
 export * from './healthStatus';
 export * from './heatmapCell';
+export * from './heatmapCellDependency';
 export * from './heatmapCellMaxRiskLevel';
 export * from './heatmapColumn';
 export * from './heatmapData';

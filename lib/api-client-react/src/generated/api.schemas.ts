@@ -212,16 +212,19 @@ export interface DepartmentStatusBreakdown {
 
 export interface RecentActivityItem {
   id: number;
+  initiativeId: number;
   title: string;
   departmentName: string;
-  status: InitiativeStatus;
-  updatedAt: string;
+  oldStatus: InitiativeStatus;
+  newStatus: InitiativeStatus;
+  changedAt: string;
 }
 
 export interface DashboardSummary {
   totalInitiatives: number;
   activeInitiatives: number;
   blockedInitiatives: number;
+  overdueInitiatives: number;
   highRiskDependencies: number;
   departmentBreakdown: DepartmentStatusBreakdown[];
   recentActivity: RecentActivityItem[];
@@ -231,6 +234,14 @@ export interface HeatmapColumn {
   key: string;
   label: string;
   isExternal: boolean;
+}
+
+export interface HeatmapCellDependency {
+  dependencyId: number;
+  initiativeId: number;
+  initiativeTitle: string;
+  riskLevel: RiskLevel;
+  notes: string;
 }
 
 /**
@@ -253,6 +264,7 @@ export interface HeatmapCell {
   /** @nullable */
   maxRiskLevel: HeatmapCellMaxRiskLevel;
   riskScore: number;
+  dependencies: HeatmapCellDependency[];
 }
 
 export interface HeatmapData {

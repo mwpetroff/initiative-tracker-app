@@ -28,6 +28,18 @@ export function filterInitiatives(
   });
 }
 
+export function isInitiativeOverdue(
+  initiative: Pick<Initiative, "status" | "targetDate">,
+  now: Date = new Date(),
+): boolean {
+  if (initiative.status === "completed") return false;
+  const target = new Date(initiative.targetDate);
+  if (Number.isNaN(target.getTime())) return false;
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  return target < today;
+}
+
 export interface PaginationResult<T> {
   items: T[];
   totalPages: number;

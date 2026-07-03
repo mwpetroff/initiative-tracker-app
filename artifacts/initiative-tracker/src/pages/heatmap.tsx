@@ -1,9 +1,33 @@
+import { useState } from "react";
 import { useGetDependencyHeatmap } from "@workspace/api-client-react";
+import type { HeatmapCell } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { PageLoading, PageError } from "@/components/page-state";
+
+const RISK_BADGE_VARIANT: Record<string, "destructive" | "secondary" | "outline"> = {
+  critical: "destructive",
+  high: "destructive",
+  medium: "secondary",
+  low: "outline",
+};
+
+interface SelectedCell {
+  cell: HeatmapCell;
+  rowName: string;
+  columnLabel: string;
+}
 
 export default function Heatmap() {
   const { data: heatmap, isLoading, error } = useGetDependencyHeatmap();
+  const [selected, setSelected] = useState<SelectedCell | null>(null);
 
   if (isLoading) {
     return <PageLoading label="Loading heatmap..." />;
@@ -23,7 +47,9 @@ export default function Heatmap() {
       <Card>
         <CardHeader>
           <CardTitle>Risk Matrix</CardTitle>
-          <CardDescription>Rows are departments with initiatives; columns are what they depend on.</CardDescription>
+          <CardDescription>
+            Rows are departments with initiatives; columns are what they depend on. Click a cell for details.
+          </CardDescription>
         </CardHeader>
         <CardContent className="overflow-auto">
           <table className="w-full text-sm text-left border-separate border-spacing-0">
@@ -52,7 +78,7 @@ export default function Heatmap() {
                     const cell = heatmap.cells.find(
                       (c) => c.rowDepartmentId === row.id && c.columnKey === col.key
                     );
-                    
+
                     let bgClass = "bg-transparent";
                     if (cell) {
                       if (cell.maxRiskLevel === "critical") bgClass = "bg-destructive/80 text-destructive-foreground font-bold";
@@ -63,7 +89,26 @@ export default function Heatmap() {
 
                     return (
                       <td key={col.key} className="p-1">
-                        <div className={`h-12 w-full rounded-md flex items-center justify-center ${bgClass} transition-colors hover:opacity-80 cursor-pointer`}>
+                        <div
+                          role={cell ? "button" : undefined}
+                          tabIndex={cell ? 0 : undefined}
+                          onClick={
+                            cell
+                              ? () => setSelected({ cell, rowName: row.name, columnLabel: col.label })
+                              : undefined
+                          }
+                          onKeyDown={
+                            cell
+                              ? (e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    setSelected({ cell, rowName: row.name, columnLabel: col.label });
+                                  }
+                                }
+                              : undefined
+                          }
+                          className={`h-12 w-full rounded-md flex items-center justify-center ${bgClass} transition-colors ${cell ? "hover:opacity-80 cursor-pointer" : ""}`}
+                        >
                           {cell ? cell.dependencyCount : "-"}
                         </div>
                       </td>
@@ -75,6 +120,37 @@ export default function Heatmap() {
           </table>
         </CardContent>
       </Card>
+
+      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-w-lg">
+          {selected && (
+            <>
+              <DialogHeader>
+                <DialogTitle>
+                  {selected.rowName} → {selected.columnLabel}
+                </DialogTitle>
+                <DialogDescription>
+                  {selected.cell.dependencyCount}{" "}
+                  {selected.cell.dependencyCount === 1 ? "dependency" : "dependencies"} in this cell.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+                {selected.cell.dependencies.map((dep) => (
+                  <div key={dep.dependencyId} className="rounded-md border p-3 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium">{dep.initiativeTitle}</p>
+                      <Badge variant={RISK_BADGE_VARIANT[dep.riskLevel] ?? "outline"}>
+                        {dep.riskLevel}
+                      </Badge>
+                    </div>
+                    {dep.notes && <p className="text-sm text-muted-foreground">{dep.notes}</p>}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   useListInitiativeDependencies,
   useDeleteDependency,
   useListDepartments,
+  useListRiskCategories,
   getListInitiativeDependenciesQueryKey,
   getListDependenciesQueryKey,
   getGetDashboardSummaryQueryKey,
@@ -42,6 +43,7 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { data: departments } = useListDepartments();
+  const { data: riskCategories } = useListRiskCategories();
   const { data: dependencies, isLoading } = useListInitiativeDependencies(initiative?.id ?? 0, {
     query: { enabled: Boolean(initiative), queryKey: getListInitiativeDependenciesQueryKey(initiative?.id ?? 0) },
   });
@@ -69,6 +71,8 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
   });
 
   const departmentName = (id: number | null) => departments?.find((d) => d.id === id)?.name ?? "Unknown";
+  const riskCategoryName = (id: number | null) =>
+    riskCategories?.find((c) => c.id === id)?.name ?? "Unknown";
 
   if (!initiative) return null;
 
@@ -132,7 +136,7 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
                     <TableCell>
                       {dep.dependsOnDepartmentId
                         ? departmentName(dep.dependsOnDepartmentId)
-                        : dep.externalFactor}
+                        : riskCategoryName(dep.dependsOnRiskCategoryId)}
                     </TableCell>
                     <TableCell>
                       <Badge variant={riskVariant[dep.riskLevel] ?? "secondary"}>{dep.riskLevel}</Badge>

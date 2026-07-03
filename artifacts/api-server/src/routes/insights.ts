@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { desc, eq } from "drizzle-orm";
-import { db, departmentsTable, initiativesTable, dependenciesTable } from "@workspace/db";
+import { db, departmentsTable, initiativesTable, dependenciesTable, riskCategoriesTable } from "@workspace/db";
 import { GetDashboardSummaryResponse, GetDependencyHeatmapResponse } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -70,20 +70,20 @@ router.get("/insights/heatmap", async (_req, res): Promise<void> => {
   const departments = await db.select().from(departmentsTable).orderBy(departmentsTable.name);
   const initiatives = await db.select().from(initiativesTable);
   const dependencies = await db.select().from(dependenciesTable);
+  const riskCategories = await db.select().from(riskCategoriesTable).orderBy(riskCategoriesTable.name);
 
   const initiativeDeptMap = new Map(initiatives.map((i) => [i.id, i.departmentId]));
 
-  const externalFactors = Array.from(
-    new Set(
-      dependencies
-        .map((d) => d.externalFactor)
-        .filter((f): f is string => f !== null && f !== undefined),
-    ),
-  ).sort();
+  const usedRiskCategoryIds = new Set(
+    dependencies
+      .map((d) => d.dependsOnRiskCategoryId)
+      .filter((id): id is number => id !== null && id !== undefined),
+  );
+  const usedRiskCategories = riskCategories.filter((c) => usedRiskCategoryIds.has(c.id));
 
   const columns = [
     ...departments.map((d) => ({ key: `dept-${d.id}`, label: d.name, isExternal: false })),
-    ...externalFactors.map((f) => ({ key: `ext-${f}`, label: f, isExternal: true })),
+    ...usedRiskCategories.map((c) => ({ key: `cat-${c.id}`, label: c.name, isExternal: true })),
   ];
 
   const cellMap = new Map<string, { dependencyCount: number; maxRiskLevel: string | null }>();
@@ -95,8 +95,8 @@ router.get("/insights/heatmap", async (_req, res): Promise<void> => {
     const columnKey =
       dep.dependsOnDepartmentId !== null
         ? `dept-${dep.dependsOnDepartmentId}`
-        : dep.externalFactor !== null
-          ? `ext-${dep.externalFactor}`
+        : dep.dependsOnRiskCategoryId !== null
+          ? `cat-${dep.dependsOnRiskCategoryId}`
           : null;
     if (columnKey === null) continue;
 

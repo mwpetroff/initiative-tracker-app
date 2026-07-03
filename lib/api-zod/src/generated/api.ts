@@ -282,7 +282,7 @@ export const ListInitiativeDependenciesResponseItem = zod.object({
   "id": zod.number(),
   "initiativeId": zod.number(),
   "dependsOnDepartmentId": zod.number().nullable(),
-  "externalFactor": zod.string().nullable(),
+  "dependsOnRiskCategoryId": zod.number().nullable(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']),
   "notes": zod.string(),
   "createdAt": zod.coerce.date()
@@ -297,7 +297,7 @@ export const ListDependenciesResponseItem = zod.object({
   "id": zod.number(),
   "initiativeId": zod.number(),
   "dependsOnDepartmentId": zod.number().nullable(),
-  "externalFactor": zod.string().nullable(),
+  "dependsOnRiskCategoryId": zod.number().nullable(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']),
   "notes": zod.string(),
   "createdAt": zod.coerce.date()
@@ -311,7 +311,7 @@ export const ListDependenciesResponse = zod.array(ListDependenciesResponseItem)
 export const CreateDependencyBody = zod.object({
   "initiativeId": zod.number(),
   "dependsOnDepartmentId": zod.number().nullish(),
-  "externalFactor": zod.string().nullish(),
+  "dependsOnRiskCategoryId": zod.number().nullish(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']),
   "notes": zod.string()
 })
@@ -320,7 +320,7 @@ export const CreateDependencyResponse = zod.object({
   "id": zod.number(),
   "initiativeId": zod.number(),
   "dependsOnDepartmentId": zod.number().nullable(),
-  "externalFactor": zod.string().nullable(),
+  "dependsOnRiskCategoryId": zod.number().nullable(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']),
   "notes": zod.string(),
   "createdAt": zod.coerce.date()
@@ -336,7 +336,7 @@ export const UpdateDependencyParams = zod.object({
 
 export const UpdateDependencyBody = zod.object({
   "dependsOnDepartmentId": zod.number().nullish(),
-  "externalFactor": zod.string().nullish(),
+  "dependsOnRiskCategoryId": zod.number().nullish(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']).optional(),
   "notes": zod.string().optional()
 })
@@ -345,7 +345,7 @@ export const UpdateDependencyResponse = zod.object({
   "id": zod.number(),
   "initiativeId": zod.number(),
   "dependsOnDepartmentId": zod.number().nullable(),
-  "externalFactor": zod.string().nullable(),
+  "dependsOnRiskCategoryId": zod.number().nullable(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']),
   "notes": zod.string(),
   "createdAt": zod.coerce.date()
@@ -360,6 +360,66 @@ export const DeleteDependencyParams = zod.object({
 })
 
 export const DeleteDependencyResponse = zod.void()
+
+
+/**
+ * @summary List risk matrix categories
+ */
+export const ListRiskCategoriesResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+export const ListRiskCategoriesResponse = zod.array(ListRiskCategoriesResponseItem)
+
+
+/**
+ * @summary Create a risk category
+ */
+
+
+
+export const CreateRiskCategoryBody = zod.object({
+  "name": zod.string().min(1)
+})
+
+export const CreateRiskCategoryResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update a risk category
+ */
+export const UpdateRiskCategoryParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+export const UpdateRiskCategoryBody = zod.object({
+  "name": zod.string().min(1).optional()
+})
+
+export const UpdateRiskCategoryResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * Fails with 409 if the category is referenced by any dependency
+ * @summary Delete a risk category
+ */
+export const DeleteRiskCategoryParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteRiskCategoryResponse = zod.void()
 
 
 /**

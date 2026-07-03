@@ -13,7 +13,7 @@ export interface Dependency {
   /** @nullable */
   dependsOnDepartmentId: number | null;
   /** @nullable */
-  externalFactor: string | null;
+  dependsOnRiskCategoryId: number | null;
   riskLevel: RiskLevel;
   notes: string;
   createdAt: Date;

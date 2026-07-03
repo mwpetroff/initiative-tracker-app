@@ -16,6 +16,8 @@ tags:
     description: Initiative operations
   - name: dependencies
     description: Dependency operations
+  - name: risk-categories
+    description: Risk matrix category operations
   - name: insights
     description: Dashboard and heatmap aggregates
   - name: settings
@@ -262,6 +264,75 @@ paths:
         "204":
           description: Deleted
 
+  /risk-categories:
+    get:
+      operationId: listRiskCategories
+      tags: [risk-categories]
+      summary: List risk matrix categories
+      responses:
+        "200":
+          description: List of risk categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RiskCategory"
+    post:
+      operationId: createRiskCategory
+      tags: [risk-categories]
+      summary: Create a risk category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RiskCategoryInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskCategory"
+
+  /risk-categories/{id}:
+    patch:
+      operationId: updateRiskCategory
+      tags: [risk-categories]
+      summary: Update a risk category
+      parameters:
+        - $ref: "#/components/parameters/RiskCategoryId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RiskCategoryUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskCategory"
+    delete:
+      operationId: deleteRiskCategory
+      tags: [risk-categories]
+      summary: Delete a risk category
+      description: Fails with 409 if the category is referenced by any dependency
+      parameters:
+        - $ref: "#/components/parameters/RiskCategoryId"
+      responses:
+        "204":
+          description: Deleted
+        "409":
+          description: Category is in use by one or more dependencies
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /settings:
     get:
       operationId: getSettings
@@ -341,6 +412,12 @@ components:
       required: true
       schema:
         type: integer
+    RiskCategoryId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
 
   schemas:
     HealthStatus:
@@ -350,6 +427,12 @@ components:
           type: string
       required:
         - status
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
 
     InitiativeStatus:
       type: string
@@ -469,14 +552,14 @@ components:
 
     Dependency:
       type: object
-      required: [id, initiativeId, dependsOnDepartmentId, externalFactor, riskLevel, notes, createdAt]
+      required: [id, initiativeId, dependsOnDepartmentId, dependsOnRiskCategoryId, riskLevel, notes, createdAt]
       properties:
         id: { type: integer }
         initiativeId: { type: integer }
         dependsOnDepartmentId:
           type: ["integer", "null"]
-        externalFactor:
-          type: ["string", "null"]
+        dependsOnRiskCategoryId:
+          type: ["integer", "null"]
         riskLevel:
           $ref: "#/components/schemas/RiskLevel"
         notes: { type: string }
@@ -489,8 +572,8 @@ components:
         initiativeId: { type: integer }
         dependsOnDepartmentId:
           type: ["integer", "null"]
-        externalFactor:
-          type: ["string", "null"]
+        dependsOnRiskCategoryId:
+          type: ["integer", "null"]
         riskLevel:
           $ref: "#/components/schemas/RiskLevel"
         notes: { type: string }
@@ -500,11 +583,30 @@ components:
       properties:
         dependsOnDepartmentId:
           type: ["integer", "null"]
-        externalFactor:
-          type: ["string", "null"]
+        dependsOnRiskCategoryId:
+          type: ["integer", "null"]
         riskLevel:
           $ref: "#/components/schemas/RiskLevel"
         notes: { type: string }
+
+    RiskCategory:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    RiskCategoryInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1 }
+
+    RiskCategoryUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
 
     DepartmentStatusBreakdown:
       type: object

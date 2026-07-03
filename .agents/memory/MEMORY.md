@@ -1,2 +1,3 @@
 - [Tailwind v4 CSS @import ordering](tailwind-css-import-order.md) — external font @import must precede @import "tailwindcss", not just @plugin/@theme.
 - [Fiscal quarter calculation](fiscal-quarters.md) — quarters anchor to month+day of a start date, not calendar Q1-Q4; verify "current quarter" against actual today, not assumed Jan-start quarters.
+- [Drizzle unique constraint naming](drizzle-constraint-naming.md) — hand-written SQL unique constraints must follow Drizzle's `<table>_<column>_unique` naming or `drizzle-kit push` treats it as a diff.

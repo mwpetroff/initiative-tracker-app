@@ -7,6 +7,7 @@ import {
   useCreateDependency,
   useUpdateDependency,
   useListDepartments,
+  useListRiskCategories,
   getListInitiativeDependenciesQueryKey,
   getListDependenciesQueryKey,
   getGetDashboardSummaryQueryKey,
@@ -24,7 +25,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
@@ -33,7 +33,7 @@ const dependencyFormSchema = z
   .object({
     dependencyType: z.enum(["department", "external"]),
     dependsOnDepartmentId: z.string().optional(),
-    externalFactor: z.string().optional(),
+    dependsOnRiskCategoryId: z.string().optional(),
     riskLevel: z.enum(["low", "medium", "high", "critical"]),
     notes: z.string(),
   })
@@ -41,9 +41,9 @@ const dependencyFormSchema = z
     (data) =>
       data.dependencyType === "department"
         ? Boolean(data.dependsOnDepartmentId)
-        : Boolean(data.externalFactor && data.externalFactor.trim().length > 0),
+        : Boolean(data.dependsOnRiskCategoryId),
     {
-      message: "Select a department or provide an external factor",
+      message: "Select a department or a risk category",
       path: ["dependsOnDepartmentId"],
     },
   );
@@ -67,13 +67,14 @@ export function DependencyFormDialog({
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { data: departments } = useListDepartments();
+  const { data: riskCategories } = useListRiskCategories();
 
   const form = useForm<DependencyFormValues>({
     resolver: zodResolver(dependencyFormSchema),
     defaultValues: {
       dependencyType: "department",
       dependsOnDepartmentId: "",
-      externalFactor: "",
+      dependsOnRiskCategoryId: "",
       riskLevel: "medium",
       notes: "",
     },
@@ -84,11 +85,13 @@ export function DependencyFormDialog({
   useEffect(() => {
     if (open) {
       form.reset({
-        dependencyType: dependency?.externalFactor ? "external" : "department",
+        dependencyType: dependency?.dependsOnRiskCategoryId ? "external" : "department",
         dependsOnDepartmentId: dependency?.dependsOnDepartmentId
           ? String(dependency.dependsOnDepartmentId)
           : "",
-        externalFactor: dependency?.externalFactor ?? "",
+        dependsOnRiskCategoryId: dependency?.dependsOnRiskCategoryId
+          ? String(dependency.dependsOnRiskCategoryId)
+          : "",
         riskLevel: dependency?.riskLevel ?? "medium",
         notes: dependency?.notes ?? "",
       });
@@ -136,9 +139,9 @@ export function DependencyFormDialog({
         values.dependencyType === "department" && values.dependsOnDepartmentId
           ? Number(values.dependsOnDepartmentId)
           : null,
-      externalFactor:
-        values.dependencyType === "external" && values.externalFactor
-          ? values.externalFactor
+      dependsOnRiskCategoryId:
+        values.dependencyType === "external" && values.dependsOnRiskCategoryId
+          ? Number(values.dependsOnRiskCategoryId)
           : null,
       riskLevel: values.riskLevel,
       notes: values.notes,
@@ -213,11 +216,24 @@ export function DependencyFormDialog({
             </div>
           ) : (
             <div className="space-y-2">
-              <Label htmlFor="dep-external">External factor</Label>
-              <Input
-                id="dep-external"
-                placeholder="e.g. Regulatory approval"
-                {...form.register("externalFactor")}
+              <Label>Risk category</Label>
+              <Controller
+                control={form.control}
+                name="dependsOnRiskCategoryId"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select risk category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {riskCategories?.map((category) => (
+                        <SelectItem key={category.id} value={String(category.id)}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               />
             </div>
           )}

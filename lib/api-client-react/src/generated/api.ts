@@ -27,12 +27,16 @@ import type {
   Dependency,
   DependencyInput,
   DependencyUpdate,
+  ErrorResponse,
   HealthStatus,
   HeatmapData,
   Initiative,
   InitiativeInput,
   InitiativeUpdate,
   ListInitiativesParams,
+  RiskCategory,
+  RiskCategoryInput,
+  RiskCategoryUpdate,
   Settings,
   SettingsUpdate
 } from './api.schemas';
@@ -1165,6 +1169,295 @@ export const useDeleteDependency = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getDeleteDependencyMutationOptions(options));
+    }
+
+export const getListRiskCategoriesUrl = () => {
+
+
+
+
+  return `/api/risk-categories`
+}
+
+/**
+ * @summary List risk matrix categories
+ */
+export const listRiskCategories = async ( options?: RequestInit): Promise<RiskCategory[]> => {
+
+  return customFetch<RiskCategory[]>(getListRiskCategoriesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListRiskCategoriesQueryKey = () => {
+    return [
+    `/api/risk-categories`
+    ] as const;
+    }
+
+
+export const getListRiskCategoriesQueryOptions = <TData = Awaited<ReturnType<typeof listRiskCategories>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRiskCategories>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListRiskCategoriesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listRiskCategories>>> = ({ signal }) => listRiskCategories({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listRiskCategories>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListRiskCategoriesQueryResult = NonNullable<Awaited<ReturnType<typeof listRiskCategories>>>
+export type ListRiskCategoriesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List risk matrix categories
+ */
+
+export function useListRiskCategories<TData = Awaited<ReturnType<typeof listRiskCategories>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRiskCategories>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListRiskCategoriesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateRiskCategoryUrl = () => {
+
+
+
+
+  return `/api/risk-categories`
+}
+
+/**
+ * @summary Create a risk category
+ */
+export const createRiskCategory = async (riskCategoryInput: RiskCategoryInput, options?: RequestInit): Promise<RiskCategory> => {
+
+  return customFetch<RiskCategory>(getCreateRiskCategoryUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(riskCategoryInput)
+  }
+);}
+
+
+
+
+export const getCreateRiskCategoryMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRiskCategory>>, TError,{data: BodyType<RiskCategoryInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createRiskCategory>>, TError,{data: BodyType<RiskCategoryInput>}, TContext> => {
+
+const mutationKey = ['createRiskCategory'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createRiskCategory>>, {data: BodyType<RiskCategoryInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createRiskCategory(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateRiskCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof createRiskCategory>>>
+    export type CreateRiskCategoryMutationBody = BodyType<RiskCategoryInput>
+    export type CreateRiskCategoryMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Create a risk category
+ */
+export const useCreateRiskCategory = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRiskCategory>>, TError,{data: BodyType<RiskCategoryInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createRiskCategory>>,
+        TError,
+        {data: BodyType<RiskCategoryInput>},
+        TContext
+      > => {
+      return useMutation(getCreateRiskCategoryMutationOptions(options));
+    }
+
+export const getUpdateRiskCategoryUrl = (id: number,) => {
+
+
+
+
+  return `/api/risk-categories/${id}`
+}
+
+/**
+ * @summary Update a risk category
+ */
+export const updateRiskCategory = async (id: number,
+    riskCategoryUpdate: RiskCategoryUpdate, options?: RequestInit): Promise<RiskCategory> => {
+
+  return customFetch<RiskCategory>(getUpdateRiskCategoryUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(riskCategoryUpdate)
+  }
+);}
+
+
+
+
+export const getUpdateRiskCategoryMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRiskCategory>>, TError,{id: number;data: BodyType<RiskCategoryUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateRiskCategory>>, TError,{id: number;data: BodyType<RiskCategoryUpdate>}, TContext> => {
+
+const mutationKey = ['updateRiskCategory'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateRiskCategory>>, {id: number;data: BodyType<RiskCategoryUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateRiskCategory(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateRiskCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof updateRiskCategory>>>
+    export type UpdateRiskCategoryMutationBody = BodyType<RiskCategoryUpdate>
+    export type UpdateRiskCategoryMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update a risk category
+ */
+export const useUpdateRiskCategory = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRiskCategory>>, TError,{id: number;data: BodyType<RiskCategoryUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateRiskCategory>>,
+        TError,
+        {id: number;data: BodyType<RiskCategoryUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateRiskCategoryMutationOptions(options));
+    }
+
+export const getDeleteRiskCategoryUrl = (id: number,) => {
+
+
+
+
+  return `/api/risk-categories/${id}`
+}
+
+/**
+ * Fails with 409 if the category is referenced by any dependency
+ * @summary Delete a risk category
+ */
+export const deleteRiskCategory = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteRiskCategoryUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteRiskCategoryMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRiskCategory>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRiskCategory>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteRiskCategory'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRiskCategory>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteRiskCategory(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteRiskCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRiskCategory>>>
+
+    export type DeleteRiskCategoryMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Delete a risk category
+ */
+export const useDeleteRiskCategory = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRiskCategory>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteRiskCategory>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteRiskCategoryMutationOptions(options));
     }
 
 export const getGetSettingsUrl = () => {

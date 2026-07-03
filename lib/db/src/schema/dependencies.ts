@@ -3,6 +3,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { departmentsTable } from "./departments";
 import { initiativesTable } from "./initiatives";
+import { riskCategoriesTable } from "./risk-categories";
 
 export const dependenciesTable = pgTable("dependencies", {
   id: serial("id").primaryKey(),
@@ -12,7 +13,9 @@ export const dependenciesTable = pgTable("dependencies", {
   dependsOnDepartmentId: integer("depends_on_department_id").references(() => departmentsTable.id, {
     onDelete: "cascade",
   }),
-  externalFactor: text("external_factor"),
+  dependsOnRiskCategoryId: integer("depends_on_risk_category_id").references(() => riskCategoriesTable.id, {
+    onDelete: "restrict",
+  }),
   riskLevel: text("risk_level").notNull(), // low | medium | high | critical
   notes: text("notes").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

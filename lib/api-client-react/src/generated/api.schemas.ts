@@ -9,6 +9,10 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface ErrorResponse {
+  error: string;
+}
+
 export type InitiativeStatus = typeof InitiativeStatus[keyof typeof InitiativeStatus];
 
 
@@ -145,7 +149,7 @@ export interface Dependency {
   /** @nullable */
   dependsOnDepartmentId: number | null;
   /** @nullable */
-  externalFactor: string | null;
+  dependsOnRiskCategoryId: number | null;
   riskLevel: RiskLevel;
   notes: string;
   createdAt: string;
@@ -156,7 +160,7 @@ export interface DependencyInput {
   /** @nullable */
   dependsOnDepartmentId?: number | null;
   /** @nullable */
-  externalFactor?: string | null;
+  dependsOnRiskCategoryId?: number | null;
   riskLevel: RiskLevel;
   notes: string;
 }
@@ -165,9 +169,25 @@ export interface DependencyUpdate {
   /** @nullable */
   dependsOnDepartmentId?: number | null;
   /** @nullable */
-  externalFactor?: string | null;
+  dependsOnRiskCategoryId?: number | null;
   riskLevel?: RiskLevel;
   notes?: string;
+}
+
+export interface RiskCategory {
+  id: number;
+  name: string;
+  createdAt: string;
+}
+
+export interface RiskCategoryInput {
+  /** @minLength 1 */
+  name: string;
+}
+
+export interface RiskCategoryUpdate {
+  /** @minLength 1 */
+  name?: string;
 }
 
 export interface DepartmentStatusBreakdown {

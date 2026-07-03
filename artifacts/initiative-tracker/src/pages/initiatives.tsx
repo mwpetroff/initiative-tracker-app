@@ -3,6 +3,7 @@ import {
   useListInitiatives,
   useDeleteInitiative,
   useGetSettings,
+  useListDepartments,
   getListInitiativesQueryKey,
   getGetDashboardSummaryQueryKey,
   getGetDependencyHeatmapQueryKey,
@@ -13,12 +14,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, FileSpreadsheet } from "lucide-react";
 import { InitiativeFormDialog } from "@/components/initiative-form-dialog";
 import { InitiativeDetailDialog } from "@/components/initiative-detail-dialog";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { getFiscalQuarter } from "@/lib/quarter";
+import { exportInitiativesToExcel } from "@/lib/export-excel";
 
 const STATUS_LABELS: Record<string, string> = {
   planning: "Planning",
@@ -31,8 +33,10 @@ const STATUS_LABELS: Record<string, string> = {
 export default function Initiatives() {
   const { data: initiatives, isLoading } = useListInitiatives();
   const { data: settings } = useGetSettings();
+  const { data: departments } = useListDepartments();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [isExporting, setIsExporting] = useState(false);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingInitiative, setEditingInitiative] = useState<Initiative | null>(null);
@@ -102,10 +106,30 @@ export default function Initiatives() {
           <h1 className="text-3xl font-bold tracking-tight">Initiatives</h1>
           <p className="text-muted-foreground mt-2">Manage and track all initiatives.</p>
         </div>
-        <Button onClick={openCreateForm}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Initiative
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            disabled={isExporting || filteredInitiatives.length === 0}
+            onClick={async () => {
+              setIsExporting(true);
+              try {
+                await exportInitiativesToExcel(filteredInitiatives, departments);
+                toast({ title: "Export complete", description: "Current status exported to Excel." });
+              } catch (error) {
+                toast({ title: "Export failed", variant: "destructive" });
+              } finally {
+                setIsExporting(false);
+              }
+            }}
+          >
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            {isExporting ? "Exporting..." : "Export to Excel"}
+          </Button>
+          <Button onClick={openCreateForm}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Initiative
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">

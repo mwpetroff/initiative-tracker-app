@@ -1,15 +1,16 @@
 import { useGetDependencyHeatmap } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { PageLoading, PageError } from "@/components/page-state";
 
 export default function Heatmap() {
-  const { data: heatmap, isLoading } = useGetDependencyHeatmap();
+  const { data: heatmap, isLoading, error } = useGetDependencyHeatmap();
 
   if (isLoading) {
-    return <div className="p-8">Loading heatmap...</div>;
+    return <PageLoading label="Loading heatmap..." />;
   }
 
-  if (!heatmap) {
-    return <div className="p-8">Error loading heatmap.</div>;
+  if (error || !heatmap) {
+    return <PageError title="Couldn't load the heatmap" description="Please try refreshing the page." />;
   }
 
   return (

@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { getFiscalQuarter, formatDateRange } from "@/lib/quarter";
+import { PageLoading, PageError } from "@/components/page-state";
 import Departments from "@/pages/departments";
 import RiskCategories from "@/pages/risk-categories";
 
@@ -22,7 +23,7 @@ const settingsFormSchema = z.object({
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
 
 function GeneralSettings() {
-  const { data: settings, isLoading } = useGetSettings();
+  const { data: settings, isLoading, error } = useGetSettings();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -59,7 +60,11 @@ function GeneralSettings() {
     previewAnchor && !Number.isNaN(previewAnchor.getTime()) ? getFiscalQuarter(previewAnchor) : null;
 
   if (isLoading) {
-    return <div className="p-8">Loading settings...</div>;
+    return <PageLoading label="Loading settings..." />;
+  }
+
+  if (error) {
+    return <PageError title="Couldn't load settings" description="Please try refreshing the page." />;
   }
 
   return (

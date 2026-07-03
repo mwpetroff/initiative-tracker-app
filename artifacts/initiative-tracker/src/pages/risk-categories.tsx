@@ -14,9 +14,10 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { RiskCategoryFormDialog } from "@/components/risk-category-form-dialog";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { PageLoading, PageError } from "@/components/page-state";
 
 export default function RiskCategories() {
-  const { data: riskCategories, isLoading } = useListRiskCategories();
+  const { data: riskCategories, isLoading, error } = useListRiskCategories();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -61,7 +62,11 @@ export default function RiskCategories() {
   };
 
   if (isLoading) {
-    return <div className="p-8">Loading risk categories...</div>;
+    return <PageLoading label="Loading risk categories..." />;
+  }
+
+  if (error) {
+    return <PageError title="Couldn't load risk categories" description="Please try refreshing the page." />;
   }
 
   return (

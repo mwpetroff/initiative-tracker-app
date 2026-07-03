@@ -1,16 +1,17 @@
 import { useGetDashboardSummary } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle, Target, Activity, PauseCircle } from "lucide-react";
+import { PageLoading, PageError } from "@/components/page-state";
 
 export default function Dashboard() {
   const { data: summary, isLoading, error } = useGetDashboardSummary();
 
   if (isLoading) {
-    return <div className="p-8">Loading dashboard...</div>;
+    return <PageLoading label="Loading dashboard..." />;
   }
 
   if (error || !summary) {
-    return <div className="p-8 text-destructive">Error loading dashboard</div>;
+    return <PageError title="Couldn't load the dashboard" description="Please try refreshing the page." />;
   }
 
   return (

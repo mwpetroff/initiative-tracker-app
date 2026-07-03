@@ -27,6 +27,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { DependencyFormDialog } from "@/components/dependency-form-dialog";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { InlineLoading, PageError } from "@/components/page-state";
 
 const riskVariant: Record<string, "secondary" | "outline" | "destructive"> = {
   low: "secondary",
@@ -46,10 +47,18 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
   const { toast } = useToast();
   const { data: departments } = useListDepartments();
   const { data: riskCategories } = useListRiskCategories();
-  const { data: dependencies, isLoading } = useListInitiativeDependencies(initiative?.id ?? 0, {
+  const {
+    data: dependencies,
+    isLoading,
+    error: dependenciesError,
+  } = useListInitiativeDependencies(initiative?.id ?? 0, {
     query: { enabled: Boolean(initiative), queryKey: getListInitiativeDependenciesQueryKey(initiative?.id ?? 0) },
   });
-  const { data: history, isLoading: isHistoryLoading } = useListInitiativeHistory(initiative?.id ?? 0, {
+  const {
+    data: history,
+    isLoading: isHistoryLoading,
+    error: historyError,
+  } = useListInitiativeHistory(initiative?.id ?? 0, {
     query: { enabled: Boolean(initiative), queryKey: getListInitiativeHistoryQueryKey(initiative?.id ?? 0) },
   });
 
@@ -124,7 +133,9 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
           </div>
 
           {isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading dependencies...</p>
+            <InlineLoading label="Loading dependencies..." />
+          ) : dependenciesError ? (
+            <PageError title="Couldn't load dependencies" description="Please try refreshing the page." />
           ) : (
             <div className="overflow-x-auto -mx-1 px-1">
               <Table>
@@ -188,7 +199,9 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
         <div className="mt-2">
           <h3 className="font-semibold text-sm mb-2">Status History</h3>
           {isHistoryLoading ? (
-            <p className="text-sm text-muted-foreground">Loading history...</p>
+            <InlineLoading label="Loading history..." />
+          ) : historyError ? (
+            <PageError title="Couldn't load status history" description="Please try refreshing the page." />
           ) : history?.length ? (
             <ul className="space-y-2 max-h-40 overflow-y-auto pr-1">
               {history.map((entry) => (

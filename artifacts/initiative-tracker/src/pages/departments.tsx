@@ -15,9 +15,10 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { DepartmentFormDialog } from "@/components/department-form-dialog";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { PageLoading, PageError } from "@/components/page-state";
 
 export default function Departments() {
-  const { data: departments, isLoading } = useListDepartments();
+  const { data: departments, isLoading, error } = useListDepartments();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -59,7 +60,11 @@ export default function Departments() {
   };
 
   if (isLoading) {
-    return <div className="p-8">Loading departments...</div>;
+    return <PageLoading label="Loading departments..." />;
+  }
+
+  if (error) {
+    return <PageError title="Couldn't load departments" description="Please try refreshing the page." />;
   }
 
   return (

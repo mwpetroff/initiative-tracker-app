@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useListInitiatives,
   useDeleteInitiative,
@@ -14,13 +14,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, FileSpreadsheet } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Plus, Pencil, Trash2, FileSpreadsheet, Search } from "lucide-react";
 import { InitiativeFormDialog } from "@/components/initiative-form-dialog";
 import { InitiativeDetailDialog } from "@/components/initiative-detail-dialog";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
+import { PageLoading, PageError, CardSkeletonGrid } from "@/components/page-state";
 import { useToast } from "@/hooks/use-toast";
 import { getFiscalQuarter } from "@/lib/quarter";
 import { exportInitiativesToExcel } from "@/lib/export-excel";
+import { filterInitiatives, paginate } from "@/lib/initiative-filters";
 
 const STATUS_LABELS: Record<string, string> = {
   planning: "Planning",
@@ -30,8 +41,10 @@ const STATUS_LABELS: Record<string, string> = {
   on_hold: "On Hold",
 };
 
+const PAGE_SIZE = 9;
+
 export default function Initiatives() {
-  const { data: initiatives, isLoading } = useListInitiatives();
+  const { data: initiatives, isLoading, error } = useListInitiatives();
   const { data: settings } = useGetSettings();
   const { data: departments } = useListDepartments();
   const queryClient = useQueryClient();
@@ -44,6 +57,8 @@ export default function Initiatives() {
   const [detailInitiative, setDetailInitiative] = useState<Initiative | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [quarterFilter, setQuarterFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [page, setPage] = useState(1);
 
   const anchorDate = useMemo(() => {
     if (!settings) return null;
@@ -68,12 +83,23 @@ export default function Initiatives() {
   }, [initiatives, anchorDate]);
 
   const filteredInitiatives = useMemo(() => {
-    return (initiatives ?? []).filter((initiative) => {
-      if (statusFilter !== "all" && initiative.status !== statusFilter) return false;
-      if (quarterFilter !== "all" && initiativeQuarterKey(initiative) !== quarterFilter) return false;
-      return true;
+    return filterInitiatives(initiatives ?? [], {
+      statusFilter,
+      quarterFilter,
+      searchQuery,
+      getQuarterKey: initiativeQuarterKey,
     });
-  }, [initiatives, statusFilter, quarterFilter, anchorDate]);
+  }, [initiatives, statusFilter, quarterFilter, searchQuery, anchorDate]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, quarterFilter, searchQuery]);
+
+  const {
+    items: pagedInitiatives,
+    totalPages,
+    currentPage,
+  } = useMemo(() => paginate(filteredInitiatives, page, PAGE_SIZE), [filteredInitiatives, page]);
 
   const deleteMutation = useDeleteInitiative({
     mutation: {
@@ -95,8 +121,8 @@ export default function Initiatives() {
     setFormOpen(true);
   };
 
-  if (isLoading) {
-    return <div className="p-8">Loading initiatives...</div>;
+  if (error) {
+    return <PageError title="Couldn't load initiatives" description="Please try refreshing the page." />;
   }
 
   return (
@@ -133,6 +159,16 @@ export default function Initiatives() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search by title or owner..."
+            className="pl-8"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by status" />
@@ -161,13 +197,14 @@ export default function Initiatives() {
           </SelectContent>
         </Select>
 
-        {(statusFilter !== "all" || quarterFilter !== "all") && (
+        {(statusFilter !== "all" || quarterFilter !== "all" || searchQuery) && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => {
               setStatusFilter("all");
               setQuarterFilter("all");
+              setSearchQuery("");
             }}
           >
             Clear filters
@@ -175,8 +212,12 @@ export default function Initiatives() {
         )}
       </div>
 
+      {isLoading ? (
+        <CardSkeletonGrid />
+      ) : (
+      <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredInitiatives.map((initiative) => (
+        {pagedInitiatives.map((initiative) => (
           <Card
             key={initiative.id}
             className="hover:shadow-md transition-shadow cursor-pointer"
@@ -246,6 +287,49 @@ export default function Initiatives() {
             ? "No initiatives match the selected filters."
             : "No initiatives found. Create one to get started."}
         </div>
+      )}
+
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage > 1) setPage(currentPage - 1);
+                }}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : undefined}
+              />
+            </PaginationItem>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+              <PaginationItem key={pageNumber}>
+                <PaginationLink
+                  href="#"
+                  isActive={pageNumber === currentPage}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage(pageNumber);
+                  }}
+                >
+                  {pageNumber}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage < totalPages) setPage(currentPage + 1);
+                }}
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : undefined}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
+      </>
       )}
 
       <InitiativeFormDialog open={formOpen} onOpenChange={setFormOpen} initiative={editingInitiative} />

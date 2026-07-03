@@ -4,10 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { getFiscalQuarter, formatDateRange } from "@/lib/quarter";
+import { PageLoading, PageError } from "@/components/page-state";
 
 export default function QuarterlyGoals() {
-  const { data: settings, isLoading: settingsLoading } = useGetSettings();
-  const { data: initiatives, isLoading: initiativesLoading } = useListInitiatives();
+  const { data: settings, isLoading: settingsLoading, error: settingsError } = useGetSettings();
+  const {
+    data: initiatives,
+    isLoading: initiativesLoading,
+    error: initiativesError,
+  } = useListInitiatives();
   const { data: departments } = useListDepartments();
 
   const currentQuarter = useMemo(() => {
@@ -20,6 +25,7 @@ export default function QuarterlyGoals() {
   const goalInitiatives = (initiatives ?? []).filter((i) => i.quarterGoal);
 
   const isLoading = settingsLoading || initiativesLoading;
+  const isError = settingsError || initiativesError;
 
   const onTrackCount = goalInitiatives.filter(
     (i) => i.quarterGoalTarget !== null && i.quarterGoalTarget !== undefined && i.progress >= i.quarterGoalTarget,
@@ -40,7 +46,9 @@ export default function QuarterlyGoals() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <PageLoading label="Loading quarterly goals..." />
+      ) : isError ? (
+        <PageError title="Couldn't load quarterly goals" description="Please try refreshing the page." />
       ) : goalInitiatives.length === 0 ? (
         <Card>
           <CardContent className="py-10 text-center text-muted-foreground">

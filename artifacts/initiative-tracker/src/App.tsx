@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Redirect, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,8 +7,6 @@ import { Layout } from "@/components/layout";
 import Dashboard from "@/pages/dashboard";
 import Initiatives from "@/pages/initiatives";
 import Heatmap from "@/pages/heatmap";
-import Departments from "@/pages/departments";
-import RiskCategories from "@/pages/risk-categories";
 import QuarterlyGoals from "@/pages/quarterly-goals";
 import Settings from "@/pages/settings";
 
@@ -20,8 +18,12 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/initiatives" component={Initiatives} />
       <Route path="/heatmap" component={Heatmap} />
-      <Route path="/departments" component={Departments} />
-      <Route path="/risk-categories" component={RiskCategories} />
+      <Route path="/departments">
+        <Redirect to="/settings?tab=departments" />
+      </Route>
+      <Route path="/risk-categories">
+        <Redirect to="/settings?tab=risk-categories" />
+      </Route>
       <Route path="/quarterly-goals" component={QuarterlyGoals} />
       <Route path="/settings" component={Settings} />
       <Route component={NotFound} />

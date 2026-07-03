@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Target, Grid3X3, Building2, Menu, Goal, Settings as SettingsIcon, ShieldAlert } from "lucide-react";
+import { LayoutDashboard, Target, Grid3X3, Menu, Goal, Settings as SettingsIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -9,8 +9,6 @@ const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Initiatives", href: "/initiatives", icon: Target },
   { name: "Heatmap", href: "/heatmap", icon: Grid3X3 },
-  { name: "Departments", href: "/departments", icon: Building2 },
-  { name: "Risk Categories", href: "/risk-categories", icon: ShieldAlert },
   { name: "Quarterly Goals", href: "/quarterly-goals", icon: Goal },
   { name: "Settings", href: "/settings", icon: SettingsIcon },
 ];

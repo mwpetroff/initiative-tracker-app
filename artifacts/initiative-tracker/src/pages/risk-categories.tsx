@@ -68,8 +68,8 @@ export default function RiskCategories() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Risk Categories</h1>
-          <p className="text-muted-foreground mt-2">
+          <h2 className="text-xl font-semibold tracking-tight">Risk Categories</h2>
+          <p className="text-muted-foreground mt-1 text-sm">
             Manage the external risk matrix categories dependencies can reference.
           </p>
         </div>

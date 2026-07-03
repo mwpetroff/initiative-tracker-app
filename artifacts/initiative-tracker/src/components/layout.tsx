@@ -1,0 +1,56 @@
+import { Link, useLocation } from "wouter";
+import { LayoutDashboard, Target, Grid3X3, Building2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const navigation = [
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Initiatives", href: "/initiatives", icon: Target },
+  { name: "Heatmap", href: "/heatmap", icon: Grid3X3 },
+  { name: "Departments", href: "/departments", icon: Building2 },
+];
+
+export function Layout({ children }: { children: React.ReactNode }) {
+  const [location] = useLocation();
+
+  return (
+    <div className="flex min-h-screen w-full bg-muted/40">
+      <div className="hidden border-r bg-card w-64 lg:block">
+        <div className="flex h-full max-h-screen flex-col gap-2">
+          <div className="flex h-14 items-center border-b px-6">
+            <Link href="/" className="flex items-center gap-2 font-semibold">
+              <Target className="h-6 w-6 text-primary" />
+              <span className="">Initiative Tracker</span>
+            </Link>
+          </div>
+          <div className="flex-1 overflow-auto py-2">
+            <nav className="grid items-start px-4 text-sm font-medium gap-1">
+              {navigation.map((item) => {
+                const isActive = location === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary",
+                      isActive
+                        ? "bg-muted text-primary"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col flex-1">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-8 lg:p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}

@@ -10,6 +10,14 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: departments
+    description: Department operations
+  - name: initiatives
+    description: Initiative operations
+  - name: dependencies
+    description: Dependency operations
+  - name: insights
+    description: Dashboard and heatmap aggregates
 paths:
   /healthz:
     get:
@@ -24,7 +32,283 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /departments:
+    get:
+      operationId: listDepartments
+      tags: [departments]
+      summary: List departments
+      responses:
+        "200":
+          description: List of departments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Department"
+    post:
+      operationId: createDepartment
+      tags: [departments]
+      summary: Create a department
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DepartmentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Department"
+
+  /departments/{id}:
+    patch:
+      operationId: updateDepartment
+      tags: [departments]
+      summary: Update a department
+      parameters:
+        - $ref: "#/components/parameters/DepartmentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DepartmentUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Department"
+    delete:
+      operationId: deleteDepartment
+      tags: [departments]
+      summary: Delete a department
+      parameters:
+        - $ref: "#/components/parameters/DepartmentId"
+      responses:
+        "204":
+          description: Deleted
+
+  /initiatives:
+    get:
+      operationId: listInitiatives
+      tags: [initiatives]
+      summary: List initiatives
+      parameters:
+        - name: departmentId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/InitiativeStatus"
+      responses:
+        "200":
+          description: List of initiatives
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Initiative"
+    post:
+      operationId: createInitiative
+      tags: [initiatives]
+      summary: Create an initiative
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitiativeInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Initiative"
+
+  /initiatives/{id}:
+    get:
+      operationId: getInitiative
+      tags: [initiatives]
+      summary: Get an initiative
+      parameters:
+        - $ref: "#/components/parameters/InitiativeId"
+      responses:
+        "200":
+          description: Initiative
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Initiative"
+    patch:
+      operationId: updateInitiative
+      tags: [initiatives]
+      summary: Update an initiative
+      parameters:
+        - $ref: "#/components/parameters/InitiativeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitiativeUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Initiative"
+    delete:
+      operationId: deleteInitiative
+      tags: [initiatives]
+      summary: Delete an initiative
+      parameters:
+        - $ref: "#/components/parameters/InitiativeId"
+      responses:
+        "204":
+          description: Deleted
+
+  /initiatives/{id}/dependencies:
+    get:
+      operationId: listInitiativeDependencies
+      tags: [dependencies]
+      summary: List dependencies for an initiative
+      parameters:
+        - $ref: "#/components/parameters/InitiativeId"
+      responses:
+        "200":
+          description: List of dependencies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Dependency"
+
+  /dependencies:
+    get:
+      operationId: listDependencies
+      tags: [dependencies]
+      summary: List all dependencies
+      responses:
+        "200":
+          description: List of dependencies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Dependency"
+    post:
+      operationId: createDependency
+      tags: [dependencies]
+      summary: Create a dependency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DependencyInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dependency"
+
+  /dependencies/{id}:
+    patch:
+      operationId: updateDependency
+      tags: [dependencies]
+      summary: Update a dependency
+      parameters:
+        - $ref: "#/components/parameters/DependencyId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DependencyUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dependency"
+    delete:
+      operationId: deleteDependency
+      tags: [dependencies]
+      summary: Delete a dependency
+      parameters:
+        - $ref: "#/components/parameters/DependencyId"
+      responses:
+        "204":
+          description: Deleted
+
+  /insights/dashboard:
+    get:
+      operationId: getDashboardSummary
+      tags: [insights]
+      summary: Dashboard summary
+      description: Aggregate counts of initiatives by department and status, plus recent activity
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /insights/heatmap:
+    get:
+      operationId: getDependencyHeatmap
+      tags: [insights]
+      summary: Dependency heatmap matrix
+      description: Cross-department and external-factor dependency risk matrix
+      responses:
+        "200":
+          description: Heatmap data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HeatmapData"
+
 components:
+  parameters:
+    DepartmentId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    InitiativeId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    DependencyId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +318,216 @@ components:
       required:
         - status
 
+    InitiativeStatus:
+      type: string
+      enum: [planning, in_progress, blocked, completed, on_hold]
+
+    InitiativePriority:
+      type: string
+      enum: [low, medium, high]
+
+    RiskLevel:
+      type: string
+      enum: [low, medium, high, critical]
+
+    Department:
+      type: object
+      required: [id, name, colorHex, createdAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        colorHex: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    DepartmentInput:
+      type: object
+      required: [name, colorHex]
+      properties:
+        name: { type: string, minLength: 1 }
+        colorHex: { type: string, minLength: 1 }
+
+    DepartmentUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        colorHex: { type: string, minLength: 1 }
+
+    Initiative:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - departmentId
+        - status
+        - priority
+        - owner
+        - progress
+        - startDate
+        - targetDate
+        - createdAt
+        - updatedAt
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: string }
+        departmentId: { type: integer }
+        status:
+          $ref: "#/components/schemas/InitiativeStatus"
+        priority:
+          $ref: "#/components/schemas/InitiativePriority"
+        owner: { type: string }
+        progress: { type: integer, minimum: 0, maximum: 100 }
+        startDate: { type: string, format: date }
+        targetDate: { type: string, format: date }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    InitiativeInput:
+      type: object
+      required: [title, description, departmentId, status, priority, owner, progress, startDate, targetDate]
+      properties:
+        title: { type: string, minLength: 1 }
+        description: { type: string }
+        departmentId: { type: integer }
+        status:
+          $ref: "#/components/schemas/InitiativeStatus"
+        priority:
+          $ref: "#/components/schemas/InitiativePriority"
+        owner: { type: string, minLength: 1 }
+        progress: { type: integer, minimum: 0, maximum: 100 }
+        startDate: { type: string, format: date }
+        targetDate: { type: string, format: date }
+
+    InitiativeUpdate:
+      type: object
+      properties:
+        title: { type: string, minLength: 1 }
+        description: { type: string }
+        departmentId: { type: integer }
+        status:
+          $ref: "#/components/schemas/InitiativeStatus"
+        priority:
+          $ref: "#/components/schemas/InitiativePriority"
+        owner: { type: string, minLength: 1 }
+        progress: { type: integer, minimum: 0, maximum: 100 }
+        startDate: { type: string, format: date }
+        targetDate: { type: string, format: date }
+
+    Dependency:
+      type: object
+      required: [id, initiativeId, dependsOnDepartmentId, externalFactor, riskLevel, notes, createdAt]
+      properties:
+        id: { type: integer }
+        initiativeId: { type: integer }
+        dependsOnDepartmentId:
+          type: ["integer", "null"]
+        externalFactor:
+          type: ["string", "null"]
+        riskLevel:
+          $ref: "#/components/schemas/RiskLevel"
+        notes: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    DependencyInput:
+      type: object
+      required: [initiativeId, riskLevel, notes]
+      properties:
+        initiativeId: { type: integer }
+        dependsOnDepartmentId:
+          type: ["integer", "null"]
+        externalFactor:
+          type: ["string", "null"]
+        riskLevel:
+          $ref: "#/components/schemas/RiskLevel"
+        notes: { type: string }
+
+    DependencyUpdate:
+      type: object
+      properties:
+        dependsOnDepartmentId:
+          type: ["integer", "null"]
+        externalFactor:
+          type: ["string", "null"]
+        riskLevel:
+          $ref: "#/components/schemas/RiskLevel"
+        notes: { type: string }
+
+    DepartmentStatusBreakdown:
+      type: object
+      required: [departmentId, departmentName, colorHex, total, planning, inProgress, blocked, completed, onHold]
+      properties:
+        departmentId: { type: integer }
+        departmentName: { type: string }
+        colorHex: { type: string }
+        total: { type: integer }
+        planning: { type: integer }
+        inProgress: { type: integer }
+        blocked: { type: integer }
+        completed: { type: integer }
+        onHold: { type: integer }
+
+    RecentActivityItem:
+      type: object
+      required: [id, title, departmentName, status, updatedAt]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        departmentName: { type: string }
+        status:
+          $ref: "#/components/schemas/InitiativeStatus"
+        updatedAt: { type: string, format: date-time }
+
+    DashboardSummary:
+      type: object
+      required: [totalInitiatives, activeInitiatives, blockedInitiatives, highRiskDependencies, departmentBreakdown, recentActivity]
+      properties:
+        totalInitiatives: { type: integer }
+        activeInitiatives: { type: integer }
+        blockedInitiatives: { type: integer }
+        highRiskDependencies: { type: integer }
+        departmentBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/DepartmentStatusBreakdown"
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecentActivityItem"
+
+    HeatmapColumn:
+      type: object
+      required: [key, label, isExternal]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        isExternal: { type: boolean }
+
+    HeatmapCell:
+      type: object
+      required: [rowDepartmentId, columnKey, dependencyCount, maxRiskLevel, riskScore]
+      properties:
+        rowDepartmentId: { type: integer }
+        columnKey: { type: string }
+        dependencyCount: { type: integer }
+        maxRiskLevel:
+          type: ["string", "null"]
+          enum: [low, medium, high, critical, null]
+        riskScore: { type: integer }
+
+    HeatmapData:
+      type: object
+      required: [rows, columns, cells]
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/Department"
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/HeatmapColumn"
+        cells:
+          type: array
+          items:
+            $ref: "#/components/schemas/HeatmapCell"

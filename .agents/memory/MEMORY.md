@@ -1,0 +1,1 @@
+- [Tailwind v4 CSS @import ordering](tailwind-css-import-order.md) — external font @import must precede @import "tailwindcss", not just @plugin/@theme.

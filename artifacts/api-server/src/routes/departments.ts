@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
-import { db, departmentsTable } from "@workspace/db";
+import { db, departmentsTable, initiativesTable, dependenciesTable } from "@workspace/db";
 import {
   CreateDepartmentBody,
   UpdateDepartmentParams,
@@ -61,6 +61,32 @@ router.delete("/departments/:id", async (req, res): Promise<void> => {
   const params = DeleteDepartmentParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [inUseInitiative] = await db
+    .select({ id: initiativesTable.id })
+    .from(initiativesTable)
+    .where(eq(initiativesTable.departmentId, params.data.id))
+    .limit(1);
+
+  if (inUseInitiative) {
+    res
+      .status(409)
+      .json({ error: "This department is in use by one or more initiatives and cannot be deleted" });
+    return;
+  }
+
+  const [inUseDependency] = await db
+    .select({ id: dependenciesTable.id })
+    .from(dependenciesTable)
+    .where(eq(dependenciesTable.dependsOnDepartmentId, params.data.id))
+    .limit(1);
+
+  if (inUseDependency) {
+    res
+      .status(409)
+      .json({ error: "This department is in use by one or more dependencies and cannot be deleted" });
     return;
   }
 

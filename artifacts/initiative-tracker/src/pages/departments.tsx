@@ -34,10 +34,14 @@ export default function Departments() {
         toast({ title: "Department deleted" });
         setDeletingDepartment(null);
       },
-      onError: () => {
+      onError: (error) => {
+        const description =
+          error instanceof Error && error.message
+            ? error.message
+            : "It may still be referenced by initiatives or dependencies.";
         toast({
           title: "Failed to delete department",
-          description: "It may still be referenced by initiatives or dependencies.",
+          description,
           variant: "destructive",
         });
       },

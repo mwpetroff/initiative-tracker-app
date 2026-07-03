@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { db, riskCategoriesTable, dependenciesTable } from "@workspace/db";
+import { isUniqueViolation } from "../lib/db-errors";
 import {
   CreateRiskCategoryBody,
   UpdateRiskCategoryParams,
@@ -102,9 +103,5 @@ router.delete("/risk-categories/:id", async (req, res): Promise<void> => {
 
   res.sendStatus(204);
 });
-
-function isUniqueViolation(err: unknown): boolean {
-  return typeof err === "object" && err !== null && "code" in err && (err as { code?: string }).code === "23505";
-}
 
 export default router;

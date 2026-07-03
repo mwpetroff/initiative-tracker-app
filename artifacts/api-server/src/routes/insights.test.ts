@@ -1,0 +1,138 @@
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import request from "supertest";
+import { eq } from "drizzle-orm";
+import app from "../app";
+import { db, departmentsTable, initiativesTable, dependenciesTable, riskCategoriesTable } from "@workspace/db";
+
+let deptA: number;
+let deptB: number;
+let riskCategoryId: number;
+const initiativeIds: number[] = [];
+const dependencyIds: number[] = [];
+
+beforeAll(async () => {
+  const a = await request(app)
+    .post("/api/departments")
+    .send({ name: "Contract Test Insights Dept A", colorHex: "#111111" });
+  deptA = a.body.id;
+
+  const b = await request(app)
+    .post("/api/departments")
+    .send({ name: "Contract Test Insights Dept B", colorHex: "#222222" });
+  deptB = b.body.id;
+
+  const category = await request(app)
+    .post("/api/risk-categories")
+    .send({ name: "Contract Test Insights Category" });
+  riskCategoryId = category.body.id;
+
+  const planning = await request(app)
+    .post("/api/initiatives")
+    .send({
+      title: "Insights planning initiative",
+      description: "desc",
+      departmentId: deptA,
+      status: "planning",
+      priority: "low",
+      owner: "owner",
+      progress: 0,
+      startDate: "2026-01-01",
+      targetDate: "2026-02-01",
+    });
+  const blocked = await request(app)
+    .post("/api/initiatives")
+    .send({
+      title: "Insights blocked initiative",
+      description: "desc",
+      departmentId: deptA,
+      status: "blocked",
+      priority: "high",
+      owner: "owner",
+      progress: 20,
+      startDate: "2026-01-01",
+      targetDate: "2026-02-01",
+    });
+  const inProgress = await request(app)
+    .post("/api/initiatives")
+    .send({
+      title: "Insights in-progress initiative",
+      description: "desc",
+      departmentId: deptB,
+      status: "in_progress",
+      priority: "medium",
+      owner: "owner",
+      progress: 50,
+      startDate: "2026-01-01",
+      targetDate: "2026-02-01",
+    });
+  initiativeIds.push(planning.body.id, blocked.body.id, inProgress.body.id);
+
+  const highRiskDep = await request(app)
+    .post("/api/dependencies")
+    .send({ initiativeId: blocked.body.id, dependsOnDepartmentId: deptB, riskLevel: "high", notes: "" });
+  const lowRiskDep = await request(app)
+    .post("/api/dependencies")
+    .send({
+      initiativeId: inProgress.body.id,
+      dependsOnRiskCategoryId: riskCategoryId,
+      riskLevel: "low",
+      notes: "",
+    });
+  dependencyIds.push(highRiskDep.body.id, lowRiskDep.body.id);
+});
+
+afterAll(async () => {
+  for (const id of dependencyIds) {
+    await db.delete(dependenciesTable).where(eq(dependenciesTable.id, id));
+  }
+  for (const id of initiativeIds) {
+    await db.delete(initiativesTable).where(eq(initiativesTable.id, id));
+  }
+  await db.delete(riskCategoriesTable).where(eq(riskCategoriesTable.id, riskCategoryId));
+  await db.delete(departmentsTable).where(eq(departmentsTable.id, deptA));
+  await db.delete(departmentsTable).where(eq(departmentsTable.id, deptB));
+});
+
+describe("GET /api/insights/dashboard", () => {
+  it("aggregates counts and department breakdowns correctly", async () => {
+    const res = await request(app).get("/api/insights/dashboard");
+    expect(res.status).toBe(200);
+
+    expect(res.body.totalInitiatives).toBeGreaterThanOrEqual(3);
+    expect(res.body.blockedInitiatives).toBeGreaterThanOrEqual(1);
+    expect(res.body.activeInitiatives).toBeGreaterThanOrEqual(1);
+    expect(res.body.highRiskDependencies).toBeGreaterThanOrEqual(1);
+
+    const breakdownA = res.body.departmentBreakdown.find((d: { departmentId: number }) => d.departmentId === deptA);
+    expect(breakdownA.total).toBe(2);
+    expect(breakdownA.planning).toBe(1);
+    expect(breakdownA.blocked).toBe(1);
+
+    const breakdownB = res.body.departmentBreakdown.find((d: { departmentId: number }) => d.departmentId === deptB);
+    expect(breakdownB.total).toBe(1);
+    expect(breakdownB.inProgress).toBe(1);
+  });
+});
+
+describe("GET /api/insights/heatmap", () => {
+  it("builds columns for departments and used risk categories only", async () => {
+    const res = await request(app).get("/api/insights/heatmap");
+    expect(res.status).toBe(200);
+
+    const columnKeys = res.body.columns.map((c: { key: string }) => c.key);
+    expect(columnKeys).toContain(`dept-${deptA}`);
+    expect(columnKeys).toContain(`dept-${deptB}`);
+    expect(columnKeys).toContain(`cat-${riskCategoryId}`);
+  });
+
+  it("computes cell risk scores from dependency risk levels", async () => {
+    const res = await request(app).get("/api/insights/heatmap");
+    const blockedInitiativeRow = res.body.cells.find(
+      (c: { rowDepartmentId: number; columnKey: string }) =>
+        c.rowDepartmentId === deptA && c.columnKey === `dept-${deptB}`,
+    );
+    expect(blockedInitiativeRow).toBeDefined();
+    expect(blockedInitiativeRow.maxRiskLevel).toBe("high");
+    expect(blockedInitiativeRow.dependencyCount).toBe(1);
+  });
+});

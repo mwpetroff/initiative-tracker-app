@@ -8,6 +8,7 @@ import {
   getListDepartmentsQueryKey,
   getGetDashboardSummaryQueryKey,
   getGetDependencyHeatmapQueryKey,
+  getListInitiativesQueryKey,
 } from "@workspace/api-client-react";
 import type { Department } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -63,6 +64,7 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
     queryClient.invalidateQueries({ queryKey: getListDepartmentsQueryKey() });
     queryClient.invalidateQueries({ queryKey: getGetDashboardSummaryQueryKey() });
     queryClient.invalidateQueries({ queryKey: getGetDependencyHeatmapQueryKey() });
+    queryClient.invalidateQueries({ queryKey: getListInitiativesQueryKey() });
   };
 
   const createMutation = useCreateDepartment({

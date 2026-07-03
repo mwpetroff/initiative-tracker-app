@@ -1,8 +1,9 @@
-import express, { type Express } from "express";
+import express, { type Express, type ErrorRequestHandler } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { isUniqueViolation, isForeignKeyViolation } from "./lib/db-errors";
 
 const app: Express = express();
 
@@ -30,5 +31,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
+
+const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+  if (isUniqueViolation(err)) {
+    res.status(409).json({ error: "A record with these values already exists" });
+    return;
+  }
+
+  if (isForeignKeyViolation(err)) {
+    res.status(409).json({ error: "This record is referenced by other data and cannot be modified" });
+    return;
+  }
+
+  logger.error({ err }, "Unhandled error");
+  res.status(500).json({ error: "Internal server error" });
+};
+
+app.use(errorHandler);
 
 export default app;

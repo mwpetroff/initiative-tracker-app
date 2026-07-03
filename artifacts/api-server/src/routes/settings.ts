@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
-import { db, settingsTable } from "@workspace/db";
+import { db, settingsTable, SINGLETON_ID } from "@workspace/db";
 import { UpdateSettingsBody, GetSettingsResponse, UpdateSettingsResponse } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -8,17 +8,20 @@ const router: IRouter = Router();
 const DEFAULT_QUARTER_START_DATE = "2026-01-01";
 
 async function getOrCreateSettings() {
-  const [existing] = await db.select().from(settingsTable).limit(1);
-  if (existing) {
-    return existing;
-  }
-
-  const [created] = await db
+  // Upsert on the fixed singleton id so concurrent first-access calls converge
+  // on a single row instead of racing to insert duplicates (see schema comment).
+  const [settings] = await db
     .insert(settingsTable)
-    .values({ quarterStartDate: DEFAULT_QUARTER_START_DATE })
+    .values({ id: SINGLETON_ID, quarterStartDate: DEFAULT_QUARTER_START_DATE })
+    .onConflictDoNothing({ target: settingsTable.id })
     .returning();
 
-  return created;
+  if (settings) {
+    return settings;
+  }
+
+  const [existing] = await db.select().from(settingsTable).where(eq(settingsTable.id, SINGLETON_ID));
+  return existing;
 }
 
 function toDateString(value: Date): string {

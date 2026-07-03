@@ -18,6 +18,8 @@ tags:
     description: Dependency operations
   - name: insights
     description: Dashboard and heatmap aggregates
+  - name: settings
+    description: Company-wide configuration
 paths:
   /healthz:
     get:
@@ -260,6 +262,37 @@ paths:
         "204":
           description: Deleted
 
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get company settings
+      description: Returns the singleton company settings record, creating a default if none exists
+      responses:
+        "200":
+          description: Company settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update company settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettingsUpdate"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
   /insights/dashboard:
     get:
       operationId: getDashboardSummary
@@ -365,6 +398,8 @@ components:
         - progress
         - startDate
         - targetDate
+        - quarterGoal
+        - quarterGoalTarget
         - createdAt
         - updatedAt
       properties:
@@ -380,6 +415,12 @@ components:
         progress: { type: integer, minimum: 0, maximum: 100 }
         startDate: { type: string, format: date }
         targetDate: { type: string, format: date }
+        quarterGoal:
+          type: ["string", "null"]
+        quarterGoalTarget:
+          type: ["integer", "null"]
+          minimum: 0
+          maximum: 100
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
 
@@ -398,6 +439,12 @@ components:
         progress: { type: integer, minimum: 0, maximum: 100 }
         startDate: { type: string, format: date }
         targetDate: { type: string, format: date }
+        quarterGoal:
+          type: ["string", "null"]
+        quarterGoalTarget:
+          type: ["integer", "null"]
+          minimum: 0
+          maximum: 100
 
     InitiativeUpdate:
       type: object
@@ -413,6 +460,12 @@ components:
         progress: { type: integer, minimum: 0, maximum: 100 }
         startDate: { type: string, format: date }
         targetDate: { type: string, format: date }
+        quarterGoal:
+          type: ["string", "null"]
+        quarterGoalTarget:
+          type: ["integer", "null"]
+          minimum: 0
+          maximum: 100
 
     Dependency:
       type: object
@@ -531,3 +584,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/HeatmapCell"
+
+    Settings:
+      type: object
+      required: [id, quarterStartDate, updatedAt]
+      properties:
+        id: { type: integer }
+        quarterStartDate: { type: string, format: date }
+        updatedAt: { type: string, format: date-time }
+
+    SettingsUpdate:
+      type: object
+      required: [quarterStartDate]
+      properties:
+        quarterStartDate: { type: string, format: date }

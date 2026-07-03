@@ -4,6 +4,7 @@ import departmentsRouter from "./departments";
 import initiativesRouter from "./initiatives";
 import dependenciesRouter from "./dependencies";
 import insightsRouter from "./insights";
+import settingsRouter from "./settings";
 
 const router: IRouter = Router();
 
@@ -12,5 +13,6 @@ router.use(departmentsRouter);
 router.use(initiativesRouter);
 router.use(dependenciesRouter);
 router.use(insightsRouter);
+router.use(settingsRouter);
 
 export default router;

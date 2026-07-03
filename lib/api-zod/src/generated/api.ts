@@ -94,6 +94,9 @@ export const ListInitiativesQueryParams = zod.object({
 export const listInitiativesResponseProgressMin = 0;
 export const listInitiativesResponseProgressMax = 100;
 
+export const listInitiativesResponseQuarterGoalTargetMin = 0;
+export const listInitiativesResponseQuarterGoalTargetMax = 100;
+
 
 
 export const ListInitiativesResponseItem = zod.object({
@@ -107,6 +110,8 @@ export const ListInitiativesResponseItem = zod.object({
   "progress": zod.number().min(listInitiativesResponseProgressMin).max(listInitiativesResponseProgressMax),
   "startDate": zod.coerce.date(),
   "targetDate": zod.coerce.date(),
+  "quarterGoal": zod.string().nullable(),
+  "quarterGoalTarget": zod.number().min(listInitiativesResponseQuarterGoalTargetMin).max(listInitiativesResponseQuarterGoalTargetMax).nullable(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -121,6 +126,9 @@ export const ListInitiativesResponse = zod.array(ListInitiativesResponseItem)
 export const createInitiativeBodyProgressMin = 0;
 export const createInitiativeBodyProgressMax = 100;
 
+export const createInitiativeBodyQuarterGoalTargetMin = 0;
+export const createInitiativeBodyQuarterGoalTargetMax = 100;
+
 
 
 export const CreateInitiativeBody = zod.object({
@@ -132,11 +140,16 @@ export const CreateInitiativeBody = zod.object({
   "owner": zod.string().min(1),
   "progress": zod.number().min(createInitiativeBodyProgressMin).max(createInitiativeBodyProgressMax),
   "startDate": zod.coerce.date(),
-  "targetDate": zod.coerce.date()
+  "targetDate": zod.coerce.date(),
+  "quarterGoal": zod.string().nullish(),
+  "quarterGoalTarget": zod.number().min(createInitiativeBodyQuarterGoalTargetMin).max(createInitiativeBodyQuarterGoalTargetMax).nullish()
 })
 
 export const createInitiativeResponseProgressMin = 0;
 export const createInitiativeResponseProgressMax = 100;
+
+export const createInitiativeResponseQuarterGoalTargetMin = 0;
+export const createInitiativeResponseQuarterGoalTargetMax = 100;
 
 
 
@@ -151,6 +164,8 @@ export const CreateInitiativeResponse = zod.object({
   "progress": zod.number().min(createInitiativeResponseProgressMin).max(createInitiativeResponseProgressMax),
   "startDate": zod.coerce.date(),
   "targetDate": zod.coerce.date(),
+  "quarterGoal": zod.string().nullable(),
+  "quarterGoalTarget": zod.number().min(createInitiativeResponseQuarterGoalTargetMin).max(createInitiativeResponseQuarterGoalTargetMax).nullable(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -166,6 +181,9 @@ export const GetInitiativeParams = zod.object({
 export const getInitiativeResponseProgressMin = 0;
 export const getInitiativeResponseProgressMax = 100;
 
+export const getInitiativeResponseQuarterGoalTargetMin = 0;
+export const getInitiativeResponseQuarterGoalTargetMax = 100;
+
 
 
 export const GetInitiativeResponse = zod.object({
@@ -179,6 +197,8 @@ export const GetInitiativeResponse = zod.object({
   "progress": zod.number().min(getInitiativeResponseProgressMin).max(getInitiativeResponseProgressMax),
   "startDate": zod.coerce.date(),
   "targetDate": zod.coerce.date(),
+  "quarterGoal": zod.string().nullable(),
+  "quarterGoalTarget": zod.number().min(getInitiativeResponseQuarterGoalTargetMin).max(getInitiativeResponseQuarterGoalTargetMax).nullable(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -196,6 +216,9 @@ export const UpdateInitiativeParams = zod.object({
 export const updateInitiativeBodyProgressMin = 0;
 export const updateInitiativeBodyProgressMax = 100;
 
+export const updateInitiativeBodyQuarterGoalTargetMin = 0;
+export const updateInitiativeBodyQuarterGoalTargetMax = 100;
+
 
 
 export const UpdateInitiativeBody = zod.object({
@@ -207,11 +230,16 @@ export const UpdateInitiativeBody = zod.object({
   "owner": zod.string().min(1).optional(),
   "progress": zod.number().min(updateInitiativeBodyProgressMin).max(updateInitiativeBodyProgressMax).optional(),
   "startDate": zod.coerce.date().optional(),
-  "targetDate": zod.coerce.date().optional()
+  "targetDate": zod.coerce.date().optional(),
+  "quarterGoal": zod.string().nullish(),
+  "quarterGoalTarget": zod.number().min(updateInitiativeBodyQuarterGoalTargetMin).max(updateInitiativeBodyQuarterGoalTargetMax).nullish()
 })
 
 export const updateInitiativeResponseProgressMin = 0;
 export const updateInitiativeResponseProgressMax = 100;
+
+export const updateInitiativeResponseQuarterGoalTargetMin = 0;
+export const updateInitiativeResponseQuarterGoalTargetMax = 100;
 
 
 
@@ -226,6 +254,8 @@ export const UpdateInitiativeResponse = zod.object({
   "progress": zod.number().min(updateInitiativeResponseProgressMin).max(updateInitiativeResponseProgressMax),
   "startDate": zod.coerce.date(),
   "targetDate": zod.coerce.date(),
+  "quarterGoal": zod.string().nullable(),
+  "quarterGoalTarget": zod.number().min(updateInitiativeResponseQuarterGoalTargetMin).max(updateInitiativeResponseQuarterGoalTargetMax).nullable(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -330,6 +360,31 @@ export const DeleteDependencyParams = zod.object({
 })
 
 export const DeleteDependencyResponse = zod.void()
+
+
+/**
+ * Returns the singleton company settings record, creating a default if none exists
+ * @summary Get company settings
+ */
+export const GetSettingsResponse = zod.object({
+  "id": zod.number(),
+  "quarterStartDate": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update company settings
+ */
+export const UpdateSettingsBody = zod.object({
+  "quarterStartDate": zod.coerce.date()
+})
+
+export const UpdateSettingsResponse = zod.object({
+  "id": zod.number(),
+  "quarterStartDate": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
 
 
 /**

@@ -16,6 +16,8 @@ export const initiativesTable = pgTable("initiatives", {
   progress: integer("progress").notNull().default(0),
   startDate: date("start_date", { mode: "string" }).notNull(),
   targetDate: date("target_date", { mode: "string" }).notNull(),
+  quarterGoal: text("quarter_goal"),
+  quarterGoalTarget: integer("quarter_goal_target"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()

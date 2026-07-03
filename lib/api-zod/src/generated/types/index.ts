@@ -27,3 +27,5 @@ export * from './initiativeUpdate';
 export * from './listInitiativesParams';
 export * from './recentActivityItem';
 export * from './riskLevel';
+export * from './settings';
+export * from './settingsUpdate';

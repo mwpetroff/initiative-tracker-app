@@ -87,6 +87,18 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
           <span>Progress: {initiative.progress}%</span>
         </div>
 
+        {initiative.quarterGoal && (
+          <div className="rounded-md border bg-muted/50 p-3 text-sm space-y-1">
+            <p className="font-semibold">Quarter Goal</p>
+            <p className="text-muted-foreground">{initiative.quarterGoal}</p>
+            {initiative.quarterGoalTarget !== null && initiative.quarterGoalTarget !== undefined && (
+              <p className="text-muted-foreground">
+                Target: {initiative.quarterGoalTarget}% (currently {initiative.progress}%)
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="mt-2">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-semibold text-sm">Dependencies</h3>

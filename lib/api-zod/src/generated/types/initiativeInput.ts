@@ -24,4 +24,12 @@ export interface InitiativeInput {
   progress: number;
   startDate: Date;
   targetDate: Date;
+  /** @nullable */
+  quarterGoal?: string | null;
+  /**
+     * @minimum 0
+     * @maximum 100
+     * @nullable
+     */
+  quarterGoalTarget?: number | null;
 }

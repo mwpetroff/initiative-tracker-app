@@ -75,6 +75,14 @@ export interface Initiative {
   progress: number;
   startDate: string;
   targetDate: string;
+  /** @nullable */
+  quarterGoal: string | null;
+  /**
+     * @minimum 0
+     * @maximum 100
+     * @nullable
+     */
+  quarterGoalTarget: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -95,6 +103,14 @@ export interface InitiativeInput {
   progress: number;
   startDate: string;
   targetDate: string;
+  /** @nullable */
+  quarterGoal?: string | null;
+  /**
+     * @minimum 0
+     * @maximum 100
+     * @nullable
+     */
+  quarterGoalTarget?: number | null;
 }
 
 export interface InitiativeUpdate {
@@ -113,6 +129,14 @@ export interface InitiativeUpdate {
   progress?: number;
   startDate?: string;
   targetDate?: string;
+  /** @nullable */
+  quarterGoal?: string | null;
+  /**
+     * @minimum 0
+     * @maximum 100
+     * @nullable
+     */
+  quarterGoalTarget?: number | null;
 }
 
 export interface Dependency {
@@ -207,6 +231,16 @@ export interface HeatmapData {
   rows: Department[];
   columns: HeatmapColumn[];
   cells: HeatmapCell[];
+}
+
+export interface Settings {
+  id: number;
+  quarterStartDate: string;
+  updatedAt: string;
+}
+
+export interface SettingsUpdate {
+  quarterStartDate: string;
 }
 
 export type ListInitiativesParams = {

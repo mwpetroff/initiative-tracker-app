@@ -8,6 +8,8 @@ import Dashboard from "@/pages/dashboard";
 import Initiatives from "@/pages/initiatives";
 import Heatmap from "@/pages/heatmap";
 import Departments from "@/pages/departments";
+import QuarterlyGoals from "@/pages/quarterly-goals";
+import Settings from "@/pages/settings";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +20,8 @@ function Router() {
       <Route path="/initiatives" component={Initiatives} />
       <Route path="/heatmap" component={Heatmap} />
       <Route path="/departments" component={Departments} />
+      <Route path="/quarterly-goals" component={QuarterlyGoals} />
+      <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );

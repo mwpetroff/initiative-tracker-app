@@ -42,6 +42,8 @@ const initiativeFormSchema = z.object({
   progress: z.coerce.number().min(0).max(100),
   startDate: z.string().min(1, "Start date is required"),
   targetDate: z.string().min(1, "Target date is required"),
+  quarterGoal: z.string(),
+  quarterGoalTarget: z.string(),
 });
 
 type InitiativeFormValues = z.infer<typeof initiativeFormSchema>;
@@ -70,6 +72,8 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
       progress: 0,
       startDate: "",
       targetDate: "",
+      quarterGoal: "",
+      quarterGoalTarget: "",
     },
   });
 
@@ -85,6 +89,11 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
         progress: initiative?.progress ?? 0,
         startDate: toDateInputValue(initiative?.startDate),
         targetDate: toDateInputValue(initiative?.targetDate),
+        quarterGoal: initiative?.quarterGoal ?? "",
+        quarterGoalTarget:
+          initiative?.quarterGoalTarget !== undefined && initiative?.quarterGoalTarget !== null
+            ? String(initiative.quarterGoalTarget)
+            : "",
       });
     }
   }, [open, initiative, form]);
@@ -134,6 +143,8 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
       progress: values.progress,
       startDate: values.startDate,
       targetDate: values.targetDate,
+      quarterGoal: values.quarterGoal.trim() ? values.quarterGoal.trim() : null,
+      quarterGoalTarget: values.quarterGoalTarget.trim() ? Number(values.quarterGoalTarget) : null,
     };
 
     if (isEditing && initiative) {
@@ -270,6 +281,30 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
               {form.formState.errors.targetDate && (
                 <p className="text-sm text-destructive">{form.formState.errors.targetDate.message}</p>
               )}
+            </div>
+          </div>
+
+          <div className="space-y-4 rounded-md border p-3">
+            <p className="text-sm font-medium">Quarter Goal (optional)</p>
+            <div className="space-y-2">
+              <Label htmlFor="init-quarter-goal">Goal description</Label>
+              <Textarea
+                id="init-quarter-goal"
+                rows={2}
+                placeholder="e.g. Ship v2 API to 100% of customers"
+                {...form.register("quarterGoal")}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="init-quarter-goal-target">Target progress by end of quarter (%)</Label>
+              <Input
+                id="init-quarter-goal-target"
+                type="number"
+                min={0}
+                max={100}
+                placeholder="e.g. 100"
+                {...form.register("quarterGoalTarget")}
+              />
             </div>
           </div>
 

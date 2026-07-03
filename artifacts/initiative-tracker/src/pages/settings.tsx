@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { getFiscalQuarter, formatDateRange } from "@/lib/quarter";
 import { PageLoading, PageError } from "@/components/page-state";
-import { useQuarterLocale } from "@/i18n";
+import { useQuarterLocale, type AppLanguage } from "@/i18n";
 import Departments from "@/pages/departments";
 import RiskCategories from "@/pages/risk-categories";
 
@@ -26,6 +26,68 @@ function makeSettingsFormSchema(t: TFunction) {
 }
 
 type SettingsFormValues = z.infer<ReturnType<typeof makeSettingsFormSchema>>;
+
+function LanguageSettings() {
+  const { data: settings, isLoading, error } = useGetSettings();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { t, i18n } = useTranslation();
+
+  const updateMutation = useUpdateSettings({
+    mutation: {
+      onSuccess: (updated) => {
+        queryClient.invalidateQueries({ queryKey: getGetSettingsQueryKey() });
+        i18n.changeLanguage(updated.language);
+        toast({ title: t("settings.languageSaved") });
+      },
+      onError: () => {
+        toast({ title: t("settings.languageSaveFailed"), variant: "destructive" });
+      },
+    },
+  });
+
+  if (isLoading || error) {
+    return null;
+  }
+
+  const currentLanguage = (settings?.language ?? "en") as AppLanguage;
+
+  const selectLanguage = (language: AppLanguage) => {
+    if (language === currentLanguage || updateMutation.isPending) return;
+    updateMutation.mutate({ data: { language } });
+  };
+
+  return (
+    <Card className="max-w-lg">
+      <CardHeader>
+        <CardTitle>{t("settings.languageTitle")}</CardTitle>
+        <CardDescription>{t("settings.languageDescription")}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex gap-2" role="group" aria-label={t("settings.languageTitle")}>
+          <Button
+            type="button"
+            variant={currentLanguage === "en" ? "secondary" : "outline"}
+            aria-pressed={currentLanguage === "en"}
+            disabled={updateMutation.isPending}
+            onClick={() => selectLanguage("en")}
+          >
+            {t("settings.languageEnglish")}
+          </Button>
+          <Button
+            type="button"
+            variant={currentLanguage === "ja" ? "secondary" : "outline"}
+            aria-pressed={currentLanguage === "ja"}
+            disabled={updateMutation.isPending}
+            onClick={() => selectLanguage("ja")}
+          >
+            {t("settings.languageJapanese")}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 function GeneralSettings() {
   const { data: settings, isLoading, error } = useGetSettings();
@@ -146,8 +208,9 @@ export default function Settings() {
           <TabsTrigger value="departments">{t("settings.tabDepartments")}</TabsTrigger>
           <TabsTrigger value="risk-categories">{t("settings.tabRiskCategories")}</TabsTrigger>
         </TabsList>
-        <TabsContent value="general" className="mt-6">
+        <TabsContent value="general" className="mt-6 space-y-6">
           <GeneralSettings />
+          <LanguageSettings />
         </TabsContent>
         <TabsContent value="departments" className="mt-6">
           <Departments />

@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { Layout } from "@/components/layout";
+import { LanguageSync } from "@/components/language-sync";
 import Dashboard from "@/pages/dashboard";
 import Initiatives from "@/pages/initiatives";
 import Heatmap from "@/pages/heatmap";
@@ -34,6 +35,7 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <LanguageSync />
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <Layout>

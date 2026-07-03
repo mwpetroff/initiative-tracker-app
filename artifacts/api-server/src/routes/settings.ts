@@ -42,9 +42,22 @@ router.put("/settings", async (req, res): Promise<void> => {
 
   const existing = await getOrCreateSettings();
 
+  const updates: Partial<{ quarterStartDate: string; language: "en" | "ja" }> = {};
+  if (parsed.data.quarterStartDate !== undefined) {
+    updates.quarterStartDate = toDateString(parsed.data.quarterStartDate);
+  }
+  if (parsed.data.language !== undefined) {
+    updates.language = parsed.data.language;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    res.json(UpdateSettingsResponse.parse(existing));
+    return;
+  }
+
   const [updated] = await db
     .update(settingsTable)
-    .set({ quarterStartDate: toDateString(parsed.data.quarterStartDate) })
+    .set(updates)
     .where(eq(settingsTable.id, existing.id))
     .returning();
 

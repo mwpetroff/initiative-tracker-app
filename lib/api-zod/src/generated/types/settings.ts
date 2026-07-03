@@ -5,9 +5,11 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { SettingsLanguage } from './settingsLanguage';
 
 export interface Settings {
   id: number;
   quarterStartDate: Date;
+  language: SettingsLanguage;
   updatedAt: Date;
 }

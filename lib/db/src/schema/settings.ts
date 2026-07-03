@@ -1,4 +1,4 @@
-import { pgTable, serial, date, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, date, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -11,6 +11,7 @@ export const SINGLETON_ID = 1;
 export const settingsTable = pgTable("settings", {
   id: serial("id").primaryKey(),
   quarterStartDate: date("quarter_start_date", { mode: "string" }).notNull(),
+  language: text("language", { enum: ["en", "ja"] }).notNull().default("en"),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow()

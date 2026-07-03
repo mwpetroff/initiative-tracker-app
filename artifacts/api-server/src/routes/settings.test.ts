@@ -43,4 +43,35 @@ describe("PUT /api/settings", () => {
     const res = await request(app).put("/api/settings").send({ quarterStartDate: "not-a-date" });
     expect(res.status).toBe(400);
   });
+
+  it("updates the language preference and persists it", async () => {
+    const original = await request(app).get("/api/settings");
+
+    const res = await request(app).put("/api/settings").send({ language: "ja" });
+    expect(res.status).toBe(200);
+    expect(res.body.language).toBe("ja");
+
+    const after = await request(app).get("/api/settings");
+    expect(after.body.language).toBe("ja");
+
+    await request(app).put("/api/settings").send({ language: original.body.language });
+  });
+
+  it("does not change the language when only the quarter start date is updated", async () => {
+    const original = await request(app).get("/api/settings");
+
+    await request(app).put("/api/settings").send({ language: "ja" });
+    const res = await request(app)
+      .put("/api/settings")
+      .send({ quarterStartDate: original.body.quarterStartDate });
+    expect(res.status).toBe(200);
+    expect(res.body.language).toBe("ja");
+
+    await request(app).put("/api/settings").send({ language: original.body.language });
+  });
+
+  it("rejects an unsupported language with 400", async () => {
+    const res = await request(app).put("/api/settings").send({ language: "fr" });
+    expect(res.status).toBe(400);
+  });
 });

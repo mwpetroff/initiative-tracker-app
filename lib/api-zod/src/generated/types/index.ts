@@ -34,4 +34,6 @@ export * from './riskCategoryInput';
 export * from './riskCategoryUpdate';
 export * from './riskLevel';
 export * from './settings';
+export * from './settingsLanguage';
 export * from './settingsUpdate';
+export * from './settingsUpdateLanguage';

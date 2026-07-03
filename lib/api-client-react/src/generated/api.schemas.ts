@@ -291,14 +291,32 @@ export interface HeatmapData {
   cells: HeatmapCell[];
 }
 
+export type SettingsLanguage = typeof SettingsLanguage[keyof typeof SettingsLanguage];
+
+
+export const SettingsLanguage = {
+  en: 'en',
+  ja: 'ja',
+} as const;
+
 export interface Settings {
   id: number;
   quarterStartDate: string;
+  language: SettingsLanguage;
   updatedAt: string;
 }
 
+export type SettingsUpdateLanguage = typeof SettingsUpdateLanguage[keyof typeof SettingsUpdateLanguage];
+
+
+export const SettingsUpdateLanguage = {
+  en: 'en',
+  ja: 'ja',
+} as const;
+
 export interface SettingsUpdate {
-  quarterStartDate: string;
+  quarterStartDate?: string;
+  language?: SettingsUpdateLanguage;
 }
 
 export type ListInitiativesParams = {

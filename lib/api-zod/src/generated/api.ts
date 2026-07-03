@@ -456,6 +456,7 @@ export const DeleteRiskCategoryResponse = zod.void()
 export const GetSettingsResponse = zod.object({
   "id": zod.number(),
   "quarterStartDate": zod.coerce.date(),
+  "language": zod.enum(['en', 'ja']),
   "updatedAt": zod.coerce.date()
 })
 
@@ -464,12 +465,14 @@ export const GetSettingsResponse = zod.object({
  * @summary Update company settings
  */
 export const UpdateSettingsBody = zod.object({
-  "quarterStartDate": zod.coerce.date()
+  "quarterStartDate": zod.coerce.date().optional(),
+  "language": zod.enum(['en', 'ja']).optional()
 })
 
 export const UpdateSettingsResponse = zod.object({
   "id": zod.number(),
   "quarterStartDate": zod.coerce.date(),
+  "language": zod.enum(['en', 'ja']),
   "updatedAt": zod.coerce.date()
 })
 

@@ -755,14 +755,15 @@ components:
 
     Settings:
       type: object
-      required: [id, quarterStartDate, updatedAt]
+      required: [id, quarterStartDate, language, updatedAt]
       properties:
         id: { type: integer }
         quarterStartDate: { type: string, format: date }
+        language: { type: string, enum: [en, ja] }
         updatedAt: { type: string, format: date-time }
 
     SettingsUpdate:
       type: object
-      required: [quarterStartDate]
       properties:
         quarterStartDate: { type: string, format: date }
+        language: { type: string, enum: [en, ja] }

@@ -1,31 +1,35 @@
 import { useGetDashboardSummary } from "@workspace/api-client-react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle, Target, Activity, PauseCircle, CalendarClock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PageLoading, PageError } from "@/components/page-state";
+import { useDateLocale } from "@/i18n";
 
 export default function Dashboard() {
   const { data: summary, isLoading, error } = useGetDashboardSummary();
+  const { t } = useTranslation();
+  const dateLocale = useDateLocale();
 
   if (isLoading) {
-    return <PageLoading label="Loading dashboard..." />;
+    return <PageLoading label={t("dashboard.loading")} />;
   }
 
   if (error || !summary) {
-    return <PageError title="Couldn't load the dashboard" description="Please try refreshing the page." />;
+    return <PageError title={t("dashboard.loadError")} description={t("common.refreshHint")} />;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Mission Control</h1>
-        <p className="text-muted-foreground mt-2">Overview of initiatives and risks.</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("dashboard.title")}</h1>
+        <p className="text-muted-foreground mt-2">{t("dashboard.subtitle")}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Initiatives</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.totalInitiatives")}</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -34,7 +38,7 @@ export default function Dashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.active")}</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -43,7 +47,7 @@ export default function Dashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Blocked</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.blocked")}</CardTitle>
             <PauseCircle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
@@ -52,7 +56,7 @@ export default function Dashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.overdue")}</CardTitle>
             <CalendarClock className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
@@ -61,7 +65,7 @@ export default function Dashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">High Risk Dependencies</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.highRiskDependencies")}</CardTitle>
             <AlertCircle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
@@ -73,8 +77,8 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>Department Breakdown</CardTitle>
-            <CardDescription>Initiatives by department and status.</CardDescription>
+            <CardTitle>{t("dashboard.departmentBreakdown")}</CardTitle>
+            <CardDescription>{t("dashboard.departmentBreakdownSubtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -87,12 +91,12 @@ export default function Dashboard() {
                   <div className="flex-1 space-y-1">
                     <p className="text-sm font-medium leading-none">{dept.departmentName}</p>
                     <div className="flex gap-2 text-xs text-muted-foreground">
-                      <span>{dept.inProgress} Active</span>
+                      <span>{t("dashboard.activeCount", { count: dept.inProgress })}</span>
                       <span>•</span>
-                      <span>{dept.blocked} Blocked</span>
+                      <span>{t("dashboard.blockedCount", { count: dept.blocked })}</span>
                     </div>
                   </div>
-                  <div className="font-medium text-sm">{dept.total} Total</div>
+                  <div className="font-medium text-sm">{t("dashboard.totalCount", { count: dept.total })}</div>
                 </div>
               ))}
             </div>
@@ -101,8 +105,8 @@ export default function Dashboard() {
 
         <Card className="col-span-3">
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest status changes.</CardDescription>
+            <CardTitle>{t("dashboard.recentActivity")}</CardTitle>
+            <CardDescription>{t("dashboard.recentActivitySubtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -114,24 +118,24 @@ export default function Dashboard() {
                       <span>{activity.departmentName}</span>
                       <span>•</span>
                       <Badge variant="outline" className="font-normal">
-                        {activity.oldStatus}
+                        {t(`status.${activity.oldStatus}`, activity.oldStatus)}
                       </Badge>
                       <span>→</span>
                       <Badge
                         variant={activity.newStatus === "blocked" ? "destructive" : "secondary"}
                         className="font-normal"
                       >
-                        {activity.newStatus}
+                        {t(`status.${activity.newStatus}`, activity.newStatus)}
                       </Badge>
                     </div>
                   </div>
                   <div className="ml-auto text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(activity.changedAt).toLocaleDateString()}
+                    {new Date(activity.changedAt).toLocaleDateString(dateLocale)}
                   </div>
                 </div>
               ))}
               {!summary.recentActivity.length && (
-                <p className="text-sm text-muted-foreground">No status changes recorded yet.</p>
+                <p className="text-sm text-muted-foreground">{t("dashboard.noActivity")}</p>
               )}
             </div>
           </CardContent>

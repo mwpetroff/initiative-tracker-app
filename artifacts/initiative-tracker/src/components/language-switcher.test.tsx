@@ -1,0 +1,68 @@
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { render, screen, act } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import i18n, { LANGUAGE_STORAGE_KEY } from "@/i18n";
+import { LanguageSwitcher } from "./language-switcher";
+import { PageLoading } from "./page-state";
+
+beforeEach(async () => {
+  localStorage.clear();
+  await act(async () => {
+    await i18n.changeLanguage("en");
+  });
+});
+
+afterEach(async () => {
+  await act(async () => {
+    await i18n.changeLanguage("en");
+  });
+  localStorage.clear();
+});
+
+describe("LanguageSwitcher", () => {
+  it("renders both language options with English active by default", () => {
+    render(<LanguageSwitcher />);
+    const enButton = screen.getByRole("button", { name: "EN" });
+    const jaButton = screen.getByRole("button", { name: "日本語" });
+    expect(enButton).toHaveAttribute("aria-pressed", "true");
+    expect(jaButton).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("switches to Japanese and persists the choice in localStorage", async () => {
+    const user = userEvent.setup();
+    render(<LanguageSwitcher />);
+
+    await user.click(screen.getByRole("button", { name: "日本語" }));
+
+    expect(i18n.language).toBe("ja");
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe("ja");
+    expect(screen.getByRole("button", { name: "日本語" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("switches back to English and persists it", async () => {
+    const user = userEvent.setup();
+    render(<LanguageSwitcher />);
+
+    await user.click(screen.getByRole("button", { name: "日本語" }));
+    await user.click(screen.getByRole("button", { name: "EN" }));
+
+    expect(i18n.language).toBe("en");
+    expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe("en");
+  });
+
+  it("translates UI strings when the language changes", async () => {
+    const user = userEvent.setup();
+    render(
+      <div>
+        <LanguageSwitcher />
+        <PageLoading />
+      </div>,
+    );
+
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "日本語" }));
+
+    expect(screen.getByText("読み込み中...")).toBeInTheDocument();
+  });
+});

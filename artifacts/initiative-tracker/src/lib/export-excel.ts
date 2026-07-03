@@ -1,18 +1,54 @@
 import ExcelJS from "exceljs";
 import type { Initiative, Department } from "@workspace/api-client-react";
 
-const STATUS_LABELS: Record<string, string> = {
-  planning: "Planning",
-  in_progress: "In Progress",
-  blocked: "Blocked",
-  completed: "Completed",
-  on_hold: "On Hold",
-};
+export interface ExportLabels {
+  sheetName: string;
+  headers: {
+    title: string;
+    department: string;
+    status: string;
+    priority: string;
+    owner: string;
+    progress: string;
+    startDate: string;
+    targetDate: string;
+    quarterGoal: string;
+    quarterGoalTarget: string;
+    description: string;
+  };
+  status: Record<string, string>;
+  priority: Record<string, string>;
+  unknown: string;
+}
 
-const PRIORITY_LABELS: Record<string, string> = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
+const DEFAULT_LABELS: ExportLabels = {
+  sheetName: "Initiative Status",
+  headers: {
+    title: "Title",
+    department: "Department",
+    status: "Status",
+    priority: "Priority",
+    owner: "Owner",
+    progress: "Progress",
+    startDate: "Start Date",
+    targetDate: "Target Date",
+    quarterGoal: "Quarter Goal",
+    quarterGoalTarget: "Quarter Goal Target",
+    description: "Description",
+  },
+  status: {
+    planning: "Planning",
+    in_progress: "In Progress",
+    blocked: "Blocked",
+    completed: "Completed",
+    on_hold: "On Hold",
+  },
+  priority: {
+    low: "Low",
+    medium: "Medium",
+    high: "High",
+  },
+  unknown: "Unknown",
 };
 
 function toDate(value: string): Date {
@@ -37,29 +73,30 @@ export async function exportInitiativesToExcel(
   initiatives: Initiative[],
   departments: Department[] | undefined,
   filename = `initiative-status-${new Date().toISOString().slice(0, 10)}.xlsx`,
+  labels: ExportLabels = DEFAULT_LABELS,
 ) {
-  const departmentName = (id: number) => departments?.find((d) => d.id === id)?.name ?? "Unknown";
+  const departmentName = (id: number) => departments?.find((d) => d.id === id)?.name ?? labels.unknown;
 
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "Initiative Tracker";
   workbook.created = new Date();
 
-  const sheet = workbook.addWorksheet("Initiative Status", {
+  const sheet = workbook.addWorksheet(labels.sheetName, {
     views: [{ state: "frozen", ySplit: 1 }],
   });
 
   sheet.columns = [
-    { header: "Title", key: "title", width: 32 },
-    { header: "Department", key: "department", width: 18 },
-    { header: "Status", key: "status", width: 14 },
-    { header: "Priority", key: "priority", width: 12 },
-    { header: "Owner", key: "owner", width: 18 },
-    { header: "Progress", key: "progress", width: 12 },
-    { header: "Start Date", key: "startDate", width: 14 },
-    { header: "Target Date", key: "targetDate", width: 14 },
-    { header: "Quarter Goal", key: "quarterGoal", width: 30 },
-    { header: "Quarter Goal Target", key: "quarterGoalTarget", width: 18 },
-    { header: "Description", key: "description", width: 40 },
+    { header: labels.headers.title, key: "title", width: 32 },
+    { header: labels.headers.department, key: "department", width: 18 },
+    { header: labels.headers.status, key: "status", width: 14 },
+    { header: labels.headers.priority, key: "priority", width: 12 },
+    { header: labels.headers.owner, key: "owner", width: 18 },
+    { header: labels.headers.progress, key: "progress", width: 12 },
+    { header: labels.headers.startDate, key: "startDate", width: 14 },
+    { header: labels.headers.targetDate, key: "targetDate", width: 14 },
+    { header: labels.headers.quarterGoal, key: "quarterGoal", width: 30 },
+    { header: labels.headers.quarterGoalTarget, key: "quarterGoalTarget", width: 18 },
+    { header: labels.headers.description, key: "description", width: 40 },
   ];
 
   const headerRow = sheet.getRow(1);
@@ -84,8 +121,8 @@ export async function exportInitiativesToExcel(
     const row = sheet.addRow({
       title: initiative.title,
       department: departmentName(initiative.departmentId),
-      status: STATUS_LABELS[initiative.status] ?? initiative.status,
-      priority: PRIORITY_LABELS[initiative.priority] ?? initiative.priority,
+      status: labels.status[initiative.status] ?? initiative.status,
+      priority: labels.priority[initiative.priority] ?? initiative.priority,
       owner: initiative.owner,
       progress: initiative.progress / 100,
       startDate: toDate(initiative.startDate),

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   useListInitiativeDependencies,
   useDeleteDependency,
@@ -28,6 +29,7 @@ import { DependencyFormDialog } from "@/components/dependency-form-dialog";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { InlineLoading, PageError } from "@/components/page-state";
+import { useDateLocale } from "@/i18n";
 
 const riskVariant: Record<string, "secondary" | "outline" | "destructive"> = {
   low: "secondary",
@@ -45,6 +47,8 @@ interface InitiativeDetailDialogProps {
 export function InitiativeDetailDialog({ open, onOpenChange, initiative }: InitiativeDetailDialogProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const { data: departments } = useListDepartments();
   const { data: riskCategories } = useListRiskCategories();
   const {
@@ -75,18 +79,19 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
         queryClient.invalidateQueries({ queryKey: getListDependenciesQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetDashboardSummaryQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetDependencyHeatmapQueryKey() });
-        toast({ title: "Dependency removed" });
+        toast({ title: t("detail.dependencyRemoved") });
         setDeletingDependency(null);
       },
       onError: () => {
-        toast({ title: "Failed to remove dependency", variant: "destructive" });
+        toast({ title: t("detail.removeFailed"), variant: "destructive" });
       },
     },
   });
 
-  const departmentName = (id: number | null) => departments?.find((d) => d.id === id)?.name ?? "Unknown";
+  const departmentName = (id: number | null) =>
+    departments?.find((d) => d.id === id)?.name ?? t("common.unknown");
   const riskCategoryName = (id: number | null) =>
-    riskCategories?.find((c) => c.id === id)?.name ?? "Unknown";
+    riskCategories?.find((c) => c.id === id)?.name ?? t("common.unknown");
 
   if (!initiative) return null;
 
@@ -95,28 +100,39 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{initiative.title}</DialogTitle>
-          <DialogDescription>{initiative.description || "No description provided."}</DialogDescription>
+          <DialogDescription>{initiative.description || t("detail.noDescription")}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <Badge variant="secondary">{initiative.status}</Badge>
-          <Badge variant="outline">{initiative.priority} priority</Badge>
-          <span>Owner: {initiative.owner}</span>
-          <span>Progress: {initiative.progress}%</span>
+          <Badge variant="secondary">{t(`status.${initiative.status}`, initiative.status)}</Badge>
+          <Badge variant="outline">
+            {t("detail.priorityBadge", {
+              label: t(`priority.${initiative.priority}`, initiative.priority),
+            })}
+          </Badge>
+          <span>{t("detail.owner", { owner: initiative.owner })}</span>
+          <span>{t("detail.progress", { progress: initiative.progress })}</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          <span>Start: {new Date(initiative.startDate).toLocaleDateString()}</span>
-          <span>Target: {new Date(initiative.targetDate).toLocaleDateString()}</span>
+          <span>
+            {t("detail.start", { date: new Date(initiative.startDate).toLocaleDateString(dateLocale) })}
+          </span>
+          <span>
+            {t("detail.target", { date: new Date(initiative.targetDate).toLocaleDateString(dateLocale) })}
+          </span>
         </div>
 
         {initiative.quarterGoal && (
           <div className="rounded-md border bg-muted/50 p-3 text-sm space-y-1">
-            <p className="font-semibold">Quarter Goal</p>
+            <p className="font-semibold">{t("detail.quarterGoal")}</p>
             <p className="text-muted-foreground">{initiative.quarterGoal}</p>
             {initiative.quarterGoalTarget !== null && initiative.quarterGoalTarget !== undefined && (
               <p className="text-muted-foreground">
-                Target: {initiative.quarterGoalTarget}% (currently {initiative.progress}%)
+                {t("detail.quarterGoalTarget", {
+                  target: initiative.quarterGoalTarget,
+                  progress: initiative.progress,
+                })}
               </p>
             )}
           </div>
@@ -124,7 +140,7 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
 
         <div className="mt-2">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-sm">Dependencies</h3>
+            <h3 className="font-semibold text-sm">{t("detail.dependencies")}</h3>
             <Button
               size="sm"
               onClick={() => {
@@ -133,23 +149,23 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
               }}
             >
               <Plus className="h-4 w-4 mr-1" />
-              Add Dependency
+              {t("detail.addDependency")}
             </Button>
           </div>
 
           {isLoading ? (
-            <InlineLoading label="Loading dependencies..." />
+            <InlineLoading label={t("detail.loadingDependencies")} />
           ) : dependenciesError ? (
-            <PageError title="Couldn't load dependencies" description="Please try refreshing the page." />
+            <PageError title={t("detail.dependenciesLoadError")} description={t("common.refreshHint")} />
           ) : (
             <div className="overflow-x-auto -mx-1 px-1">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Depends on</TableHead>
-                    <TableHead>Risk</TableHead>
-                    <TableHead>Notes</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t("detail.dependsOn")}</TableHead>
+                    <TableHead>{t("detail.risk")}</TableHead>
+                    <TableHead>{t("common.notes")}</TableHead>
+                    <TableHead className="text-right">{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -161,7 +177,9 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
                           : riskCategoryName(dep.dependsOnRiskCategoryId)}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={riskVariant[dep.riskLevel] ?? "secondary"}>{dep.riskLevel}</Badge>
+                        <Badge variant={riskVariant[dep.riskLevel] ?? "secondary"}>
+                          {t(`risk.${dep.riskLevel}`, dep.riskLevel)}
+                        </Badge>
                       </TableCell>
                       <TableCell className="max-w-xs truncate text-sm text-muted-foreground">
                         {dep.notes}
@@ -170,6 +188,7 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
                         <Button
                           variant="ghost"
                           size="sm"
+                          aria-label={t("common.edit")}
                           onClick={() => {
                             setEditingDependency(dep);
                             setDepFormOpen(true);
@@ -180,6 +199,7 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
                         <Button
                           variant="ghost"
                           size="sm"
+                          aria-label={t("common.delete")}
                           className="text-destructive hover:text-destructive"
                           onClick={() => setDeletingDependency(dep)}
                         >
@@ -191,7 +211,7 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
                   {!dependencies?.length && (
                     <TableRow>
                       <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
-                        No dependencies recorded.
+                        {t("detail.noDependencies")}
                       </TableCell>
                     </TableRow>
                   )}
@@ -202,32 +222,32 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
         </div>
 
         <div className="mt-2">
-          <h3 className="font-semibold text-sm mb-2">Status History</h3>
+          <h3 className="font-semibold text-sm mb-2">{t("detail.statusHistory")}</h3>
           {isHistoryLoading ? (
-            <InlineLoading label="Loading history..." />
+            <InlineLoading label={t("detail.loadingHistory")} />
           ) : historyError ? (
-            <PageError title="Couldn't load status history" description="Please try refreshing the page." />
+            <PageError title={t("detail.historyLoadError")} description={t("common.refreshHint")} />
           ) : history?.length ? (
             <ul className="space-y-2 max-h-40 overflow-y-auto pr-1">
               {history.map((entry) => (
                 <li key={entry.id} className="flex items-center justify-between text-sm">
                   <span>
                     <Badge variant="outline" className="mr-1">
-                      {entry.oldStatus}
+                      {t(`status.${entry.oldStatus}`, entry.oldStatus)}
                     </Badge>
                     →
                     <Badge variant="secondary" className="ml-1">
-                      {entry.newStatus}
+                      {t(`status.${entry.newStatus}`, entry.newStatus)}
                     </Badge>
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {new Date(entry.changedAt).toLocaleString()}
+                    {new Date(entry.changedAt).toLocaleString(dateLocale)}
                   </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">No status changes recorded yet.</p>
+            <p className="text-sm text-muted-foreground">{t("detail.noHistory")}</p>
           )}
         </div>
 
@@ -241,8 +261,8 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
         <ConfirmDeleteDialog
           open={Boolean(deletingDependency)}
           onOpenChange={(open) => !open && setDeletingDependency(null)}
-          title="Remove dependency?"
-          description="This will permanently remove this dependency record."
+          title={t("detail.removeDependencyTitle")}
+          description={t("detail.removeDependencyDescription")}
           onConfirm={() => deletingDependency && deleteMutation.mutate({ id: deletingDependency.id })}
           isPending={deleteMutation.isPending}
         />

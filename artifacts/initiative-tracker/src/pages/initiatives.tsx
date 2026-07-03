@@ -10,6 +10,7 @@ import {
 } from "@workspace/api-client-react";
 import type { Initiative } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,19 +28,15 @@ import { Plus, Pencil, Trash2, FileSpreadsheet, Search } from "lucide-react";
 import { InitiativeFormDialog } from "@/components/initiative-form-dialog";
 import { InitiativeDetailDialog } from "@/components/initiative-detail-dialog";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
-import { PageLoading, PageError, CardSkeletonGrid } from "@/components/page-state";
+import { PageError, CardSkeletonGrid } from "@/components/page-state";
 import { useToast } from "@/hooks/use-toast";
 import { getFiscalQuarter } from "@/lib/quarter";
-import { exportInitiativesToExcel } from "@/lib/export-excel";
+import { exportInitiativesToExcel, type ExportLabels } from "@/lib/export-excel";
 import { filterInitiatives, paginate, isInitiativeOverdue } from "@/lib/initiative-filters";
+import { useDateLocale, useQuarterLocale } from "@/i18n";
 
-const STATUS_LABELS: Record<string, string> = {
-  planning: "Planning",
-  in_progress: "In Progress",
-  blocked: "Blocked",
-  completed: "Completed",
-  on_hold: "On Hold",
-};
+const STATUS_VALUES = ["planning", "in_progress", "blocked", "completed", "on_hold"] as const;
+const PRIORITY_VALUES = ["low", "medium", "high"] as const;
 
 const PAGE_SIZE = 9;
 
@@ -49,6 +46,9 @@ export default function Initiatives() {
   const { data: departments } = useListDepartments();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
+  const dateLocale = useDateLocale();
+  const quarterLocale = useQuarterLocale();
   const [isExporting, setIsExporting] = useState(false);
 
   const [formOpen, setFormOpen] = useState(false);
@@ -75,12 +75,16 @@ export default function Initiatives() {
     if (!initiatives || !anchorDate) return [];
     const map = new Map<string, string>();
     for (const initiative of initiatives) {
-      const q = getFiscalQuarter(anchorDate, new Date(`${initiative.targetDate.slice(0, 10)}T00:00:00Z`));
+      const q = getFiscalQuarter(
+        anchorDate,
+        new Date(`${initiative.targetDate.slice(0, 10)}T00:00:00Z`),
+        quarterLocale,
+      );
       const key = `${q.year}-Q${q.quarterNumber}`;
       map.set(key, q.label);
     }
     return Array.from(map.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
-  }, [initiatives, anchorDate]);
+  }, [initiatives, anchorDate, quarterLocale]);
 
   const filteredInitiatives = useMemo(() => {
     return filterInitiatives(initiatives ?? [], {
@@ -107,11 +111,11 @@ export default function Initiatives() {
         queryClient.invalidateQueries({ queryKey: getListInitiativesQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetDashboardSummaryQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetDependencyHeatmapQueryKey() });
-        toast({ title: "Initiative deleted" });
+        toast({ title: t("initiatives.deleted") });
         setDeletingInitiative(null);
       },
       onError: () => {
-        toast({ title: "Failed to delete initiative", variant: "destructive" });
+        toast({ title: t("initiatives.deleteFailed"), variant: "destructive" });
       },
     },
   });
@@ -121,16 +125,36 @@ export default function Initiatives() {
     setFormOpen(true);
   };
 
+  const buildExportLabels = (): ExportLabels => ({
+    sheetName: t("export.sheetName"),
+    headers: {
+      title: t("export.title"),
+      department: t("export.department"),
+      status: t("export.status"),
+      priority: t("export.priority"),
+      owner: t("export.owner"),
+      progress: t("export.progress"),
+      startDate: t("export.startDate"),
+      targetDate: t("export.targetDate"),
+      quarterGoal: t("export.quarterGoal"),
+      quarterGoalTarget: t("export.quarterGoalTarget"),
+      description: t("export.description"),
+    },
+    status: Object.fromEntries(STATUS_VALUES.map((s) => [s, t(`status.${s}`)])),
+    priority: Object.fromEntries(PRIORITY_VALUES.map((p) => [p, t(`priority.${p}`)])),
+    unknown: t("common.unknown"),
+  });
+
   if (error) {
-    return <PageError title="Couldn't load initiatives" description="Please try refreshing the page." />;
+    return <PageError title={t("initiatives.loadError")} description={t("common.refreshHint")} />;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Initiatives</h1>
-          <p className="text-muted-foreground mt-2">Manage and track all initiatives.</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("initiatives.title")}</h1>
+          <p className="text-muted-foreground mt-2">{t("initiatives.subtitle")}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button
@@ -139,21 +163,29 @@ export default function Initiatives() {
             onClick={async () => {
               setIsExporting(true);
               try {
-                await exportInitiativesToExcel(filteredInitiatives, departments);
-                toast({ title: "Export complete", description: "Current status exported to Excel." });
+                await exportInitiativesToExcel(
+                  filteredInitiatives,
+                  departments,
+                  undefined,
+                  buildExportLabels(),
+                );
+                toast({
+                  title: t("initiatives.exportComplete"),
+                  description: t("initiatives.exportCompleteDescription"),
+                });
               } catch (error) {
-                toast({ title: "Export failed", variant: "destructive" });
+                toast({ title: t("initiatives.exportFailed"), variant: "destructive" });
               } finally {
                 setIsExporting(false);
               }
             }}
           >
             <FileSpreadsheet className="mr-2 h-4 w-4" />
-            {isExporting ? "Exporting..." : "Export to Excel"}
+            {isExporting ? t("initiatives.exporting") : t("initiatives.exportToExcel")}
           </Button>
           <Button onClick={openCreateForm}>
             <Plus className="mr-2 h-4 w-4" />
-            New Initiative
+            {t("initiatives.newInitiative")}
           </Button>
         </div>
       </div>
@@ -162,7 +194,7 @@ export default function Initiatives() {
         <div className="relative w-full sm:w-64">
           <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by title or owner..."
+            placeholder={t("initiatives.searchPlaceholder")}
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -171,13 +203,13 @@ export default function Initiatives() {
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue placeholder={t("initiatives.filterByStatus")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            {Object.entries(STATUS_LABELS).map(([value, label]) => (
+            <SelectItem value="all">{t("initiatives.allStatuses")}</SelectItem>
+            {STATUS_VALUES.map((value) => (
               <SelectItem key={value} value={value}>
-                {label}
+                {t(`status.${value}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -185,10 +217,10 @@ export default function Initiatives() {
 
         <Select value={quarterFilter} onValueChange={setQuarterFilter}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by quarter" />
+            <SelectValue placeholder={t("initiatives.filterByQuarter")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Quarters</SelectItem>
+            <SelectItem value="all">{t("initiatives.allQuarters")}</SelectItem>
             {quarterOptions.map(([key, label]) => (
               <SelectItem key={key} value={key}>
                 {label}
@@ -207,7 +239,7 @@ export default function Initiatives() {
               setSearchQuery("");
             }}
           >
-            Clear filters
+            {t("initiatives.clearFilters")}
           </Button>
         )}
       </div>
@@ -227,22 +259,24 @@ export default function Initiatives() {
               <div className="flex justify-between items-start">
                 <div className="flex flex-wrap gap-1">
                   <Badge variant={initiative.status === "blocked" ? "destructive" : "secondary"}>
-                    {initiative.status}
+                    {t(`status.${initiative.status}`, initiative.status)}
                   </Badge>
-                  {isInitiativeOverdue(initiative) && <Badge variant="destructive">overdue</Badge>}
+                  {isInitiativeOverdue(initiative) && (
+                    <Badge variant="destructive">{t("initiatives.overdue")}</Badge>
+                  )}
                 </div>
-                <Badge variant="outline">{initiative.priority}</Badge>
+                <Badge variant="outline">{t(`priority.${initiative.priority}`, initiative.priority)}</Badge>
               </div>
               <CardTitle className="mt-4 text-lg">{initiative.title}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground line-clamp-2">
-                  {initiative.description || "No description provided."}
+                  {initiative.description || t("initiatives.noDescription")}
                 </p>
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs font-medium">
-                    <span>Progress</span>
+                    <span>{t("initiatives.progress")}</span>
                     <span>{initiative.progress}%</span>
                   </div>
                   <div className="w-full bg-secondary rounded-full h-2">
@@ -255,7 +289,9 @@ export default function Initiatives() {
                 <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
                   <span>{initiative.owner}</span>
                   <span className={isInitiativeOverdue(initiative) ? "text-destructive font-medium" : undefined}>
-                    Due {new Date(initiative.targetDate).toLocaleDateString()}
+                    {t("initiatives.due", {
+                      date: new Date(initiative.targetDate).toLocaleDateString(dateLocale),
+                    })}
                   </span>
                 </div>
                 <div className="flex items-center justify-end gap-1 pt-2 border-t" onClick={(e) => e.stopPropagation()}>
@@ -268,7 +304,7 @@ export default function Initiatives() {
                     }}
                   >
                     <Pencil className="h-4 w-4 mr-1" />
-                    Edit
+                    {t("common.edit")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -277,7 +313,7 @@ export default function Initiatives() {
                     onClick={() => setDeletingInitiative(initiative)}
                   >
                     <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
+                    {t("common.delete")}
                   </Button>
                 </div>
               </div>
@@ -288,9 +324,7 @@ export default function Initiatives() {
 
       {!filteredInitiatives.length && (
         <div className="text-center py-12 text-muted-foreground">
-          {initiatives?.length
-            ? "No initiatives match the selected filters."
-            : "No initiatives found. Create one to get started."}
+          {initiatives?.length ? t("initiatives.emptyFiltered") : t("initiatives.emptyNone")}
         </div>
       )}
 
@@ -348,8 +382,8 @@ export default function Initiatives() {
       <ConfirmDeleteDialog
         open={Boolean(deletingInitiative)}
         onOpenChange={(open) => !open && setDeletingInitiative(null)}
-        title="Delete initiative?"
-        description={`This will permanently delete "${deletingInitiative?.title}" and its dependencies.`}
+        title={t("initiatives.deleteTitle")}
+        description={t("initiatives.deleteDescription", { title: deletingInitiative?.title })}
         onConfirm={() => deletingInitiative && deleteMutation.mutate({ id: deletingInitiative.id })}
         isPending={deleteMutation.isPending}
       />

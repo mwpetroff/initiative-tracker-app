@@ -7,6 +7,7 @@ import {
 } from "@workspace/api-client-react";
 import type { RiskCategory } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export default function RiskCategories() {
   const { data: riskCategories, isLoading, error } = useListRiskCategories();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingRiskCategory, setEditingRiskCategory] = useState<RiskCategory | null>(null);
@@ -30,7 +32,7 @@ export default function RiskCategories() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListRiskCategoriesQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetDependencyHeatmapQueryKey() });
-        toast({ title: "Risk category deleted" });
+        toast({ title: t("riskCategories.deleted") });
         setDeletingRiskCategory(null);
       },
       onError: (error: unknown) => {
@@ -39,11 +41,11 @@ export default function RiskCategories() {
             ? String((error as { message?: unknown }).message)
             : undefined;
         toast({
-          title: "Failed to delete risk category",
+          title: t("riskCategories.deleteFailed"),
           description:
             message && message.includes("in use")
               ? message
-              : "It may still be referenced by one or more dependencies.",
+              : t("riskCategories.deleteFailedFallback"),
           variant: "destructive",
         });
         setDeletingRiskCategory(null);
@@ -62,39 +64,37 @@ export default function RiskCategories() {
   };
 
   if (isLoading) {
-    return <PageLoading label="Loading risk categories..." />;
+    return <PageLoading label={t("riskCategories.loading")} />;
   }
 
   if (error) {
-    return <PageError title="Couldn't load risk categories" description="Please try refreshing the page." />;
+    return <PageError title={t("riskCategories.loadError")} description={t("common.refreshHint")} />;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">Risk Categories</h2>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Manage the external risk matrix categories dependencies can reference.
-          </p>
+          <h2 className="text-xl font-semibold tracking-tight">{t("riskCategories.title")}</h2>
+          <p className="text-muted-foreground mt-1 text-sm">{t("riskCategories.subtitle")}</p>
         </div>
         <Button onClick={openCreateForm} className="self-start sm:self-auto">
           <Plus className="mr-2 h-4 w-4" />
-          Add Risk Category
+          {t("riskCategories.add")}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Risk Categories</CardTitle>
-          <CardDescription>A list of all risk matrix categories.</CardDescription>
+          <CardTitle>{t("riskCategories.all")}</CardTitle>
+          <CardDescription>{t("riskCategories.allSubtitle")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("common.name")}</TableHead>
+                <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -104,7 +104,7 @@ export default function RiskCategories() {
                   <TableCell className="text-right space-x-1">
                     <Button variant="ghost" size="sm" onClick={() => openEditForm(category)}>
                       <Pencil className="h-4 w-4 mr-1" />
-                      Edit
+                      {t("common.edit")}
                     </Button>
                     <Button
                       variant="ghost"
@@ -113,7 +113,7 @@ export default function RiskCategories() {
                       onClick={() => setDeletingRiskCategory(category)}
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
-                      Delete
+                      {t("common.delete")}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -121,7 +121,7 @@ export default function RiskCategories() {
               {!riskCategories?.length && (
                 <TableRow>
                   <TableCell colSpan={2} className="text-center py-8 text-muted-foreground">
-                    No risk categories found.
+                    {t("riskCategories.empty")}
                   </TableCell>
                 </TableRow>
               )}
@@ -135,8 +135,8 @@ export default function RiskCategories() {
       <ConfirmDeleteDialog
         open={Boolean(deletingRiskCategory)}
         onOpenChange={(open) => !open && setDeletingRiskCategory(null)}
-        title="Delete risk category?"
-        description={`This will permanently delete "${deletingRiskCategory?.name}". This is only possible if no dependency currently references it.`}
+        title={t("riskCategories.deleteTitle")}
+        description={t("riskCategories.deleteDescription", { name: deletingRiskCategory?.name })}
         onConfirm={() => deletingRiskCategory && deleteMutation.mutate({ id: deletingRiskCategory.id })}
         isPending={deleteMutation.isPending}
       />

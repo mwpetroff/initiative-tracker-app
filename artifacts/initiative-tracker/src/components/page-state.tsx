@@ -1,29 +1,32 @@
 import { AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 
-export function PageLoading({ label = "Loading..." }: { label?: string }) {
+export function PageLoading({ label }: { label?: string }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground" role="status">
       <Spinner />
-      <span className="text-sm">{label}</span>
+      <span className="text-sm">{label ?? t("common.loading")}</span>
     </div>
   );
 }
 
 export function PageError({
-  title = "Something went wrong",
-  description = "We couldn't load this data. Please try refreshing the page.",
+  title,
+  description,
 }: {
   title?: string;
   description?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <Alert variant="destructive">
       <AlertCircle className="h-4 w-4" />
-      <AlertTitle>{title}</AlertTitle>
-      <AlertDescription>{description}</AlertDescription>
+      <AlertTitle>{title ?? t("common.errorTitle")}</AlertTitle>
+      <AlertDescription>{description ?? t("common.errorDescription")}</AlertDescription>
     </Alert>
   );
 }
@@ -46,11 +49,12 @@ export function CardSkeletonGrid({ count = 6 }: { count?: number }) {
   );
 }
 
-export function InlineLoading({ label = "Loading..." }: { label?: string }) {
+export function InlineLoading({ label }: { label?: string }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
       <Spinner />
-      <span>{label}</span>
+      <span>{label ?? t("common.loading")}</span>
     </div>
   );
 }

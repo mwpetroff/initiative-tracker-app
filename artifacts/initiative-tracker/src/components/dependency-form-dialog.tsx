@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import {
   useCreateDependency,
   useUpdateDependency,
@@ -29,26 +31,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 
-const dependencyFormSchema = z
-  .object({
-    dependencyType: z.enum(["department", "external"]),
-    dependsOnDepartmentId: z.string().optional(),
-    dependsOnRiskCategoryId: z.string().optional(),
-    riskLevel: z.enum(["low", "medium", "high", "critical"]),
-    notes: z.string(),
-  })
-  .refine(
-    (data) =>
-      data.dependencyType === "department"
-        ? Boolean(data.dependsOnDepartmentId)
-        : Boolean(data.dependsOnRiskCategoryId),
-    {
-      message: "Select a department or a risk category",
-      path: ["dependsOnDepartmentId"],
-    },
-  );
+function makeDependencyFormSchema(t: TFunction) {
+  return z
+    .object({
+      dependencyType: z.enum(["department", "external"]),
+      dependsOnDepartmentId: z.string().optional(),
+      dependsOnRiskCategoryId: z.string().optional(),
+      riskLevel: z.enum(["low", "medium", "high", "critical"]),
+      notes: z.string(),
+    })
+    .refine(
+      (data) =>
+        data.dependencyType === "department"
+          ? Boolean(data.dependsOnDepartmentId)
+          : Boolean(data.dependsOnRiskCategoryId),
+      {
+        message: t("dependencyForm.selectionRequired"),
+        path: ["dependsOnDepartmentId"],
+      },
+    );
+}
 
-type DependencyFormValues = z.infer<typeof dependencyFormSchema>;
+type DependencyFormValues = z.infer<ReturnType<typeof makeDependencyFormSchema>>;
 
 interface DependencyFormDialogProps {
   open: boolean;
@@ -66,11 +70,14 @@ export function DependencyFormDialog({
   const isEditing = Boolean(dependency);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const { data: departments } = useListDepartments();
   const { data: riskCategories } = useListRiskCategories();
 
+  const schema = useMemo(() => makeDependencyFormSchema(t), [t]);
+
   const form = useForm<DependencyFormValues>({
-    resolver: zodResolver(dependencyFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       dependencyType: "department",
       dependsOnDepartmentId: "",
@@ -109,11 +116,11 @@ export function DependencyFormDialog({
     mutation: {
       onSuccess: () => {
         invalidateAll();
-        toast({ title: "Dependency added" });
+        toast({ title: t("dependencyForm.added") });
         onOpenChange(false);
       },
       onError: () => {
-        toast({ title: "Failed to add dependency", variant: "destructive" });
+        toast({ title: t("dependencyForm.addFailed"), variant: "destructive" });
       },
     },
   });
@@ -122,11 +129,11 @@ export function DependencyFormDialog({
     mutation: {
       onSuccess: () => {
         invalidateAll();
-        toast({ title: "Dependency updated" });
+        toast({ title: t("dependencyForm.updated") });
         onOpenChange(false);
       },
       onError: () => {
-        toast({ title: "Failed to update dependency", variant: "destructive" });
+        toast({ title: t("dependencyForm.updateFailed"), variant: "destructive" });
       },
     },
   });
@@ -158,14 +165,12 @@ export function DependencyFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Dependency" : "Add Dependency"}</DialogTitle>
-          <DialogDescription>
-            Track what this initiative depends on and its associated risk.
-          </DialogDescription>
+          <DialogTitle>{isEditing ? t("dependencyForm.editTitle") : t("dependencyForm.addTitle")}</DialogTitle>
+          <DialogDescription>{t("dependencyForm.description")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label>Depends on</Label>
+            <Label>{t("dependencyForm.dependsOn")}</Label>
             <Controller
               control={form.control}
               name="dependencyType"
@@ -178,13 +183,13 @@ export function DependencyFormDialog({
                   <div className="flex items-center gap-2">
                     <RadioGroupItem value="department" id="dep-type-dept" />
                     <Label htmlFor="dep-type-dept" className="font-normal">
-                      Another department
+                      {t("dependencyForm.anotherDepartment")}
                     </Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <RadioGroupItem value="external" id="dep-type-ext" />
                     <Label htmlFor="dep-type-ext" className="font-normal">
-                      External factor
+                      {t("dependencyForm.externalFactor")}
                     </Label>
                   </div>
                 </RadioGroup>
@@ -194,14 +199,14 @@ export function DependencyFormDialog({
 
           {dependencyType === "department" ? (
             <div className="space-y-2">
-              <Label>Department</Label>
+              <Label>{t("dependencyForm.department")}</Label>
               <Controller
                 control={form.control}
                 name="dependsOnDepartmentId"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select department" />
+                      <SelectValue placeholder={t("dependencyForm.selectDepartment")} />
                     </SelectTrigger>
                     <SelectContent>
                       {departments?.map((dept) => (
@@ -216,14 +221,14 @@ export function DependencyFormDialog({
             </div>
           ) : (
             <div className="space-y-2">
-              <Label>Risk category</Label>
+              <Label>{t("dependencyForm.riskCategory")}</Label>
               <Controller
                 control={form.control}
                 name="dependsOnRiskCategoryId"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select risk category" />
+                      <SelectValue placeholder={t("dependencyForm.selectRiskCategory")} />
                     </SelectTrigger>
                     <SelectContent>
                       {riskCategories?.map((category) => (
@@ -244,7 +249,7 @@ export function DependencyFormDialog({
           )}
 
           <div className="space-y-2">
-            <Label>Risk Level</Label>
+            <Label>{t("dependencyForm.riskLevel")}</Label>
             <Controller
               control={form.control}
               name="riskLevel"
@@ -254,10 +259,10 @@ export function DependencyFormDialog({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="critical">Critical</SelectItem>
+                    <SelectItem value="low">{t("risk.low")}</SelectItem>
+                    <SelectItem value="medium">{t("risk.medium")}</SelectItem>
+                    <SelectItem value="high">{t("risk.high")}</SelectItem>
+                    <SelectItem value="critical">{t("risk.critical")}</SelectItem>
                   </SelectContent>
                 </Select>
               )}
@@ -265,16 +270,20 @@ export function DependencyFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dep-notes">Notes</Label>
+            <Label htmlFor="dep-notes">{t("common.notes")}</Label>
             <Textarea id="dep-notes" rows={3} {...form.register("notes")} />
           </div>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Saving..." : isEditing ? "Save Changes" : "Add Dependency"}
+              {isPending
+                ? t("common.saving")
+                : isEditing
+                  ? t("dependencyForm.saveChanges")
+                  : t("dependencyForm.add")}
             </Button>
           </DialogFooter>
         </form>

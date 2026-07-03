@@ -8,6 +8,7 @@ import {
 } from "@workspace/api-client-react";
 import type { Department } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ export default function Departments() {
   const { data: departments, isLoading, error } = useListDepartments();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
@@ -32,16 +34,16 @@ export default function Departments() {
         queryClient.invalidateQueries({ queryKey: getListDepartmentsQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetDashboardSummaryQueryKey() });
         queryClient.invalidateQueries({ queryKey: getGetDependencyHeatmapQueryKey() });
-        toast({ title: "Department deleted" });
+        toast({ title: t("departments.deleted") });
         setDeletingDepartment(null);
       },
       onError: (error) => {
         const description =
           error instanceof Error && error.message
             ? error.message
-            : "It may still be referenced by initiatives or dependencies.";
+            : t("departments.deleteFailedFallback");
         toast({
-          title: "Failed to delete department",
+          title: t("departments.deleteFailed"),
           description,
           variant: "destructive",
         });
@@ -60,38 +62,38 @@ export default function Departments() {
   };
 
   if (isLoading) {
-    return <PageLoading label="Loading departments..." />;
+    return <PageLoading label={t("departments.loading")} />;
   }
 
   if (error) {
-    return <PageError title="Couldn't load departments" description="Please try refreshing the page." />;
+    return <PageError title={t("departments.loadError")} description={t("common.refreshHint")} />;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">Departments</h2>
-          <p className="text-muted-foreground mt-1 text-sm">Manage organizational departments.</p>
+          <h2 className="text-xl font-semibold tracking-tight">{t("departments.title")}</h2>
+          <p className="text-muted-foreground mt-1 text-sm">{t("departments.subtitle")}</p>
         </div>
         <Button onClick={openCreateForm} className="self-start sm:self-auto">
           <Plus className="mr-2 h-4 w-4" />
-          Add Department
+          {t("departments.add")}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Departments</CardTitle>
-          <CardDescription>A list of all departments in the organization.</CardDescription>
+          <CardTitle>{t("departments.all")}</CardTitle>
+          <CardDescription>{t("departments.allSubtitle")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Color</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("departments.color")}</TableHead>
+                <TableHead>{t("common.name")}</TableHead>
+                <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -107,7 +109,7 @@ export default function Departments() {
                   <TableCell className="text-right space-x-1">
                     <Button variant="ghost" size="sm" onClick={() => openEditForm(dept)}>
                       <Pencil className="h-4 w-4 mr-1" />
-                      Edit
+                      {t("common.edit")}
                     </Button>
                     <Button
                       variant="ghost"
@@ -116,7 +118,7 @@ export default function Departments() {
                       onClick={() => setDeletingDepartment(dept)}
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
-                      Delete
+                      {t("common.delete")}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -124,7 +126,7 @@ export default function Departments() {
               {!departments?.length && (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
-                    No departments found.
+                    {t("departments.empty")}
                   </TableCell>
                 </TableRow>
               )}
@@ -138,8 +140,8 @@ export default function Departments() {
       <ConfirmDeleteDialog
         open={Boolean(deletingDepartment)}
         onOpenChange={(open) => !open && setDeletingDepartment(null)}
-        title="Delete department?"
-        description={`This will permanently delete "${deletingDepartment?.name}". Initiatives or dependencies referencing this department may be affected.`}
+        title={t("departments.deleteTitle")}
+        description={t("departments.deleteDescription", { name: deletingDepartment?.name })}
         onConfirm={() => deletingDepartment && deleteMutation.mutate({ id: deletingDepartment.id })}
         isPending={deleteMutation.isPending}
       />

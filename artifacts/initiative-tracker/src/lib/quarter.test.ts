@@ -80,4 +80,22 @@ describe("formatDateRange", () => {
     const end = utc(2026, 1, 28);
     expect(formatDateRange(start, end)).toBe("Dec 1 – Feb 28, 2026");
   });
+
+  it("formats a range in Japanese", () => {
+    const start = utc(2026, 0, 1);
+    const end = utc(2026, 2, 31);
+    expect(formatDateRange(start, end, "ja")).toBe("1月1日 – 2026年3月31日");
+  });
+
+  it("preserves UTC day boundaries regardless of runtime timezone", () => {
+    // Quarter boundaries are built with Date.UTC; formatting must not shift
+    // the day when the process runs in a non-UTC timezone.
+    const start = utc(2026, 0, 1);
+    const end = utc(2026, 2, 31);
+    const result = formatDateRange(start, end);
+    expect(result).toContain("Jan 1");
+    expect(result).toContain("Mar 31, 2026");
+    expect(result).not.toContain("Dec 31");
+    expect(result).not.toContain("Mar 30");
+  });
 });

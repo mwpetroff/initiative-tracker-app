@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import {
   useCreateInitiative,
   useUpdateInitiative,
@@ -32,21 +34,23 @@ function toDateInputValue(value?: string) {
   return value.slice(0, 10);
 }
 
-const initiativeFormSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string(),
-  departmentId: z.string().min(1, "Department is required"),
-  status: z.enum(["planning", "in_progress", "blocked", "completed", "on_hold"]),
-  priority: z.enum(["low", "medium", "high"]),
-  owner: z.string().min(1, "Owner is required"),
-  progress: z.coerce.number().min(0).max(100),
-  startDate: z.string().min(1, "Start date is required"),
-  targetDate: z.string().min(1, "Target date is required"),
-  quarterGoal: z.string(),
-  quarterGoalTarget: z.string(),
-});
+function makeInitiativeFormSchema(t: TFunction) {
+  return z.object({
+    title: z.string().min(1, t("initiativeForm.titleRequired")),
+    description: z.string(),
+    departmentId: z.string().min(1, t("initiativeForm.departmentRequired")),
+    status: z.enum(["planning", "in_progress", "blocked", "completed", "on_hold"]),
+    priority: z.enum(["low", "medium", "high"]),
+    owner: z.string().min(1, t("initiativeForm.ownerRequired")),
+    progress: z.coerce.number().min(0).max(100),
+    startDate: z.string().min(1, t("initiativeForm.startDateRequired")),
+    targetDate: z.string().min(1, t("initiativeForm.targetDateRequired")),
+    quarterGoal: z.string(),
+    quarterGoalTarget: z.string(),
+  });
+}
 
-type InitiativeFormValues = z.infer<typeof initiativeFormSchema>;
+type InitiativeFormValues = z.infer<ReturnType<typeof makeInitiativeFormSchema>>;
 
 interface InitiativeFormDialogProps {
   open: boolean;
@@ -58,10 +62,13 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
   const isEditing = Boolean(initiative);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const { data: departments } = useListDepartments();
 
+  const schema = useMemo(() => makeInitiativeFormSchema(t), [t]);
+
   const form = useForm<InitiativeFormValues>({
-    resolver: zodResolver(initiativeFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       title: "",
       description: "",
@@ -108,11 +115,11 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
     mutation: {
       onSuccess: () => {
         invalidateAll();
-        toast({ title: "Initiative created" });
+        toast({ title: t("initiativeForm.created") });
         onOpenChange(false);
       },
       onError: () => {
-        toast({ title: "Failed to create initiative", variant: "destructive" });
+        toast({ title: t("initiativeForm.createFailed"), variant: "destructive" });
       },
     },
   });
@@ -121,11 +128,11 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
     mutation: {
       onSuccess: () => {
         invalidateAll();
-        toast({ title: "Initiative updated" });
+        toast({ title: t("initiativeForm.updated") });
         onOpenChange(false);
       },
       onError: () => {
-        toast({ title: "Failed to update initiative", variant: "destructive" });
+        toast({ title: t("initiativeForm.updateFailed"), variant: "destructive" });
       },
     },
   });
@@ -158,35 +165,39 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Initiative" : "New Initiative"}</DialogTitle>
+          <DialogTitle>{isEditing ? t("initiativeForm.editTitle") : t("initiativeForm.newTitle")}</DialogTitle>
           <DialogDescription>
-            {isEditing ? "Update this initiative's details." : "Track a new initiative for your team."}
+            {isEditing ? t("initiativeForm.editDescription") : t("initiativeForm.newDescription")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="init-title">Title</Label>
-            <Input id="init-title" placeholder="e.g. Migrate core API" {...form.register("title")} />
+            <Label htmlFor="init-title">{t("initiativeForm.titleLabel")}</Label>
+            <Input
+              id="init-title"
+              placeholder={t("initiativeForm.titlePlaceholder")}
+              {...form.register("title")}
+            />
             {form.formState.errors.title && (
               <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="init-description">Description</Label>
+            <Label htmlFor="init-description">{t("initiativeForm.descriptionLabel")}</Label>
             <Textarea id="init-description" rows={3} {...form.register("description")} />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Department</Label>
+              <Label>{t("initiativeForm.department")}</Label>
               <Controller
                 control={form.control}
                 name="departmentId"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select department" />
+                      <SelectValue placeholder={t("initiativeForm.selectDepartment")} />
                     </SelectTrigger>
                     <SelectContent>
                       {departments?.map((dept) => (
@@ -204,8 +215,12 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="init-owner">Owner</Label>
-              <Input id="init-owner" placeholder="e.g. Jane Doe" {...form.register("owner")} />
+              <Label htmlFor="init-owner">{t("initiativeForm.owner")}</Label>
+              <Input
+                id="init-owner"
+                placeholder={t("initiativeForm.ownerPlaceholder")}
+                {...form.register("owner")}
+              />
               {form.formState.errors.owner && (
                 <p className="text-sm text-destructive">{form.formState.errors.owner.message}</p>
               )}
@@ -214,7 +229,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>Status</Label>
+              <Label>{t("initiativeForm.status")}</Label>
               <Controller
                 control={form.control}
                 name="status"
@@ -224,11 +239,11 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="planning">Planning</SelectItem>
-                      <SelectItem value="in_progress">In Progress</SelectItem>
-                      <SelectItem value="blocked">Blocked</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="on_hold">On Hold</SelectItem>
+                      <SelectItem value="planning">{t("status.planning")}</SelectItem>
+                      <SelectItem value="in_progress">{t("status.in_progress")}</SelectItem>
+                      <SelectItem value="blocked">{t("status.blocked")}</SelectItem>
+                      <SelectItem value="completed">{t("status.completed")}</SelectItem>
+                      <SelectItem value="on_hold">{t("status.on_hold")}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -236,7 +251,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
             </div>
 
             <div className="space-y-2">
-              <Label>Priority</Label>
+              <Label>{t("initiativeForm.priority")}</Label>
               <Controller
                 control={form.control}
                 name="priority"
@@ -246,9 +261,9 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="low">{t("priority.low")}</SelectItem>
+                      <SelectItem value="medium">{t("priority.medium")}</SelectItem>
+                      <SelectItem value="high">{t("priority.high")}</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -256,7 +271,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="init-progress">Progress %</Label>
+              <Label htmlFor="init-progress">{t("initiativeForm.progressLabel")}</Label>
               <Input
                 id="init-progress"
                 type="number"
@@ -269,14 +284,14 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="init-start">Start Date</Label>
+              <Label htmlFor="init-start">{t("initiativeForm.startDate")}</Label>
               <Input id="init-start" type="date" {...form.register("startDate")} />
               {form.formState.errors.startDate && (
                 <p className="text-sm text-destructive">{form.formState.errors.startDate.message}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="init-target">Target Date</Label>
+              <Label htmlFor="init-target">{t("initiativeForm.targetDate")}</Label>
               <Input id="init-target" type="date" {...form.register("targetDate")} />
               {form.formState.errors.targetDate && (
                 <p className="text-sm text-destructive">{form.formState.errors.targetDate.message}</p>
@@ -285,24 +300,24 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
           </div>
 
           <div className="space-y-4 rounded-md border p-3">
-            <p className="text-sm font-medium">Quarter Goal (optional)</p>
+            <p className="text-sm font-medium">{t("initiativeForm.quarterGoalSection")}</p>
             <div className="space-y-2">
-              <Label htmlFor="init-quarter-goal">Goal description</Label>
+              <Label htmlFor="init-quarter-goal">{t("initiativeForm.goalDescription")}</Label>
               <Textarea
                 id="init-quarter-goal"
                 rows={2}
-                placeholder="e.g. Ship v2 API to 100% of customers"
+                placeholder={t("initiativeForm.goalPlaceholder")}
                 {...form.register("quarterGoal")}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="init-quarter-goal-target">Target progress by end of quarter (%)</Label>
+              <Label htmlFor="init-quarter-goal-target">{t("initiativeForm.goalTargetLabel")}</Label>
               <Input
                 id="init-quarter-goal-target"
                 type="number"
                 min={0}
                 max={100}
-                placeholder="e.g. 100"
+                placeholder={t("initiativeForm.goalTargetPlaceholder")}
                 {...form.register("quarterGoalTarget")}
               />
             </div>
@@ -310,10 +325,14 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Saving..." : isEditing ? "Save Changes" : "Create Initiative"}
+              {isPending
+                ? t("common.saving")
+                : isEditing
+                  ? t("initiativeForm.saveChanges")
+                  : t("initiativeForm.create")}
             </Button>
           </DialogFooter>
         </form>

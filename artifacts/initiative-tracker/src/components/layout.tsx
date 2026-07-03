@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { LayoutDashboard, Target, Grid3X3, Menu, Goal, Settings as SettingsIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Initiatives", href: "/initiatives", icon: Target },
-  { name: "Heatmap", href: "/heatmap", icon: Grid3X3 },
-  { name: "Quarterly Goals", href: "/quarterly-goals", icon: Goal },
-  { name: "Settings", href: "/settings", icon: SettingsIcon },
+  { key: "nav.dashboard", href: "/", icon: LayoutDashboard },
+  { key: "nav.initiatives", href: "/initiatives", icon: Target },
+  { key: "nav.heatmap", href: "/heatmap", icon: Grid3X3 },
+  { key: "nav.quarterlyGoals", href: "/quarterly-goals", icon: Goal },
+  { key: "nav.settings", href: "/settings", icon: SettingsIcon },
 ];
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const [location] = useLocation();
+  const { t } = useTranslation();
 
   return (
     <nav className="grid items-start px-4 text-sm font-medium gap-1">
@@ -22,7 +25,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
         const isActive = location === item.href;
         return (
           <Link
-            key={item.name}
+            key={item.key}
             href={item.href}
             onClick={onNavigate}
             className={cn(
@@ -31,7 +34,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
             )}
           >
             <item.icon className="h-4 w-4" />
-            {item.name}
+            {t(item.key)}
           </Link>
         );
       })}
@@ -41,6 +44,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <div className="flex min-h-screen w-full bg-muted/40">
@@ -49,11 +53,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex h-14 items-center border-b px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
               <Target className="h-6 w-6 text-primary" />
-              <span className="">Initiative Tracker</span>
+              <span className="">{t("app.title")}</span>
             </Link>
           </div>
           <div className="flex-1 overflow-auto py-2">
             <NavLinks />
+          </div>
+          <div className="border-t px-4 py-4">
+            <LanguageSwitcher />
           </div>
         </div>
       </div>
@@ -61,30 +68,38 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:hidden">
           <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" aria-label="Open navigation menu">
+              <Button variant="outline" size="icon" aria-label={t("nav.openMenu")}>
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0">
-              <div className="flex h-14 items-center border-b px-6">
-                <Link
-                  href="/"
-                  className="flex items-center gap-2 font-semibold"
-                  onClick={() => setMobileNavOpen(false)}
-                >
-                  <Target className="h-6 w-6 text-primary" />
-                  <span>Initiative Tracker</span>
-                </Link>
-              </div>
-              <div className="flex-1 overflow-auto py-2">
-                <NavLinks onNavigate={() => setMobileNavOpen(false)} />
+              <div className="flex h-full flex-col">
+                <div className="flex h-14 items-center border-b px-6">
+                  <Link
+                    href="/"
+                    className="flex items-center gap-2 font-semibold"
+                    onClick={() => setMobileNavOpen(false)}
+                  >
+                    <Target className="h-6 w-6 text-primary" />
+                    <span>{t("app.title")}</span>
+                  </Link>
+                </div>
+                <div className="flex-1 overflow-auto py-2">
+                  <NavLinks onNavigate={() => setMobileNavOpen(false)} />
+                </div>
+                <div className="border-t px-4 py-4">
+                  <LanguageSwitcher />
+                </div>
               </div>
             </SheetContent>
           </Sheet>
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <Target className="h-5 w-5 text-primary" />
-            <span>Initiative Tracker</span>
+            <span>{t("app.title")}</span>
           </Link>
+          <div className="ml-auto">
+            <LanguageSwitcher />
+          </div>
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-8 lg:p-6 min-w-0 overflow-x-auto">
           {children}

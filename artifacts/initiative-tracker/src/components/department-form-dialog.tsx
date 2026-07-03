@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import {
   useCreateDepartment,
   useUpdateDepartment,
@@ -25,15 +27,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
-const departmentFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  colorHex: z
-    .string()
-    .min(1, "Color is required")
-    .regex(/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/, "Must be a valid hex color"),
-});
+function makeDepartmentFormSchema(t: TFunction) {
+  return z.object({
+    name: z.string().min(1, t("departments.nameRequired")),
+    colorHex: z
+      .string()
+      .min(1, t("departments.colorRequired"))
+      .regex(/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/, t("departments.colorInvalid")),
+  });
+}
 
-type DepartmentFormValues = z.infer<typeof departmentFormSchema>;
+type DepartmentFormValues = z.infer<ReturnType<typeof makeDepartmentFormSchema>>;
 
 interface DepartmentFormDialogProps {
   open: boolean;
@@ -45,9 +49,12 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
   const isEditing = Boolean(department);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
+
+  const schema = useMemo(() => makeDepartmentFormSchema(t), [t]);
 
   const form = useForm<DepartmentFormValues>({
-    resolver: zodResolver(departmentFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: { name: "", colorHex: "#3B82F6" },
   });
 
@@ -71,11 +78,11 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
     mutation: {
       onSuccess: () => {
         invalidateAll();
-        toast({ title: "Department created" });
+        toast({ title: t("departments.created") });
         onOpenChange(false);
       },
       onError: () => {
-        toast({ title: "Failed to create department", variant: "destructive" });
+        toast({ title: t("departments.createFailed"), variant: "destructive" });
       },
     },
   });
@@ -84,11 +91,11 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
     mutation: {
       onSuccess: () => {
         invalidateAll();
-        toast({ title: "Department updated" });
+        toast({ title: t("departments.updated") });
         onOpenChange(false);
       },
       onError: () => {
-        toast({ title: "Failed to update department", variant: "destructive" });
+        toast({ title: t("departments.updateFailed"), variant: "destructive" });
       },
     },
   });
@@ -107,23 +114,21 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Department" : "Add Department"}</DialogTitle>
+          <DialogTitle>{isEditing ? t("departments.formEditTitle") : t("departments.formAddTitle")}</DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? "Update the department's name and color."
-              : "Create a new department to organize initiatives."}
+            {isEditing ? t("departments.formEditDescription") : t("departments.formAddDescription")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="dept-name">Name</Label>
-            <Input id="dept-name" placeholder="e.g. Engineering" {...form.register("name")} />
+            <Label htmlFor="dept-name">{t("common.name")}</Label>
+            <Input id="dept-name" placeholder={t("departments.namePlaceholder")} {...form.register("name")} />
             {form.formState.errors.name && (
               <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="dept-color">Color</Label>
+            <Label htmlFor="dept-color">{t("departments.color")}</Label>
             <div className="flex items-center gap-2">
               <Input
                 id="dept-color"
@@ -139,10 +144,14 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Saving..." : isEditing ? "Save Changes" : "Create Department"}
+              {isPending
+                ? t("common.saving")
+                : isEditing
+                  ? t("departments.saveChanges")
+                  : t("departments.create")}
             </Button>
           </DialogFooter>
         </form>

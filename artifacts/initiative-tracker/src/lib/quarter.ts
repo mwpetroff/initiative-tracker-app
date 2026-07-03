@@ -6,7 +6,20 @@ export interface FiscalQuarterInfo {
   endDate: Date;
 }
 
-export function getFiscalQuarter(anchor: Date, reference: Date = new Date()): FiscalQuarterInfo {
+export type QuarterLocale = "en" | "ja";
+
+export function formatQuarterLabel(quarterNumber: number, year: number, locale: QuarterLocale = "en"): string {
+  if (locale === "ja") {
+    return `${year}年 第${quarterNumber}四半期`;
+  }
+  return `Q${quarterNumber} ${year}`;
+}
+
+export function getFiscalQuarter(
+  anchor: Date,
+  reference: Date = new Date(),
+  locale: QuarterLocale = "en",
+): FiscalQuarterInfo {
   const anchorMonth = anchor.getUTCMonth();
   const anchorDay = anchor.getUTCDate();
 
@@ -30,15 +43,24 @@ export function getFiscalQuarter(anchor: Date, reference: Date = new Date()): Fi
   return {
     quarterNumber: quarterIndex + 1,
     year: startDate.getUTCFullYear(),
-    label: `Q${quarterIndex + 1} ${startDate.getUTCFullYear()}`,
+    label: formatQuarterLabel(quarterIndex + 1, startDate.getUTCFullYear(), locale),
     startDate,
     endDate,
   };
 }
 
-export function formatDateRange(start: Date, end: Date): string {
-  const formatter = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
-  const startStr = formatter.format(start);
-  const endStr = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(end);
+export function formatDateRange(start: Date, end: Date, locale: QuarterLocale = "en"): string {
+  const intlLocale = locale === "ja" ? "ja-JP" : "en-US";
+  const startStr = new Intl.DateTimeFormat(intlLocale, {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(start);
+  const endStr = new Intl.DateTimeFormat(intlLocale, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(end);
   return `${startStr} – ${endStr}`;
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGetDependencyHeatmap } from "@workspace/api-client-react";
 import type { HeatmapCell } from "@workspace/api-client-react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Dialog,
@@ -28,39 +29,38 @@ interface SelectedCell {
 export default function Heatmap() {
   const { data: heatmap, isLoading, error } = useGetDependencyHeatmap();
   const [selected, setSelected] = useState<SelectedCell | null>(null);
+  const { t } = useTranslation();
 
   if (isLoading) {
-    return <PageLoading label="Loading heatmap..." />;
+    return <PageLoading label={t("heatmap.loading")} />;
   }
 
   if (error || !heatmap) {
-    return <PageError title="Couldn't load the heatmap" description="Please try refreshing the page." />;
+    return <PageError title={t("heatmap.loadError")} description={t("common.refreshHint")} />;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dependency Heatmap</h1>
-        <p className="text-muted-foreground mt-2">Visualize cross-department dependencies and risk.</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("heatmap.title")}</h1>
+        <p className="text-muted-foreground mt-2">{t("heatmap.subtitle")}</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Risk Matrix</CardTitle>
-          <CardDescription>
-            Rows are departments with initiatives; columns are what they depend on. Click a cell for details.
-          </CardDescription>
+          <CardTitle>{t("heatmap.riskMatrix")}</CardTitle>
+          <CardDescription>{t("heatmap.riskMatrixDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="overflow-auto">
           <table className="w-full text-sm text-left border-separate border-spacing-0">
             <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
               <tr>
                 <th className="sticky left-0 z-10 bg-muted/50 px-4 py-3 font-medium shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]">
-                  Department
+                  {t("heatmap.department")}
                 </th>
                 {heatmap.columns.map((col) => (
                   <th key={col.key} className="px-4 py-3 font-medium whitespace-nowrap">
-                    {col.label} {col.isExternal ? "(Ext)" : ""}
+                    {col.label} {col.isExternal ? t("heatmap.external") : ""}
                   </th>
                 ))}
               </tr>
@@ -130,8 +130,7 @@ export default function Heatmap() {
                   {selected.rowName} → {selected.columnLabel}
                 </DialogTitle>
                 <DialogDescription>
-                  {selected.cell.dependencyCount}{" "}
-                  {selected.cell.dependencyCount === 1 ? "dependency" : "dependencies"} in this cell.
+                  {t("heatmap.dependencyCount", { count: selected.cell.dependencyCount })}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-3 max-h-[60vh] overflow-y-auto">
@@ -140,7 +139,7 @@ export default function Heatmap() {
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-medium">{dep.initiativeTitle}</p>
                       <Badge variant={RISK_BADGE_VARIANT[dep.riskLevel] ?? "outline"}>
-                        {dep.riskLevel}
+                        {t(`risk.${dep.riskLevel}`, dep.riskLevel)}
                       </Badge>
                     </div>
                     {dep.notes && <p className="text-sm text-muted-foreground">{dep.notes}</p>}

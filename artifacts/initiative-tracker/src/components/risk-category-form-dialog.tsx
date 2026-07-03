@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import {
   useCreateRiskCategory,
   useUpdateRiskCategory,
@@ -23,11 +25,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
-const riskCategoryFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-});
+function makeRiskCategoryFormSchema(t: TFunction) {
+  return z.object({
+    name: z.string().min(1, t("riskCategories.nameRequired")),
+  });
+}
 
-type RiskCategoryFormValues = z.infer<typeof riskCategoryFormSchema>;
+type RiskCategoryFormValues = z.infer<ReturnType<typeof makeRiskCategoryFormSchema>>;
 
 interface RiskCategoryFormDialogProps {
   open: boolean;
@@ -39,9 +43,12 @@ export function RiskCategoryFormDialog({ open, onOpenChange, riskCategory }: Ris
   const isEditing = Boolean(riskCategory);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { t } = useTranslation();
+
+  const schema = useMemo(() => makeRiskCategoryFormSchema(t), [t]);
 
   const form = useForm<RiskCategoryFormValues>({
-    resolver: zodResolver(riskCategoryFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: { name: "" },
   });
 
@@ -60,7 +67,7 @@ export function RiskCategoryFormDialog({ open, onOpenChange, riskCategory }: Ris
     mutation: {
       onSuccess: () => {
         invalidateAll();
-        toast({ title: "Risk category created" });
+        toast({ title: t("riskCategories.created") });
         onOpenChange(false);
       },
       onError: (error: unknown) => {
@@ -69,7 +76,7 @@ export function RiskCategoryFormDialog({ open, onOpenChange, riskCategory }: Ris
             ? String((error as { message?: unknown }).message)
             : undefined;
         toast({
-          title: "Failed to create risk category",
+          title: t("riskCategories.createFailed"),
           description: message?.includes("already exists") ? message : undefined,
           variant: "destructive",
         });
@@ -81,7 +88,7 @@ export function RiskCategoryFormDialog({ open, onOpenChange, riskCategory }: Ris
     mutation: {
       onSuccess: () => {
         invalidateAll();
-        toast({ title: "Risk category updated" });
+        toast({ title: t("riskCategories.updated") });
         onOpenChange(false);
       },
       onError: (error: unknown) => {
@@ -90,7 +97,7 @@ export function RiskCategoryFormDialog({ open, onOpenChange, riskCategory }: Ris
             ? String((error as { message?: unknown }).message)
             : undefined;
         toast({
-          title: "Failed to update risk category",
+          title: t("riskCategories.updateFailed"),
           description: message?.includes("already exists") ? message : undefined,
           variant: "destructive",
         });
@@ -112,27 +119,35 @@ export function RiskCategoryFormDialog({ open, onOpenChange, riskCategory }: Ris
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Risk Category" : "Add Risk Category"}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? t("riskCategories.formEditTitle") : t("riskCategories.formAddTitle")}
+          </DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? "Update this risk matrix category."
-              : "Create a new category dependencies can be tracked against, beyond departments."}
+            {isEditing ? t("riskCategories.formEditDescription") : t("riskCategories.formAddDescription")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="risk-cat-name">Name</Label>
-            <Input id="risk-cat-name" placeholder="e.g. Regulatory" {...form.register("name")} />
+            <Label htmlFor="risk-cat-name">{t("common.name")}</Label>
+            <Input
+              id="risk-cat-name"
+              placeholder={t("riskCategories.namePlaceholder")}
+              {...form.register("name")}
+            />
             {form.formState.errors.name && (
               <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
             )}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Saving..." : isEditing ? "Save Changes" : "Create Category"}
+              {isPending
+                ? t("common.saving")
+                : isEditing
+                  ? t("riskCategories.saveChanges")
+                  : t("riskCategories.create")}
             </Button>
           </DialogFooter>
         </form>

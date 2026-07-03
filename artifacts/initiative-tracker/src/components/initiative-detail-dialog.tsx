@@ -78,7 +78,7 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{initiative.title}</DialogTitle>
           <DialogDescription>{initiative.description || "No description provided."}</DialogDescription>
@@ -121,60 +121,62 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Loading dependencies...</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Depends on</TableHead>
-                  <TableHead>Risk</TableHead>
-                  <TableHead>Notes</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {dependencies?.map((dep) => (
-                  <TableRow key={dep.id}>
-                    <TableCell>
-                      {dep.dependsOnDepartmentId
-                        ? departmentName(dep.dependsOnDepartmentId)
-                        : riskCategoryName(dep.dependsOnRiskCategoryId)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={riskVariant[dep.riskLevel] ?? "secondary"}>{dep.riskLevel}</Badge>
-                    </TableCell>
-                    <TableCell className="max-w-xs truncate text-sm text-muted-foreground">
-                      {dep.notes}
-                    </TableCell>
-                    <TableCell className="text-right space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setEditingDependency(dep);
-                          setDepFormOpen(true);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => setDeletingDependency(dep)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {!dependencies?.length && (
+            <div className="overflow-x-auto -mx-1 px-1">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
-                      No dependencies recorded.
-                    </TableCell>
+                    <TableHead>Depends on</TableHead>
+                    <TableHead>Risk</TableHead>
+                    <TableHead>Notes</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {dependencies?.map((dep) => (
+                    <TableRow key={dep.id}>
+                      <TableCell>
+                        {dep.dependsOnDepartmentId
+                          ? departmentName(dep.dependsOnDepartmentId)
+                          : riskCategoryName(dep.dependsOnRiskCategoryId)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={riskVariant[dep.riskLevel] ?? "secondary"}>{dep.riskLevel}</Badge>
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate text-sm text-muted-foreground">
+                        {dep.notes}
+                      </TableCell>
+                      <TableCell className="text-right space-x-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setEditingDependency(dep);
+                            setDepFormOpen(true);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => setDeletingDependency(dep)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {!dependencies?.length && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                        No dependencies recorded.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
 

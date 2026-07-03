@@ -156,7 +156,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Initiative" : "New Initiative"}</DialogTitle>
           <DialogDescription>
@@ -177,7 +177,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
             <Textarea id="init-description" rows={3} {...form.register("description")} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Department</Label>
               <Controller
@@ -212,7 +212,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Status</Label>
               <Controller
@@ -267,7 +267,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="init-start">Start Date</Label>
               <Input id="init-start" type="date" {...form.register("startDate")} />

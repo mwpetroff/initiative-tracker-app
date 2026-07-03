@@ -66,14 +66,14 @@ export default function RiskCategories() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Risk Categories</h1>
           <p className="text-muted-foreground mt-2">
             Manage the external risk matrix categories dependencies can reference.
           </p>
         </div>
-        <Button onClick={openCreateForm}>
+        <Button onClick={openCreateForm} className="self-start sm:self-auto">
           <Plus className="mr-2 h-4 w-4" />
           Add Risk Category
         </Button>

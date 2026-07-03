@@ -25,10 +25,12 @@ export default function Heatmap() {
           <CardDescription>Rows are departments with initiatives; columns are what they depend on.</CardDescription>
         </CardHeader>
         <CardContent className="overflow-auto">
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-sm text-left border-separate border-spacing-0">
             <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
               <tr>
-                <th className="px-4 py-3 font-medium">Department</th>
+                <th className="sticky left-0 z-10 bg-muted/50 px-4 py-3 font-medium shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]">
+                  Department
+                </th>
                 {heatmap.columns.map((col) => (
                   <th key={col.key} className="px-4 py-3 font-medium whitespace-nowrap">
                     {col.label} {col.isExternal ? "(Ext)" : ""}
@@ -39,9 +41,11 @@ export default function Heatmap() {
             <tbody>
               {heatmap.rows.map((row) => (
                 <tr key={row.id} className="border-b last:border-0">
-                  <td className="px-4 py-3 font-medium flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: row.colorHex }} />
-                    {row.name}
+                  <td className="sticky left-0 z-10 bg-background px-4 py-3 font-medium whitespace-nowrap shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: row.colorHex }} />
+                      {row.name}
+                    </div>
                   </td>
                   {heatmap.columns.map((col) => {
                     const cell = heatmap.cells.find(

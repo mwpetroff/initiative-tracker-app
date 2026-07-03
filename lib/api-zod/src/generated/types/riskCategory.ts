@@ -9,5 +9,7 @@
 export interface RiskCategory {
   id: number;
   name: string;
+  /** @nullable */
+  nameJa: string | null;
   createdAt: Date;
 }

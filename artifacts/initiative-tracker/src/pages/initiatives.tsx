@@ -34,6 +34,7 @@ import { getFiscalQuarter } from "@/lib/quarter";
 import { exportInitiativesToExcel, type ExportLabels } from "@/lib/export-excel";
 import { filterInitiatives, paginate, isInitiativeOverdue } from "@/lib/initiative-filters";
 import { useDateLocale, useQuarterLocale } from "@/i18n";
+import { localizedName } from "@/lib/localized-name";
 
 const STATUS_VALUES = ["planning", "in_progress", "blocked", "completed", "on_hold"] as const;
 const PRIORITY_VALUES = ["low", "medium", "high"] as const;
@@ -46,7 +47,7 @@ export default function Initiatives() {
   const { data: departments } = useListDepartments();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dateLocale = useDateLocale();
   const quarterLocale = useQuarterLocale();
   const [isExporting, setIsExporting] = useState(false);
@@ -165,7 +166,10 @@ export default function Initiatives() {
               try {
                 await exportInitiativesToExcel(
                   filteredInitiatives,
-                  departments,
+                  departments?.map((d) => ({
+                    ...d,
+                    name: localizedName(d, i18n.language) ?? d.name,
+                  })),
                   undefined,
                   buildExportLabels(),
                 );

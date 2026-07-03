@@ -5,6 +5,7 @@ import { z } from "zod/v4";
 export const riskCategoriesTable = pgTable("risk_categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
+  nameJa: text("name_ja"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

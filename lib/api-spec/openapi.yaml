@@ -465,10 +465,12 @@ components:
 
     Department:
       type: object
-      required: [id, name, colorHex, createdAt]
+      required: [id, name, nameJa, colorHex, createdAt]
       properties:
         id: { type: integer }
         name: { type: string }
+        nameJa:
+          type: ["string", "null"]
         colorHex: { type: string }
         createdAt: { type: string, format: date-time }
 
@@ -477,12 +479,16 @@ components:
       required: [name, colorHex]
       properties:
         name: { type: string, minLength: 1 }
+        nameJa:
+          type: ["string", "null"]
         colorHex: { type: string, minLength: 1 }
 
     DepartmentUpdate:
       type: object
       properties:
         name: { type: string, minLength: 1 }
+        nameJa:
+          type: ["string", "null"]
         colorHex: { type: string, minLength: 1 }
 
     Initiative:
@@ -620,10 +626,12 @@ components:
 
     RiskCategory:
       type: object
-      required: [id, name, createdAt]
+      required: [id, name, nameJa, createdAt]
       properties:
         id: { type: integer }
         name: { type: string }
+        nameJa:
+          type: ["string", "null"]
         createdAt: { type: string, format: date-time }
 
     RiskCategoryInput:
@@ -631,18 +639,24 @@ components:
       required: [name]
       properties:
         name: { type: string, minLength: 1 }
+        nameJa:
+          type: ["string", "null"]
 
     RiskCategoryUpdate:
       type: object
       properties:
         name: { type: string, minLength: 1 }
+        nameJa:
+          type: ["string", "null"]
 
     DepartmentStatusBreakdown:
       type: object
-      required: [departmentId, departmentName, colorHex, total, planning, inProgress, blocked, completed, onHold]
+      required: [departmentId, departmentName, departmentNameJa, colorHex, total, planning, inProgress, blocked, completed, onHold]
       properties:
         departmentId: { type: integer }
         departmentName: { type: string }
+        departmentNameJa:
+          type: ["string", "null"]
         colorHex: { type: string }
         total: { type: integer }
         planning: { type: integer }
@@ -653,12 +667,14 @@ components:
 
     RecentActivityItem:
       type: object
-      required: [id, initiativeId, title, departmentName, oldStatus, newStatus, changedAt]
+      required: [id, initiativeId, title, departmentName, departmentNameJa, oldStatus, newStatus, changedAt]
       properties:
         id: { type: integer }
         initiativeId: { type: integer }
         title: { type: string }
         departmentName: { type: string }
+        departmentNameJa:
+          type: ["string", "null"]
         oldStatus:
           $ref: "#/components/schemas/InitiativeStatus"
         newStatus:
@@ -685,10 +701,12 @@ components:
 
     HeatmapColumn:
       type: object
-      required: [key, label, isExternal]
+      required: [key, label, labelJa, isExternal]
       properties:
         key: { type: string }
         label: { type: string }
+        labelJa:
+          type: ["string", "null"]
         isExternal: { type: boolean }
 
     HeatmapCellDependency:

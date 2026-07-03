@@ -94,6 +94,7 @@ export default function RiskCategories() {
             <TableHeader>
               <TableRow>
                 <TableHead>{t("common.name")}</TableHead>
+                <TableHead>{t("common.nameJaColumn")}</TableHead>
                 <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -101,6 +102,9 @@ export default function RiskCategories() {
               {riskCategories?.map((category) => (
                 <TableRow key={category.id}>
                   <TableCell className="font-medium">{category.name}</TableCell>
+                  <TableCell>
+                    {category.nameJa ?? <span className="text-muted-foreground">—</span>}
+                  </TableCell>
                   <TableCell className="text-right space-x-1">
                     <Button variant="ghost" size="sm" onClick={() => openEditForm(category)}>
                       <Pencil className="h-4 w-4 mr-1" />
@@ -120,7 +124,7 @@ export default function RiskCategories() {
               ))}
               {!riskCategories?.length && (
                 <TableRow>
-                  <TableCell colSpan={2} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
                     {t("riskCategories.empty")}
                   </TableCell>
                 </TableRow>

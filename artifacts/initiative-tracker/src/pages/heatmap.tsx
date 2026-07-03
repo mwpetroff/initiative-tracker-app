@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { PageLoading, PageError } from "@/components/page-state";
+import { localizedName, localizedLabel } from "@/lib/localized-name";
 
 const RISK_BADGE_VARIANT: Record<string, "destructive" | "secondary" | "outline"> = {
   critical: "destructive",
@@ -29,7 +30,7 @@ interface SelectedCell {
 export default function Heatmap() {
   const { data: heatmap, isLoading, error } = useGetDependencyHeatmap();
   const [selected, setSelected] = useState<SelectedCell | null>(null);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   if (isLoading) {
     return <PageLoading label={t("heatmap.loading")} />;
@@ -60,7 +61,8 @@ export default function Heatmap() {
                 </th>
                 {heatmap.columns.map((col) => (
                   <th key={col.key} className="px-4 py-3 font-medium whitespace-nowrap">
-                    {col.label} {col.isExternal ? t("heatmap.external") : ""}
+                    {localizedLabel(col.label, col.labelJa, i18n.language)}{" "}
+                    {col.isExternal ? t("heatmap.external") : ""}
                   </th>
                 ))}
               </tr>
@@ -71,7 +73,7 @@ export default function Heatmap() {
                   <td className="sticky left-0 z-10 bg-background px-4 py-3 font-medium whitespace-nowrap shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: row.colorHex }} />
-                      {row.name}
+                      {localizedName(row, i18n.language)}
                     </div>
                   </td>
                   {heatmap.columns.map((col) => {
@@ -94,7 +96,12 @@ export default function Heatmap() {
                           tabIndex={cell ? 0 : undefined}
                           onClick={
                             cell
-                              ? () => setSelected({ cell, rowName: row.name, columnLabel: col.label })
+                              ? () =>
+                                  setSelected({
+                                    cell,
+                                    rowName: localizedName(row, i18n.language) ?? row.name,
+                                    columnLabel: localizedLabel(col.label, col.labelJa, i18n.language),
+                                  })
                               : undefined
                           }
                           onKeyDown={
@@ -102,7 +109,11 @@ export default function Heatmap() {
                               ? (e) => {
                                   if (e.key === "Enter" || e.key === " ") {
                                     e.preventDefault();
-                                    setSelected({ cell, rowName: row.name, columnLabel: col.label });
+                                    setSelected({
+                                      cell,
+                                      rowName: localizedName(row, i18n.language) ?? row.name,
+                                      columnLabel: localizedLabel(col.label, col.labelJa, i18n.language),
+                                    });
                                   }
                                 }
                               : undefined

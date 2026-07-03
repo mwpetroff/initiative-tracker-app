@@ -46,6 +46,8 @@ export const RiskLevel = {
 export interface Department {
   id: number;
   name: string;
+  /** @nullable */
+  nameJa: string | null;
   colorHex: string;
   createdAt: string;
 }
@@ -53,6 +55,8 @@ export interface Department {
 export interface DepartmentInput {
   /** @minLength 1 */
   name: string;
+  /** @nullable */
+  nameJa?: string | null;
   /** @minLength 1 */
   colorHex: string;
 }
@@ -60,6 +64,8 @@ export interface DepartmentInput {
 export interface DepartmentUpdate {
   /** @minLength 1 */
   name?: string;
+  /** @nullable */
+  nameJa?: string | null;
   /** @minLength 1 */
   colorHex?: string;
 }
@@ -185,22 +191,30 @@ export interface InitiativeHistoryEntry {
 export interface RiskCategory {
   id: number;
   name: string;
+  /** @nullable */
+  nameJa: string | null;
   createdAt: string;
 }
 
 export interface RiskCategoryInput {
   /** @minLength 1 */
   name: string;
+  /** @nullable */
+  nameJa?: string | null;
 }
 
 export interface RiskCategoryUpdate {
   /** @minLength 1 */
   name?: string;
+  /** @nullable */
+  nameJa?: string | null;
 }
 
 export interface DepartmentStatusBreakdown {
   departmentId: number;
   departmentName: string;
+  /** @nullable */
+  departmentNameJa: string | null;
   colorHex: string;
   total: number;
   planning: number;
@@ -215,6 +229,8 @@ export interface RecentActivityItem {
   initiativeId: number;
   title: string;
   departmentName: string;
+  /** @nullable */
+  departmentNameJa: string | null;
   oldStatus: InitiativeStatus;
   newStatus: InitiativeStatus;
   changedAt: string;
@@ -233,6 +249,8 @@ export interface DashboardSummary {
 export interface HeatmapColumn {
   key: string;
   label: string;
+  /** @nullable */
+  labelJa: string | null;
   isExternal: boolean;
 }
 

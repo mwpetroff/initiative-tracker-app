@@ -9,6 +9,8 @@
 export interface Department {
   id: number;
   name: string;
+  /** @nullable */
+  nameJa: string | null;
   colorHex: string;
   createdAt: Date;
 }

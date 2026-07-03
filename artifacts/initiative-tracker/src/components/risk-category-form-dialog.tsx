@@ -28,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 function makeRiskCategoryFormSchema(t: TFunction) {
   return z.object({
     name: z.string().min(1, t("riskCategories.nameRequired")),
+    nameJa: z.string(),
   });
 }
 
@@ -49,12 +50,15 @@ export function RiskCategoryFormDialog({ open, onOpenChange, riskCategory }: Ris
 
   const form = useForm<RiskCategoryFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "" },
+    defaultValues: { name: "", nameJa: "" },
   });
 
   useEffect(() => {
     if (open) {
-      form.reset({ name: riskCategory?.name ?? "" });
+      form.reset({
+        name: riskCategory?.name ?? "",
+        nameJa: riskCategory?.nameJa ?? "",
+      });
     }
   }, [open, riskCategory, form]);
 
@@ -108,10 +112,14 @@ export function RiskCategoryFormDialog({ open, onOpenChange, riskCategory }: Ris
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   const onSubmit = (values: RiskCategoryFormValues) => {
+    const data = {
+      name: values.name,
+      nameJa: values.nameJa.trim() ? values.nameJa.trim() : null,
+    };
     if (isEditing && riskCategory) {
-      updateMutation.mutate({ id: riskCategory.id, data: values });
+      updateMutation.mutate({ id: riskCategory.id, data });
     } else {
-      createMutation.mutate({ data: values });
+      createMutation.mutate({ data });
     }
   };
 
@@ -137,6 +145,15 @@ export function RiskCategoryFormDialog({ open, onOpenChange, riskCategory }: Ris
             {form.formState.errors.name && (
               <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
             )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="risk-cat-name-ja">{t("common.nameJa")}</Label>
+            <Input
+              id="risk-cat-name-ja"
+              placeholder={t("riskCategories.nameJaPlaceholder")}
+              {...form.register("nameJa")}
+            />
+            <p className="text-xs text-muted-foreground">{t("common.nameJaHint")}</p>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

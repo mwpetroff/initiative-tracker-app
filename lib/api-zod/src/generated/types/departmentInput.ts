@@ -9,6 +9,8 @@
 export interface DepartmentInput {
   /** @minLength 1 */
   name: string;
+  /** @nullable */
+  nameJa?: string | null;
   /** @minLength 1 */
   colorHex: string;
 }

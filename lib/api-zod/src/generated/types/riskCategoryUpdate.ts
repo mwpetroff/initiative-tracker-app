@@ -9,4 +9,6 @@
 export interface RiskCategoryUpdate {
   /** @minLength 1 */
   name?: string;
+  /** @nullable */
+  nameJa?: string | null;
 }

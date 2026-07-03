@@ -9,4 +9,6 @@
 export interface RiskCategoryInput {
   /** @minLength 1 */
   name: string;
+  /** @nullable */
+  nameJa?: string | null;
 }

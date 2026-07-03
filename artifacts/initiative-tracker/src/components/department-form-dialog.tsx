@@ -30,6 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 function makeDepartmentFormSchema(t: TFunction) {
   return z.object({
     name: z.string().min(1, t("departments.nameRequired")),
+    nameJa: z.string(),
     colorHex: z
       .string()
       .min(1, t("departments.colorRequired"))
@@ -55,13 +56,14 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
 
   const form = useForm<DepartmentFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", colorHex: "#3B82F6" },
+    defaultValues: { name: "", nameJa: "", colorHex: "#3B82F6" },
   });
 
   useEffect(() => {
     if (open) {
       form.reset({
         name: department?.name ?? "",
+        nameJa: department?.nameJa ?? "",
         colorHex: department?.colorHex ?? "#3B82F6",
       });
     }
@@ -103,10 +105,15 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   const onSubmit = (values: DepartmentFormValues) => {
+    const data = {
+      name: values.name,
+      nameJa: values.nameJa.trim() ? values.nameJa.trim() : null,
+      colorHex: values.colorHex,
+    };
     if (isEditing && department) {
-      updateMutation.mutate({ id: department.id, data: values });
+      updateMutation.mutate({ id: department.id, data });
     } else {
-      createMutation.mutate({ data: values });
+      createMutation.mutate({ data });
     }
   };
 
@@ -126,6 +133,15 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
             {form.formState.errors.name && (
               <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
             )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="dept-name-ja">{t("common.nameJa")}</Label>
+            <Input
+              id="dept-name-ja"
+              placeholder={t("departments.nameJaPlaceholder")}
+              {...form.register("nameJa")}
+            />
+            <p className="text-xs text-muted-foreground">{t("common.nameJaHint")}</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="dept-color">{t("departments.color")}</Label>

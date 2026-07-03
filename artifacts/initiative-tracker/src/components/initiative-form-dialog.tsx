@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { localizedName } from "@/lib/localized-name";
 
 function toDateInputValue(value?: string) {
   if (!value) return "";
@@ -62,7 +63,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
   const isEditing = Boolean(initiative);
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: departments } = useListDepartments();
 
   const schema = useMemo(() => makeInitiativeFormSchema(t), [t]);
@@ -202,7 +203,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
                     <SelectContent>
                       {departments?.map((dept) => (
                         <SelectItem key={dept.id} value={String(dept.id)}>
-                          {dept.name}
+                          {localizedName(dept, i18n.language)}
                         </SelectItem>
                       ))}
                     </SelectContent>

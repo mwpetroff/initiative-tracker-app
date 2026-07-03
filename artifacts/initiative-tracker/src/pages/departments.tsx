@@ -93,6 +93,7 @@ export default function Departments() {
               <TableRow>
                 <TableHead>{t("departments.color")}</TableHead>
                 <TableHead>{t("common.name")}</TableHead>
+                <TableHead>{t("common.nameJaColumn")}</TableHead>
                 <TableHead className="text-right">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -106,6 +107,9 @@ export default function Departments() {
                     />
                   </TableCell>
                   <TableCell className="font-medium">{dept.name}</TableCell>
+                  <TableCell>
+                    {dept.nameJa ?? <span className="text-muted-foreground">—</span>}
+                  </TableCell>
                   <TableCell className="text-right space-x-1">
                     <Button variant="ghost" size="sm" onClick={() => openEditForm(dept)}>
                       <Pencil className="h-4 w-4 mr-1" />
@@ -125,7 +129,7 @@ export default function Departments() {
               ))}
               {!departments?.length && (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                     {t("departments.empty")}
                   </TableCell>
                 </TableRow>

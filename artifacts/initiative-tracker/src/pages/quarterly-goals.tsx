@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { getFiscalQuarter, formatDateRange } from "@/lib/quarter";
 import { PageLoading, PageError } from "@/components/page-state";
 import { useQuarterLocale } from "@/i18n";
+import { localizedName } from "@/lib/localized-name";
 
 export default function QuarterlyGoals() {
   const { data: settings, isLoading: settingsLoading, error: settingsError } = useGetSettings();
@@ -16,7 +17,7 @@ export default function QuarterlyGoals() {
     error: initiativesError,
   } = useListInitiatives();
   const { data: departments } = useListDepartments();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const quarterLocale = useQuarterLocale();
 
   const currentQuarter = useMemo(() => {
@@ -29,7 +30,7 @@ export default function QuarterlyGoals() {
   }, [settings, quarterLocale]);
 
   const departmentName = (id: number | null) =>
-    departments?.find((d) => d.id === id)?.name ?? t("common.unknown");
+    localizedName(departments?.find((d) => d.id === id), i18n.language) ?? t("common.unknown");
 
   const goalInitiatives = (initiatives ?? []).filter((i) => i.quarterGoal);
 

@@ -12,6 +12,8 @@ export interface RecentActivityItem {
   initiativeId: number;
   title: string;
   departmentName: string;
+  /** @nullable */
+  departmentNameJa: string | null;
   oldStatus: InitiativeStatus;
   newStatus: InitiativeStatus;
   changedAt: Date;

@@ -23,6 +23,7 @@ export const HealthCheckResponse = zod.object({
 export const ListDepartmentsResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "nameJa": zod.string().nullable(),
   "colorHex": zod.string(),
   "createdAt": zod.coerce.date()
 })
@@ -38,12 +39,14 @@ export const ListDepartmentsResponse = zod.array(ListDepartmentsResponseItem)
 
 export const CreateDepartmentBody = zod.object({
   "name": zod.string().min(1),
+  "nameJa": zod.string().nullish(),
   "colorHex": zod.string().min(1)
 })
 
 export const CreateDepartmentResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "nameJa": zod.string().nullable(),
   "colorHex": zod.string(),
   "createdAt": zod.coerce.date()
 })
@@ -62,12 +65,14 @@ export const UpdateDepartmentParams = zod.object({
 
 export const UpdateDepartmentBody = zod.object({
   "name": zod.string().min(1).optional(),
+  "nameJa": zod.string().nullish(),
   "colorHex": zod.string().min(1).optional()
 })
 
 export const UpdateDepartmentResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "nameJa": zod.string().nullable(),
   "colorHex": zod.string(),
   "createdAt": zod.coerce.date()
 })
@@ -385,6 +390,7 @@ export const DeleteDependencyResponse = zod.void()
 export const ListRiskCategoriesResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "nameJa": zod.string().nullable(),
   "createdAt": zod.coerce.date()
 })
 export const ListRiskCategoriesResponse = zod.array(ListRiskCategoriesResponseItem)
@@ -397,12 +403,14 @@ export const ListRiskCategoriesResponse = zod.array(ListRiskCategoriesResponseIt
 
 
 export const CreateRiskCategoryBody = zod.object({
-  "name": zod.string().min(1)
+  "name": zod.string().min(1),
+  "nameJa": zod.string().nullish()
 })
 
 export const CreateRiskCategoryResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "nameJa": zod.string().nullable(),
   "createdAt": zod.coerce.date()
 })
 
@@ -418,12 +426,14 @@ export const UpdateRiskCategoryParams = zod.object({
 
 
 export const UpdateRiskCategoryBody = zod.object({
-  "name": zod.string().min(1).optional()
+  "name": zod.string().min(1).optional(),
+  "nameJa": zod.string().nullish()
 })
 
 export const UpdateRiskCategoryResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "nameJa": zod.string().nullable(),
   "createdAt": zod.coerce.date()
 })
 
@@ -477,6 +487,7 @@ export const GetDashboardSummaryResponse = zod.object({
   "departmentBreakdown": zod.array(zod.object({
   "departmentId": zod.number(),
   "departmentName": zod.string(),
+  "departmentNameJa": zod.string().nullable(),
   "colorHex": zod.string(),
   "total": zod.number(),
   "planning": zod.number(),
@@ -490,6 +501,7 @@ export const GetDashboardSummaryResponse = zod.object({
   "initiativeId": zod.number(),
   "title": zod.string(),
   "departmentName": zod.string(),
+  "departmentNameJa": zod.string().nullable(),
   "oldStatus": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
   "newStatus": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
   "changedAt": zod.coerce.date()
@@ -505,12 +517,14 @@ export const GetDependencyHeatmapResponse = zod.object({
   "rows": zod.array(zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "nameJa": zod.string().nullable(),
   "colorHex": zod.string(),
   "createdAt": zod.coerce.date()
 })),
   "columns": zod.array(zod.object({
   "key": zod.string(),
   "label": zod.string(),
+  "labelJa": zod.string().nullable(),
   "isExternal": zod.boolean()
 })),
   "cells": zod.array(zod.object({

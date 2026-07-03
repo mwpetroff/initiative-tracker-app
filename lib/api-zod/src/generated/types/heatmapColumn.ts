@@ -9,5 +9,7 @@
 export interface HeatmapColumn {
   key: string;
   label: string;
+  /** @nullable */
+  labelJa: string | null;
   isExternal: boolean;
 }

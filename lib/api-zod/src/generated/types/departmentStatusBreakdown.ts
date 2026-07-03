@@ -9,6 +9,8 @@
 export interface DepartmentStatusBreakdown {
   departmentId: number;
   departmentName: string;
+  /** @nullable */
+  departmentNameJa: string | null;
   colorHex: string;
   total: number;
   planning: number;

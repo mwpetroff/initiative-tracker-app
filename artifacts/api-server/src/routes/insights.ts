@@ -43,6 +43,7 @@ router.get("/insights/dashboard", async (_req, res): Promise<void> => {
     return {
       departmentId: dept.id,
       departmentName: dept.name,
+      departmentNameJa: dept.nameJa,
       colorHex: dept.colorHex,
       total: deptInitiatives.length,
       planning: deptInitiatives.filter((i) => i.status === "planning").length,
@@ -59,6 +60,7 @@ router.get("/insights/dashboard", async (_req, res): Promise<void> => {
       initiativeId: initiativeHistoryTable.initiativeId,
       title: initiativesTable.title,
       departmentName: departmentsTable.name,
+      departmentNameJa: departmentsTable.nameJa,
       oldStatus: initiativeHistoryTable.oldStatus,
       newStatus: initiativeHistoryTable.newStatus,
       changedAt: initiativeHistoryTable.changedAt,
@@ -99,8 +101,8 @@ router.get("/insights/heatmap", async (_req, res): Promise<void> => {
   const usedRiskCategories = riskCategories.filter((c) => usedRiskCategoryIds.has(c.id));
 
   const columns = [
-    ...departments.map((d) => ({ key: `dept-${d.id}`, label: d.name, isExternal: false })),
-    ...usedRiskCategories.map((c) => ({ key: `cat-${c.id}`, label: c.name, isExternal: true })),
+    ...departments.map((d) => ({ key: `dept-${d.id}`, label: d.name, labelJa: d.nameJa, isExternal: false })),
+    ...usedRiskCategories.map((c) => ({ key: `cat-${c.id}`, label: c.name, labelJa: c.nameJa, isExternal: true })),
   ];
 
   interface CellDependency {

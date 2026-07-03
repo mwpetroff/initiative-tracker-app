@@ -30,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
+import { localizedName } from "@/lib/localized-name";
 
 function makeDependencyFormSchema(t: TFunction) {
   return z
@@ -70,7 +71,7 @@ export function DependencyFormDialog({
   const isEditing = Boolean(dependency);
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: departments } = useListDepartments();
   const { data: riskCategories } = useListRiskCategories();
 
@@ -211,7 +212,7 @@ export function DependencyFormDialog({
                     <SelectContent>
                       {departments?.map((dept) => (
                         <SelectItem key={dept.id} value={String(dept.id)}>
-                          {dept.name}
+                          {localizedName(dept, i18n.language)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -233,7 +234,7 @@ export function DependencyFormDialog({
                     <SelectContent>
                       {riskCategories?.map((category) => (
                         <SelectItem key={category.id} value={String(category.id)}>
-                          {category.name}
+                          {localizedName(category, i18n.language)}
                         </SelectItem>
                       ))}
                     </SelectContent>

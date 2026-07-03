@@ -5,10 +5,11 @@ import { AlertCircle, Target, Activity, PauseCircle, CalendarClock } from "lucid
 import { Badge } from "@/components/ui/badge";
 import { PageLoading, PageError } from "@/components/page-state";
 import { useDateLocale } from "@/i18n";
+import { localizedLabel } from "@/lib/localized-name";
 
 export default function Dashboard() {
   const { data: summary, isLoading, error } = useGetDashboardSummary();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dateLocale = useDateLocale();
 
   if (isLoading) {
@@ -89,7 +90,9 @@ export default function Dashboard() {
                     style={{ backgroundColor: dept.colorHex }}
                   />
                   <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">{dept.departmentName}</p>
+                    <p className="text-sm font-medium leading-none">
+                      {localizedLabel(dept.departmentName, dept.departmentNameJa, i18n.language)}
+                    </p>
                     <div className="flex gap-2 text-xs text-muted-foreground">
                       <span>{t("dashboard.activeCount", { count: dept.inProgress })}</span>
                       <span>•</span>
@@ -115,7 +118,7 @@ export default function Dashboard() {
                   <div className="space-y-1">
                     <p className="text-sm font-medium leading-none">{activity.title}</p>
                     <div className="text-sm text-muted-foreground flex items-center gap-1 flex-wrap">
-                      <span>{activity.departmentName}</span>
+                      <span>{localizedLabel(activity.departmentName, activity.departmentNameJa, i18n.language)}</span>
                       <span>•</span>
                       <Badge variant="outline" className="font-normal">
                         {t(`status.${activity.oldStatus}`, activity.oldStatus)}

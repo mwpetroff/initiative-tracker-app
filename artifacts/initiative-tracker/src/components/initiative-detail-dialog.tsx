@@ -30,6 +30,7 @@ import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { InlineLoading, PageError } from "@/components/page-state";
 import { useDateLocale } from "@/i18n";
+import { localizedName } from "@/lib/localized-name";
 
 const riskVariant: Record<string, "secondary" | "outline" | "destructive"> = {
   low: "secondary",
@@ -47,7 +48,7 @@ interface InitiativeDetailDialogProps {
 export function InitiativeDetailDialog({ open, onOpenChange, initiative }: InitiativeDetailDialogProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dateLocale = useDateLocale();
   const { data: departments } = useListDepartments();
   const { data: riskCategories } = useListRiskCategories();
@@ -89,9 +90,9 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
   });
 
   const departmentName = (id: number | null) =>
-    departments?.find((d) => d.id === id)?.name ?? t("common.unknown");
+    localizedName(departments?.find((d) => d.id === id), i18n.language) ?? t("common.unknown");
   const riskCategoryName = (id: number | null) =>
-    riskCategories?.find((c) => c.id === id)?.name ?? t("common.unknown");
+    localizedName(riskCategories?.find((c) => c.id === id), i18n.language) ?? t("common.unknown");
 
   if (!initiative) return null;
 

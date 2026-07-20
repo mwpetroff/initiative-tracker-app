@@ -62,6 +62,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
+- Sample data seeding: the API server seeds the database from `artifacts/api-server/src/seed/seed-data.json` at startup, but only if the `seed_state` table is empty (one-time bootstrap; this is how production gets test data after publishing). Set `FORCE_RESEED=true` to wipe all data and reload the sample dataset — destructive, off by default. To refresh the snapshot, re-export from the dev DB into that JSON file.
 - Always run `pnpm --filter @workspace/initiative-tracker run typecheck` after touching dialog/form layouts — several mobile-layout bugs were only visible via mobile-viewport screenshots or e2e tests, not typecheck alone.
 - When adding a new lookup table (like Departments/Risk Categories) that can be referenced elsewhere, add delete-protection (409) before wiring up the delete button.
 

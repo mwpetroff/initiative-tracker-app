@@ -25,8 +25,12 @@ function quoteIdent(name: string): string {
   return `"${name}"`;
 }
 
+interface SeedClient {
+  query(text: string, values?: unknown[]): Promise<{ rows: Record<string, unknown>[] }>;
+}
+
 async function insertRows(
-  client: import("pg").PoolClient,
+  client: SeedClient,
   table: string,
   rows: Row[],
   overrides: Record<string, unknown> = {},
@@ -46,18 +50,21 @@ async function insertRows(
 export async function seedIfNeeded(): Promise<boolean> {
   const client = await pool.connect();
   try {
-    const state = await client.query(
-      "SELECT COALESCE(MAX(version), 0) AS version FROM seed_state",
-    );
-    const appliedVersion = Number(state.rows[0]?.version ?? 0);
-    if (appliedVersion >= SEED_VERSION) {
+    const state = await client.query("SELECT COUNT(*) AS count FROM seed_state");
+    const alreadySeeded = Number(state.rows[0]?.["count"] ?? 0) > 0;
+    const forceReseed = process.env["FORCE_RESEED"] === "true";
+
+    if (alreadySeeded && !forceReseed) {
       return false;
     }
 
-    logger.info(
-      { appliedVersion, seedVersion: SEED_VERSION },
-      "Seeding database with sample data",
-    );
+    if (forceReseed) {
+      logger.warn(
+        "FORCE_RESEED=true — wiping all data and reloading the sample dataset",
+      );
+    }
+
+    logger.info({ seedVersion: SEED_VERSION }, "Seeding database with sample data");
 
     await client.query("BEGIN");
 

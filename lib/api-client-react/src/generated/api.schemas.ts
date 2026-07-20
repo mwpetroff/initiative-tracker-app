@@ -164,6 +164,7 @@ export interface Dependency {
   dependsOnRiskCategoryId: number | null;
   riskLevel: RiskLevel;
   notes: string;
+  resolved: boolean;
   createdAt: string;
 }
 
@@ -175,6 +176,7 @@ export interface DependencyInput {
   dependsOnRiskCategoryId?: number | null;
   riskLevel: RiskLevel;
   notes: string;
+  resolved?: boolean;
 }
 
 export interface DependencyUpdate {
@@ -184,6 +186,7 @@ export interface DependencyUpdate {
   dependsOnRiskCategoryId?: number | null;
   riskLevel?: RiskLevel;
   notes?: string;
+  resolved?: boolean;
 }
 
 export interface InitiativeHistoryEntry {

@@ -1,4 +1,4 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { departmentsTable } from "./departments";
@@ -18,6 +18,7 @@ export const dependenciesTable = pgTable("dependencies", {
   }),
   riskLevel: text("risk_level").notNull(), // low | medium | high | critical
   notes: text("notes").notNull().default(""),
+  resolved: boolean("resolved").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

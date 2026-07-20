@@ -249,6 +249,12 @@
     "removeDependencyTitle": "依存関係を削除しますか？",
     "removeDependencyDescription": "この依存関係の記録が完全に削除されます。",
     "dependencyRemoved": "依存関係を削除しました",
+    "resolved": "解消済み",
+    "resolveDependency": "解消済みにする",
+    "reopenDependency": "未解消に戻す",
+    "dependencyResolved": "依存関係を解消済みにしました",
+    "dependencyReopened": "依存関係を未解消に戻しました",
+    "resolveFailed": "依存関係の更新に失敗しました",
     "removeFailed": "依存関係の削除に失敗しました"
   },
   "initiativeForm": {

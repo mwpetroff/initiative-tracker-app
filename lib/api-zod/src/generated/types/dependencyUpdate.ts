@@ -14,4 +14,5 @@ export interface DependencyUpdate {
   dependsOnRiskCategoryId?: number | null;
   riskLevel?: RiskLevel;
   notes?: string;
+  resolved?: boolean;
 }

@@ -15,4 +15,5 @@ export interface DependencyInput {
   dependsOnRiskCategoryId?: number | null;
   riskLevel: RiskLevel;
   notes: string;
+  resolved?: boolean;
 }

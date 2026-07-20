@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import {
   useListInitiativeDependencies,
   useDeleteDependency,
+  useUpdateDependency,
   useListDepartments,
   useListRiskCategories,
   useListInitiativeHistory,
@@ -29,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, CheckCircle2, Undo2 } from "lucide-react";
 import { DependencyFormDialog } from "@/components/dependency-form-dialog";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -100,6 +101,23 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
       },
       onError: () => {
         toast({ title: t("detail.removeFailed"), variant: "destructive" });
+      },
+    },
+  });
+
+  const resolveMutation = useUpdateDependency({
+    mutation: {
+      onSuccess: (dep) => {
+        if (initiative) {
+          queryClient.invalidateQueries({ queryKey: getListInitiativeDependenciesQueryKey(initiative.id) });
+        }
+        queryClient.invalidateQueries({ queryKey: getListDependenciesQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetDashboardSummaryQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetDependencyHeatmapQueryKey() });
+        toast({ title: dep.resolved ? t("detail.dependencyResolved") : t("detail.dependencyReopened") });
+      },
+      onError: () => {
+        toast({ title: t("detail.resolveFailed"), variant: "destructive" });
       },
     },
   });
@@ -228,21 +246,40 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
                 </TableHeader>
                 <TableBody>
                   {dependencies?.map((dep) => (
-                    <TableRow key={dep.id}>
+                    <TableRow key={dep.id} className={dep.resolved ? "opacity-60" : undefined}>
                       <TableCell>
                         {dep.dependsOnDepartmentId
                           ? departmentName(dep.dependsOnDepartmentId)
                           : riskCategoryName(dep.dependsOnRiskCategoryId)}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={riskVariant[dep.riskLevel] ?? "secondary"}>
-                          {t(`risk.${dep.riskLevel}`, dep.riskLevel)}
-                        </Badge>
+                        {dep.resolved ? (
+                          <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">
+                            {t("detail.resolved")}
+                          </Badge>
+                        ) : (
+                          <Badge variant={riskVariant[dep.riskLevel] ?? "secondary"}>
+                            {t(`risk.${dep.riskLevel}`, dep.riskLevel)}
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell className="max-w-xs truncate text-sm text-muted-foreground">
                         {dep.notes}
                       </TableCell>
                       <TableCell className="text-right space-x-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          aria-label={dep.resolved ? t("detail.reopenDependency") : t("detail.resolveDependency")}
+                          title={dep.resolved ? t("detail.reopenDependency") : t("detail.resolveDependency")}
+                          disabled={resolveMutation.isPending}
+                          className={dep.resolved ? undefined : "text-green-700 hover:text-green-700"}
+                          onClick={() =>
+                            resolveMutation.mutate({ id: dep.id, data: { resolved: !dep.resolved } })
+                          }
+                        >
+                          {dep.resolved ? <Undo2 className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"

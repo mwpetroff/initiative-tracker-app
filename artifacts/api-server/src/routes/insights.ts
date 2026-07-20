@@ -35,7 +35,7 @@ router.get("/insights/dashboard", async (_req, res): Promise<void> => {
     (i) => i.status !== "completed" && new Date(i.targetDate) < today,
   ).length;
   const highRiskDependencies = dependencies.filter(
-    (d) => d.riskLevel === "high" || d.riskLevel === "critical",
+    (d) => !d.resolved && (d.riskLevel === "high" || d.riskLevel === "critical"),
   ).length;
 
   const departmentBreakdown = departments.map((dept) => {
@@ -95,6 +95,7 @@ router.get("/insights/heatmap", async (_req, res): Promise<void> => {
 
   const usedRiskCategoryIds = new Set(
     dependencies
+      .filter((d) => !d.resolved)
       .map((d) => d.dependsOnRiskCategoryId)
       .filter((id): id is number => id !== null && id !== undefined),
   );
@@ -119,6 +120,7 @@ router.get("/insights/heatmap", async (_req, res): Promise<void> => {
   >();
 
   for (const dep of dependencies) {
+    if (dep.resolved) continue;
     const rowDeptId = initiativeDeptMap.get(dep.initiativeId);
     if (rowDeptId === undefined) continue;
 

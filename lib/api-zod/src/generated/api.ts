@@ -295,6 +295,7 @@ export const ListInitiativeDependenciesResponseItem = zod.object({
   "dependsOnRiskCategoryId": zod.number().nullable(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']),
   "notes": zod.string(),
+  "resolved": zod.boolean(),
   "createdAt": zod.coerce.date()
 })
 export const ListInitiativeDependenciesResponse = zod.array(ListInitiativeDependenciesResponseItem)
@@ -379,6 +380,7 @@ export const ListDependenciesResponseItem = zod.object({
   "dependsOnRiskCategoryId": zod.number().nullable(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']),
   "notes": zod.string(),
+  "resolved": zod.boolean(),
   "createdAt": zod.coerce.date()
 })
 export const ListDependenciesResponse = zod.array(ListDependenciesResponseItem)
@@ -392,7 +394,8 @@ export const CreateDependencyBody = zod.object({
   "dependsOnDepartmentId": zod.number().nullish(),
   "dependsOnRiskCategoryId": zod.number().nullish(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']),
-  "notes": zod.string()
+  "notes": zod.string(),
+  "resolved": zod.boolean().optional()
 })
 
 export const CreateDependencyResponse = zod.object({
@@ -402,6 +405,7 @@ export const CreateDependencyResponse = zod.object({
   "dependsOnRiskCategoryId": zod.number().nullable(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']),
   "notes": zod.string(),
+  "resolved": zod.boolean(),
   "createdAt": zod.coerce.date()
 })
 
@@ -417,7 +421,8 @@ export const UpdateDependencyBody = zod.object({
   "dependsOnDepartmentId": zod.number().nullish(),
   "dependsOnRiskCategoryId": zod.number().nullish(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']).optional(),
-  "notes": zod.string().optional()
+  "notes": zod.string().optional(),
+  "resolved": zod.boolean().optional()
 })
 
 export const UpdateDependencyResponse = zod.object({
@@ -427,6 +432,7 @@ export const UpdateDependencyResponse = zod.object({
   "dependsOnRiskCategoryId": zod.number().nullable(),
   "riskLevel": zod.enum(['low', 'medium', 'high', 'critical']),
   "notes": zod.string(),
+  "resolved": zod.boolean(),
   "createdAt": zod.coerce.date()
 })
 

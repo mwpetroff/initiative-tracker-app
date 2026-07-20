@@ -250,6 +250,12 @@
     "removeDependencyTitle": "Remove dependency?",
     "removeDependencyDescription": "This will permanently remove this dependency record.",
     "dependencyRemoved": "Dependency removed",
+    "resolved": "Resolved",
+    "resolveDependency": "Mark as resolved",
+    "reopenDependency": "Reopen dependency",
+    "dependencyResolved": "Dependency marked as resolved",
+    "dependencyReopened": "Dependency reopened",
+    "resolveFailed": "Failed to update dependency",
     "removeFailed": "Failed to remove dependency"
   },
   "initiativeForm": {

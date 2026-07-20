@@ -201,4 +201,26 @@ describe("GET /api/insights/heatmap", () => {
       notes: "",
     });
   });
+
+  it("excludes resolved dependencies from cells and drops category columns used only by resolved deps", async () => {
+    await request(app).patch(`/api/dependencies/${dependencyIds[1]}`).send({ resolved: true });
+
+    const res = await request(app).get("/api/insights/heatmap");
+    const columnKeys = res.body.columns.map((c: { key: string }) => c.key);
+    expect(columnKeys).not.toContain(`cat-${riskCategoryId}`);
+    const cell = res.body.cells.find(
+      (c: { columnKey: string }) => c.columnKey === `cat-${riskCategoryId}`,
+    );
+    expect(cell).toBeUndefined();
+
+    await request(app).patch(`/api/dependencies/${dependencyIds[1]}`).send({ resolved: false });
+  });
+
+  it("excludes resolved high-risk dependencies from the dashboard count", async () => {
+    const before = await request(app).get("/api/insights/dashboard");
+    await request(app).patch(`/api/dependencies/${dependencyIds[0]}`).send({ resolved: true });
+    const after = await request(app).get("/api/insights/dashboard");
+    expect(after.body.highRiskDependencies).toBe(before.body.highRiskDependencies - 1);
+    await request(app).patch(`/api/dependencies/${dependencyIds[0]}`).send({ resolved: false });
+  });
 });

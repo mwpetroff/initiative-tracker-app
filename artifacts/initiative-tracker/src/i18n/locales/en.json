@@ -116,7 +116,8 @@
     "toggleGroup": "Toggle {{name}} group",
     "dependencyCount_one": "{{count}} dependency in this cell.",
     "dependencyCount_other": "{{count}} dependencies in this cell.",
-    "blockedOnly": "Blocked initiatives only"
+    "statusFilter": "Initiative status",
+    "allStatuses": "All statuses"
   },
   "goals": {
     "title": "Quarterly Goals",

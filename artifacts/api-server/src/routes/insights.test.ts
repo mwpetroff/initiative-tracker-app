@@ -216,8 +216,8 @@ describe("GET /api/insights/heatmap", () => {
     await request(app).patch(`/api/dependencies/${dependencyIds[1]}`).send({ resolved: false });
   });
 
-  it("filters to blocked initiatives' dependencies when blockedOnly=true", async () => {
-    const res = await request(app).get("/api/insights/heatmap?blockedOnly=true");
+  it("filters dependencies by initiative status when status param is set", async () => {
+    const res = await request(app).get("/api/insights/heatmap?status=blocked");
     expect(res.status).toBe(200);
 
     const blockedCell = res.body.cells.find(

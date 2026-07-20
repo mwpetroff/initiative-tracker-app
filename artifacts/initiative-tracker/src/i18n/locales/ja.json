@@ -115,7 +115,8 @@
     "external": "（外部）",
     "toggleGroup": "{{name}}グループを開閉",
     "dependencyCount_other": "このセルには{{count}}件の依存関係があります。",
-    "blockedOnly": "ブロック中の施策のみ"
+    "statusFilter": "施策のステータス",
+    "allStatuses": "すべてのステータス"
   },
   "goals": {
     "title": "四半期目標",

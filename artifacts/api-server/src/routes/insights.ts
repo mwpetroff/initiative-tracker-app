@@ -85,18 +85,22 @@ router.get("/insights/dashboard", async (_req, res): Promise<void> => {
 });
 
 router.get("/insights/heatmap", async (req, res): Promise<void> => {
-  const blockedOnly = req.query.blockedOnly === "true";
+  const VALID_STATUSES = ["planning", "in_progress", "blocked", "completed", "on_hold"];
+  const statusFilter =
+    typeof req.query.status === "string" && VALID_STATUSES.includes(req.query.status)
+      ? req.query.status
+      : null;
 
   const departments = await db.select().from(departmentsTable).orderBy(departmentsTable.name);
   const initiatives = await db.select().from(initiativesTable);
   const allDependencies = await db.select().from(dependenciesTable);
   const riskCategories = await db.select().from(riskCategoriesTable).orderBy(riskCategoriesTable.name);
 
-  const blockedInitiativeIds = new Set(
-    initiatives.filter((i) => i.status === "blocked").map((i) => i.id),
+  const matchingInitiativeIds = new Set(
+    initiatives.filter((i) => statusFilter === null || i.status === statusFilter).map((i) => i.id),
   );
-  const dependencies = blockedOnly
-    ? allDependencies.filter((d) => blockedInitiativeIds.has(d.initiativeId))
+  const dependencies = statusFilter
+    ? allDependencies.filter((d) => matchingInitiativeIds.has(d.initiativeId))
     : allDependencies;
 
   const initiativeDeptMap = new Map(initiatives.map((i) => [i.id, i.departmentId]));

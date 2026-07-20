@@ -354,8 +354,8 @@ status?: InitiativeStatus;
 
 export type GetDependencyHeatmapParams = {
 /**
- * When true, only include dependencies whose initiative has status 'blocked'
+ * Only include dependencies whose initiative has this status
  */
-blockedOnly?: boolean;
+status?: InitiativeStatus;
 };
 

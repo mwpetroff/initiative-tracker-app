@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useGetDependencyHeatmap, getGetDependencyHeatmapQueryKey } from "@workspace/api-client-react";
-import type { HeatmapCell, Department } from "@workspace/api-client-react";
+import type { HeatmapCell, Department, InitiativeStatus } from "@workspace/api-client-react";
 import { useTranslation } from "react-i18next";
 import { ChevronRight } from "lucide-react";
 import { buildDepartmentGroups } from "@/lib/department-tree";
@@ -14,7 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PageLoading, PageError } from "@/components/page-state";
 import { localizedName, localizedLabel, compareLocalized } from "@/lib/localized-name";
 
@@ -63,8 +69,11 @@ type HeatmapRow =
   | { kind: "group"; department: Department; memberIds: number[]; expanded: boolean };
 
 export default function Heatmap() {
-  const [blockedOnly, setBlockedOnly] = useState(false);
-  const params = blockedOnly ? { blockedOnly: true } : undefined;
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const params =
+    statusFilter !== "all"
+      ? { status: statusFilter as InitiativeStatus }
+      : undefined;
   const {
     data: heatmap,
     isLoading,
@@ -139,10 +148,22 @@ export default function Heatmap() {
           <p className="text-muted-foreground mt-2">{t("heatmap.subtitle")}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Switch id="blocked-only" checked={blockedOnly} onCheckedChange={setBlockedOnly} />
-          <Label htmlFor="blocked-only" className="cursor-pointer">
-            {t("heatmap.blockedOnly")}
+          <Label htmlFor="heatmap-status-filter" className="text-sm text-muted-foreground">
+            {t("heatmap.statusFilter")}
           </Label>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger id="heatmap-status-filter" className="w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("heatmap.allStatuses")}</SelectItem>
+              <SelectItem value="planning">{t("status.planning")}</SelectItem>
+              <SelectItem value="in_progress">{t("status.in_progress")}</SelectItem>
+              <SelectItem value="blocked">{t("status.blocked")}</SelectItem>
+              <SelectItem value="completed">{t("status.completed")}</SelectItem>
+              <SelectItem value="on_hold">{t("status.on_hold")}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

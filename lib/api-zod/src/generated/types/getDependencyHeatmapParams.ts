@@ -5,10 +5,11 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { InitiativeStatus } from './initiativeStatus';
 
 export type GetDependencyHeatmapParams = {
 /**
- * When true, only include dependencies whose initiative has status 'blocked'
+ * Only include dependencies whose initiative has this status
  */
-blockedOnly?: boolean;
+status?: InitiativeStatus;
 };

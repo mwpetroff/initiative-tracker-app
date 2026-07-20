@@ -580,7 +580,7 @@ export const GetDashboardSummaryResponse = zod.object({
  * @summary Dependency heatmap matrix
  */
 export const GetDependencyHeatmapQueryParams = zod.object({
-  "blockedOnly": zod.coerce.boolean().optional().describe('When true, only include dependencies whose initiative has status \'blocked\'')
+  "status": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']).optional().describe('Only include dependencies whose initiative has this status')
 })
 
 export const GetDependencyHeatmapResponse = zod.object({

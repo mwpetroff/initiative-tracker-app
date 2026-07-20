@@ -29,8 +29,10 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
             href={item.href}
             onClick={onNavigate}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary",
-              isActive ? "bg-muted text-primary" : "text-muted-foreground",
+              "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-sidebar-foreground",
+              isActive
+                ? "bg-sidebar-accent text-sidebar-foreground"
+                : "text-sidebar-foreground/70",
             )}
           >
             <item.icon className="h-4 w-4" />
@@ -48,18 +50,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full bg-muted/40">
-      <div className="hidden border-r bg-card w-64 lg:block">
+      <div className="hidden border-r border-sidebar-border w-64 lg:block bg-gradient-to-b from-[#001178] to-[#415e9b] text-sidebar-foreground">
         <div className="flex h-full max-h-screen flex-col gap-2">
-          <div className="flex h-14 items-center border-b px-6">
+          <div className="flex h-14 items-center border-b border-sidebar-border/60 px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Target className="h-6 w-6 text-primary" />
+              <Target className="h-6 w-6 text-sidebar-primary" />
               <span className="">{t("app.title")}</span>
             </Link>
           </div>
           <div className="flex-1 overflow-auto py-2">
             <NavLinks />
           </div>
-          <div className="border-t px-4 py-4">
+          <div className="border-t border-sidebar-border/60 px-4 py-4">
             <LanguageSwitcher />
           </div>
         </div>
@@ -72,22 +74,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-64 p-0">
+            <SheetContent
+              side="left"
+              className="w-64 p-0 border-sidebar-border bg-gradient-to-b from-[#001178] to-[#415e9b] text-sidebar-foreground"
+            >
               <div className="flex h-full flex-col">
-                <div className="flex h-14 items-center border-b px-6">
+                <div className="flex h-14 items-center border-b border-sidebar-border/60 px-6">
                   <Link
                     href="/"
                     className="flex items-center gap-2 font-semibold"
                     onClick={() => setMobileNavOpen(false)}
                   >
-                    <Target className="h-6 w-6 text-primary" />
+                    <Target className="h-6 w-6 text-sidebar-primary" />
                     <span>{t("app.title")}</span>
                   </Link>
                 </div>
                 <div className="flex-1 overflow-auto py-2">
                   <NavLinks onNavigate={() => setMobileNavOpen(false)} />
                 </div>
-                <div className="border-t px-4 py-4">
+                <div className="border-t border-sidebar-border/60 px-4 py-4">
                   <LanguageSwitcher />
                 </div>
               </div>

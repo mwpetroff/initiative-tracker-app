@@ -194,6 +194,25 @@ export interface InitiativeHistoryEntry {
   changedAt: string;
 }
 
+export interface InitiativeUpdateEntry {
+  id: number;
+  initiativeId: number;
+  content: string;
+  /** @nullable */
+  author: string | null;
+  createdAt: string;
+}
+
+export interface InitiativeUpdateInput {
+  /**
+     * @minLength 1
+     * @maxLength 2000
+     */
+  content: string;
+  /** @nullable */
+  author?: string | null;
+}
+
 export interface RiskCategory {
   id: number;
   name: string;

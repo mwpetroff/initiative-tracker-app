@@ -27,6 +27,8 @@ export * from './initiativeInput';
 export * from './initiativePriority';
 export * from './initiativeStatus';
 export * from './initiativeUpdate';
+export * from './initiativeUpdateEntry';
+export * from './initiativeUpdateInput';
 export * from './listInitiativesParams';
 export * from './recentActivityItem';
 export * from './riskCategory';

@@ -34,6 +34,8 @@ import type {
   InitiativeHistoryEntry,
   InitiativeInput,
   InitiativeUpdate,
+  InitiativeUpdateEntry,
+  InitiativeUpdateInput,
   ListInitiativesParams,
   RiskCategory,
   RiskCategoryInput,
@@ -960,6 +962,224 @@ export function useListInitiativeHistory<TData = Awaited<ReturnType<typeof listI
 
 
 
+
+export const getListInitiativeUpdatesUrl = (id: number,) => {
+
+
+
+
+  return `/api/initiatives/${id}/updates`
+}
+
+/**
+ * @summary List narrative updates for an initiative
+ */
+export const listInitiativeUpdates = async (id: number, options?: RequestInit): Promise<InitiativeUpdateEntry[]> => {
+
+  return customFetch<InitiativeUpdateEntry[]>(getListInitiativeUpdatesUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListInitiativeUpdatesQueryKey = (id: number,) => {
+    return [
+    `/api/initiatives/${id}/updates`
+    ] as const;
+    }
+
+
+export const getListInitiativeUpdatesQueryOptions = <TData = Awaited<ReturnType<typeof listInitiativeUpdates>>, TError = ErrorType<unknown>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listInitiativeUpdates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListInitiativeUpdatesQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listInitiativeUpdates>>> = ({ signal }) => listInitiativeUpdates(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listInitiativeUpdates>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListInitiativeUpdatesQueryResult = NonNullable<Awaited<ReturnType<typeof listInitiativeUpdates>>>
+export type ListInitiativeUpdatesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List narrative updates for an initiative
+ */
+
+export function useListInitiativeUpdates<TData = Awaited<ReturnType<typeof listInitiativeUpdates>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listInitiativeUpdates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListInitiativeUpdatesQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateInitiativeUpdateUrl = (id: number,) => {
+
+
+
+
+  return `/api/initiatives/${id}/updates`
+}
+
+/**
+ * @summary Add a narrative update to an initiative
+ */
+export const createInitiativeUpdate = async (id: number,
+    initiativeUpdateInput: InitiativeUpdateInput, options?: RequestInit): Promise<InitiativeUpdateEntry> => {
+
+  return customFetch<InitiativeUpdateEntry>(getCreateInitiativeUpdateUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(initiativeUpdateInput)
+  }
+);}
+
+
+
+
+export const getCreateInitiativeUpdateMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createInitiativeUpdate>>, TError,{id: number;data: BodyType<InitiativeUpdateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createInitiativeUpdate>>, TError,{id: number;data: BodyType<InitiativeUpdateInput>}, TContext> => {
+
+const mutationKey = ['createInitiativeUpdate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createInitiativeUpdate>>, {id: number;data: BodyType<InitiativeUpdateInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  createInitiativeUpdate(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateInitiativeUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof createInitiativeUpdate>>>
+    export type CreateInitiativeUpdateMutationBody = BodyType<InitiativeUpdateInput>
+    export type CreateInitiativeUpdateMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Add a narrative update to an initiative
+ */
+export const useCreateInitiativeUpdate = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createInitiativeUpdate>>, TError,{id: number;data: BodyType<InitiativeUpdateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createInitiativeUpdate>>,
+        TError,
+        {id: number;data: BodyType<InitiativeUpdateInput>},
+        TContext
+      > => {
+      return useMutation(getCreateInitiativeUpdateMutationOptions(options));
+    }
+
+export const getDeleteInitiativeUpdateUrl = (id: number,) => {
+
+
+
+
+  return `/api/initiative-updates/${id}`
+}
+
+/**
+ * @summary Delete a narrative update
+ */
+export const deleteInitiativeUpdate = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteInitiativeUpdateUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteInitiativeUpdateMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteInitiativeUpdate>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteInitiativeUpdate>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteInitiativeUpdate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteInitiativeUpdate>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteInitiativeUpdate(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteInitiativeUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof deleteInitiativeUpdate>>>
+
+    export type DeleteInitiativeUpdateMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete a narrative update
+ */
+export const useDeleteInitiativeUpdate = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteInitiativeUpdate>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteInitiativeUpdate>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteInitiativeUpdateMutationOptions(options));
+    }
 
 export const getListDependenciesUrl = () => {
 

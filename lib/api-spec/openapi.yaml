@@ -219,6 +219,56 @@ paths:
                 items:
                   $ref: "#/components/schemas/InitiativeHistoryEntry"
 
+  /initiatives/{id}/updates:
+    get:
+      operationId: listInitiativeUpdates
+      tags: [initiatives]
+      summary: List narrative updates for an initiative
+      parameters:
+        - $ref: "#/components/parameters/InitiativeId"
+      responses:
+        "200":
+          description: List of updates, most recent first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InitiativeUpdateEntry"
+    post:
+      operationId: createInitiativeUpdate
+      tags: [initiatives]
+      summary: Add a narrative update to an initiative
+      parameters:
+        - $ref: "#/components/parameters/InitiativeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitiativeUpdateInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InitiativeUpdateEntry"
+
+  /initiative-updates/{id}:
+    delete:
+      operationId: deleteInitiativeUpdate
+      tags: [initiatives]
+      summary: Delete a narrative update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
   /dependencies:
     get:
       operationId: listDependencies
@@ -629,6 +679,25 @@ components:
         newStatus:
           $ref: "#/components/schemas/InitiativeStatus"
         changedAt: { type: string, format: date-time }
+
+    InitiativeUpdateEntry:
+      type: object
+      required: [id, initiativeId, content, author, createdAt]
+      properties:
+        id: { type: integer }
+        initiativeId: { type: integer }
+        content: { type: string }
+        author:
+          type: ["string", "null"]
+        createdAt: { type: string, format: date-time }
+
+    InitiativeUpdateInput:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string, minLength: 1, maxLength: 2000 }
+        author:
+          type: ["string", "null"]
 
     RiskCategory:
       type: object

@@ -1,7 +1,13 @@
 import { Router, type IRouter } from "express";
 import { and, desc, eq } from "drizzle-orm";
-import { db, initiativesTable, initiativeHistoryTable } from "@workspace/db";
+import { db, initiativesTable, initiativeHistoryTable, initiativeUpdatesTable } from "@workspace/db";
 import {
+  ListInitiativeUpdatesParams,
+  ListInitiativeUpdatesResponse,
+  CreateInitiativeUpdateParams,
+  CreateInitiativeUpdateBody,
+  CreateInitiativeUpdateResponse,
+  DeleteInitiativeUpdateParams,
   ListInitiativesQueryParams,
   CreateInitiativeBody,
   GetInitiativeParams,
@@ -153,6 +159,77 @@ router.get("/initiatives/:id/history", async (req, res): Promise<void> => {
     .orderBy(desc(initiativeHistoryTable.changedAt));
 
   res.json(ListInitiativeHistoryResponse.parse(history));
+});
+
+router.get("/initiatives/:id/updates", async (req, res): Promise<void> => {
+  const params = ListInitiativeUpdatesParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const updates = await db
+    .select()
+    .from(initiativeUpdatesTable)
+    .where(eq(initiativeUpdatesTable.initiativeId, params.data.id))
+    .orderBy(desc(initiativeUpdatesTable.createdAt));
+
+  res.json(ListInitiativeUpdatesResponse.parse(updates));
+});
+
+router.post("/initiatives/:id/updates", async (req, res): Promise<void> => {
+  const params = CreateInitiativeUpdateParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const parsed = CreateInitiativeUpdateBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const [initiative] = await db
+    .select({ id: initiativesTable.id })
+    .from(initiativesTable)
+    .where(eq(initiativesTable.id, params.data.id));
+
+  if (!initiative) {
+    res.status(404).json({ error: "Initiative not found" });
+    return;
+  }
+
+  const [update] = await db
+    .insert(initiativeUpdatesTable)
+    .values({
+      initiativeId: params.data.id,
+      content: parsed.data.content,
+      author: parsed.data.author ?? null,
+    })
+    .returning();
+
+  res.status(201).json(CreateInitiativeUpdateResponse.parse(update));
+});
+
+router.delete("/initiative-updates/:id", async (req, res): Promise<void> => {
+  const params = DeleteInitiativeUpdateParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [update] = await db
+    .delete(initiativeUpdatesTable)
+    .where(eq(initiativeUpdatesTable.id, params.data.id))
+    .returning();
+
+  if (!update) {
+    res.status(404).json({ error: "Update not found" });
+    return;
+  }
+
+  res.sendStatus(204);
 });
 
 router.delete("/initiatives/:id", async (req, res): Promise<void> => {

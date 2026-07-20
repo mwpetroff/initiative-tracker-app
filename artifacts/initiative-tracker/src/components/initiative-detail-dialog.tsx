@@ -7,8 +7,12 @@ import {
   useListDepartments,
   useListRiskCategories,
   useListInitiativeHistory,
+  useListInitiativeUpdates,
+  useCreateInitiativeUpdate,
+  useDeleteInitiativeUpdate,
   getListInitiativeDependenciesQueryKey,
   getListInitiativeHistoryQueryKey,
+  getListInitiativeUpdatesQueryKey,
   getListDependenciesQueryKey,
   getGetDashboardSummaryQueryKey,
   getGetDependencyHeatmapQueryKey,
@@ -22,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -68,7 +73,16 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
     query: { enabled: Boolean(initiative), queryKey: getListInitiativeHistoryQueryKey(initiative?.id ?? 0) },
   });
 
+  const {
+    data: updates,
+    isLoading: isUpdatesLoading,
+    error: updatesError,
+  } = useListInitiativeUpdates(initiative?.id ?? 0, {
+    query: { enabled: Boolean(initiative), queryKey: getListInitiativeUpdatesQueryKey(initiative?.id ?? 0) },
+  });
+
   const [depFormOpen, setDepFormOpen] = useState(false);
+  const [newUpdate, setNewUpdate] = useState("");
   const [editingDependency, setEditingDependency] = useState<Dependency | null>(null);
   const [deletingDependency, setDeletingDependency] = useState<Dependency | null>(null);
 
@@ -90,6 +104,35 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
     },
   });
 
+  const createUpdateMutation = useCreateInitiativeUpdate({
+    mutation: {
+      onSuccess: () => {
+        if (initiative) {
+          queryClient.invalidateQueries({ queryKey: getListInitiativeUpdatesQueryKey(initiative.id) });
+        }
+        setNewUpdate("");
+        toast({ title: t("detail.updateAdded") });
+      },
+      onError: () => {
+        toast({ title: t("detail.updateAddFailed"), variant: "destructive" });
+      },
+    },
+  });
+
+  const deleteUpdateMutation = useDeleteInitiativeUpdate({
+    mutation: {
+      onSuccess: () => {
+        if (initiative) {
+          queryClient.invalidateQueries({ queryKey: getListInitiativeUpdatesQueryKey(initiative.id) });
+        }
+        toast({ title: t("detail.updateRemoved") });
+      },
+      onError: () => {
+        toast({ title: t("detail.updateRemoveFailed"), variant: "destructive" });
+      },
+    },
+  });
+
   const departmentName = (id: number | null) =>
     localizedName(departments?.find((d) => d.id === id), i18n.language) ?? t("common.unknown");
   const riskCategoryName = (id: number | null) =>
@@ -99,7 +142,7 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{initiative.title}</DialogTitle>
           <DialogDescription>{initiative.description || t("detail.noDescription")}</DialogDescription>
@@ -233,6 +276,61 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
                 </TableBody>
               </Table>
             </div>
+          )}
+        </div>
+
+        <div className="mt-2">
+          <h3 className="font-semibold text-sm mb-2">{t("detail.updates")}</h3>
+          <div className="flex items-start gap-2 mb-3">
+            <Textarea
+              value={newUpdate}
+              onChange={(e) => setNewUpdate(e.target.value)}
+              placeholder={t("detail.updatePlaceholder")}
+              rows={2}
+              className="flex-1 resize-none"
+            />
+            <Button
+              size="sm"
+              disabled={!newUpdate.trim() || createUpdateMutation.isPending}
+              onClick={() =>
+                createUpdateMutation.mutate({
+                  id: initiative.id,
+                  data: { content: newUpdate.trim() },
+                })
+              }
+            >
+              {t("detail.addUpdate")}
+            </Button>
+          </div>
+          {isUpdatesLoading ? (
+            <InlineLoading label={t("detail.loadingUpdates")} />
+          ) : updatesError ? (
+            <PageError title={t("detail.updatesLoadError")} description={t("common.refreshHint")} />
+          ) : updates?.length ? (
+            <ul className="space-y-2 max-h-48 overflow-y-auto pr-1">
+              {updates.map((entry) => (
+                <li key={entry.id} className="rounded-md border p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm whitespace-pre-wrap flex-1">{entry.content}</p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      aria-label={t("common.delete")}
+                      className="text-destructive hover:text-destructive shrink-0 -mt-1 -mr-1"
+                      onClick={() => deleteUpdateMutation.mutate({ id: entry.id })}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {entry.author ? `${entry.author} · ` : ""}
+                    {new Date(entry.createdAt).toLocaleString(dateLocale)}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">{t("detail.noUpdates")}</p>
           )}
         </div>
 

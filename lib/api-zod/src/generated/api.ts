@@ -318,6 +318,58 @@ export const ListInitiativeHistoryResponse = zod.array(ListInitiativeHistoryResp
 
 
 /**
+ * @summary List narrative updates for an initiative
+ */
+export const ListInitiativeUpdatesParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ListInitiativeUpdatesResponseItem = zod.object({
+  "id": zod.number(),
+  "initiativeId": zod.number(),
+  "content": zod.string(),
+  "author": zod.string().nullable(),
+  "createdAt": zod.coerce.date()
+})
+export const ListInitiativeUpdatesResponse = zod.array(ListInitiativeUpdatesResponseItem)
+
+
+/**
+ * @summary Add a narrative update to an initiative
+ */
+export const CreateInitiativeUpdateParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const createInitiativeUpdateBodyContentMax = 2000;
+
+
+
+export const CreateInitiativeUpdateBody = zod.object({
+  "content": zod.string().min(1).max(createInitiativeUpdateBodyContentMax),
+  "author": zod.string().nullish()
+})
+
+export const CreateInitiativeUpdateResponse = zod.object({
+  "id": zod.number(),
+  "initiativeId": zod.number(),
+  "content": zod.string(),
+  "author": zod.string().nullable(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a narrative update
+ */
+export const DeleteInitiativeUpdateParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteInitiativeUpdateResponse = zod.void()
+
+
+/**
  * @summary List all dependencies
  */
 export const ListDependenciesResponseItem = zod.object({

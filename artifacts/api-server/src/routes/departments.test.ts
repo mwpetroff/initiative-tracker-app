@@ -30,6 +30,66 @@ afterAll(async () => {
   }
 });
 
+describe("department hierarchy constraints", () => {
+  it("creates a sub-department under a top-level parent", async () => {
+    const parent = await createDepartment("Contract Test Hierarchy Parent");
+    const res = await request(app)
+      .post("/api/departments")
+      .send({ name: "Contract Test Hierarchy Child", colorHex: "#123456", parentId: parent.id });
+    createdDepartmentIds.unshift(res.body.id);
+    expect(res.status).toBe(201);
+    expect(res.body.parentId).toBe(parent.id);
+  });
+
+  it("rejects a nonexistent parent with 400", async () => {
+    const res = await request(app)
+      .post("/api/departments")
+      .send({ name: "Contract Test Hierarchy Orphan", colorHex: "#123456", parentId: 999999999 });
+    if (res.body?.id) createdDepartmentIds.push(res.body.id);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/parent department not found/i);
+  });
+
+  it("rejects nesting more than one level deep with 400", async () => {
+    const parent = await createDepartment("Contract Test Hierarchy L1");
+    const childRes = await request(app)
+      .post("/api/departments")
+      .send({ name: "Contract Test Hierarchy L2", colorHex: "#123456", parentId: parent.id });
+    createdDepartmentIds.unshift(childRes.body.id);
+
+    const res = await request(app)
+      .post("/api/departments")
+      .send({ name: "Contract Test Hierarchy L3", colorHex: "#123456", parentId: childRes.body.id });
+    if (res.body?.id) createdDepartmentIds.unshift(res.body.id);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/one level deep/i);
+  });
+
+  it("rejects a department becoming its own parent with 400", async () => {
+    const dept = await createDepartment("Contract Test Hierarchy Self");
+    const res = await request(app)
+      .patch(`/api/departments/${dept.id}`)
+      .send({ parentId: dept.id });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/own parent/i);
+  });
+
+  it("rejects giving a parent to a department that has sub-departments with 400", async () => {
+    const parent = await createDepartment("Contract Test Hierarchy Busy Parent");
+    const childRes = await request(app)
+      .post("/api/departments")
+      .send({ name: "Contract Test Hierarchy Busy Child", colorHex: "#123456", parentId: parent.id });
+    createdDepartmentIds.unshift(childRes.body.id);
+    const other = await createDepartment("Contract Test Hierarchy Other Top");
+
+    const res = await request(app)
+      .patch(`/api/departments/${parent.id}`)
+      .send({ parentId: other.id });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/sub-departments/i);
+  });
+});
+
 describe("POST /api/departments", () => {
   it("creates a department", async () => {
     const res = await request(app)

@@ -3,3 +3,4 @@
 - [Drizzle unique constraint naming](drizzle-constraint-naming.md) — hand-written SQL unique constraints must follow Drizzle's `<table>_<column>_unique` naming or `drizzle-kit push` treats it as a diff.
 - [Dev-DB test residue](dev-db-test-residue.md) — contract tests hit the real dev DB; incomplete cleanup pollutes "recent activity"-style feeds with test rows.
 - [Drizzle pg error wrapping](drizzle-pg-error-wrapping.md) — real pg error code is at `err.cause.code`, not `err.code`; verify DB-error-code helpers with a real constraint-triggering test.
+- [GitHub push flow](github-push-flow.md) — listConnections('github') can return 0; fetch the unfiltered connectors API for the token and push via code_execution execSync.

@@ -49,6 +49,8 @@ export interface Department {
   /** @nullable */
   nameJa: string | null;
   colorHex: string;
+  /** @nullable */
+  parentId: number | null;
   createdAt: string;
 }
 
@@ -59,6 +61,8 @@ export interface DepartmentInput {
   nameJa?: string | null;
   /** @minLength 1 */
   colorHex: string;
+  /** @nullable */
+  parentId?: number | null;
 }
 
 export interface DepartmentUpdate {
@@ -68,6 +72,8 @@ export interface DepartmentUpdate {
   nameJa?: string | null;
   /** @minLength 1 */
   colorHex?: string;
+  /** @nullable */
+  parentId?: number | null;
 }
 
 export interface Initiative {

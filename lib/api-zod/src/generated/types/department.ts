@@ -12,5 +12,7 @@ export interface Department {
   /** @nullable */
   nameJa: string | null;
   colorHex: string;
+  /** @nullable */
+  parentId: number | null;
   createdAt: Date;
 }

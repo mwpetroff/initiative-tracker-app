@@ -13,4 +13,6 @@ export interface DepartmentUpdate {
   nameJa?: string | null;
   /** @minLength 1 */
   colorHex?: string;
+  /** @nullable */
+  parentId?: number | null;
 }

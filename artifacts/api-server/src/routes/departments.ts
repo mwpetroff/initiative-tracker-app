@@ -13,6 +13,34 @@ import {
 
 const router: IRouter = Router();
 
+async function validateParent(
+  parentId: number | null | undefined,
+  selfId: number | null,
+): Promise<string | null> {
+  if (parentId == null) return null;
+  if (selfId !== null && parentId === selfId) {
+    return "A department cannot be its own parent";
+  }
+  const [parent] = await db
+    .select({ id: departmentsTable.id, parentId: departmentsTable.parentId })
+    .from(departmentsTable)
+    .where(eq(departmentsTable.id, parentId))
+    .limit(1);
+  if (!parent) return "Parent department not found";
+  if (parent.parentId !== null) {
+    return "Departments can only be nested one level deep";
+  }
+  if (selfId !== null) {
+    const [child] = await db
+      .select({ id: departmentsTable.id })
+      .from(departmentsTable)
+      .where(eq(departmentsTable.parentId, selfId))
+      .limit(1);
+    if (child) return "A department with sub-departments cannot itself have a parent";
+  }
+  return null;
+}
+
 router.get("/departments", async (_req, res): Promise<void> => {
   const departments = await db.select().from(departmentsTable).orderBy(departmentsTable.name);
   res.json(ListDepartmentsResponse.parse(departments));
@@ -22,6 +50,12 @@ router.post("/departments", async (req, res): Promise<void> => {
   const parsed = CreateDepartmentBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const parentError = await validateParent(parsed.data.parentId, null);
+  if (parentError) {
+    res.status(400).json({ error: parentError });
     return;
   }
 
@@ -41,6 +75,14 @@ router.patch("/departments/:id", async (req, res): Promise<void> => {
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
+  }
+
+  if (parsed.data.parentId !== undefined) {
+    const parentError = await validateParent(parsed.data.parentId, params.data.id);
+    if (parentError) {
+      res.status(400).json({ error: parentError });
+      return;
+    }
   }
 
   const [department] = await db
@@ -74,6 +116,19 @@ router.delete("/departments/:id", async (req, res): Promise<void> => {
     res
       .status(409)
       .json({ error: "This department is in use by one or more initiatives and cannot be deleted" });
+    return;
+  }
+
+  const [childDepartment] = await db
+    .select({ id: departmentsTable.id })
+    .from(departmentsTable)
+    .where(eq(departmentsTable.parentId, params.data.id))
+    .limit(1);
+
+  if (childDepartment) {
+    res
+      .status(409)
+      .json({ error: "This department has sub-departments and cannot be deleted" });
     return;
   }
 

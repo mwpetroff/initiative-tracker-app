@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useGetDependencyHeatmap } from "@workspace/api-client-react";
-import type { HeatmapCell } from "@workspace/api-client-react";
+import type { HeatmapCell, Department } from "@workspace/api-client-react";
 import { useTranslation } from "react-i18next";
+import { ChevronRight } from "lucide-react";
+import { buildDepartmentGroups } from "@/lib/department-tree";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Dialog,
@@ -27,10 +29,75 @@ interface SelectedCell {
   columnLabel: string;
 }
 
+const RISK_ORDER: Record<string, number> = { low: 1, medium: 2, high: 3, critical: 4 };
+
+function aggregateCells(
+  memberIds: number[],
+  columnKey: string,
+  cells: HeatmapCell[],
+): HeatmapCell | null {
+  const matched = cells.filter(
+    (c) => c.columnKey === columnKey && memberIds.includes(c.rowDepartmentId),
+  );
+  if (!matched.length) return null;
+  let maxRiskLevel: string | null = null;
+  for (const c of matched) {
+    if (c.maxRiskLevel && (!maxRiskLevel || RISK_ORDER[c.maxRiskLevel] > RISK_ORDER[maxRiskLevel])) {
+      maxRiskLevel = c.maxRiskLevel;
+    }
+  }
+  return {
+    rowDepartmentId: memberIds[0],
+    columnKey,
+    dependencyCount: matched.reduce((sum, c) => sum + c.dependencyCount, 0),
+    maxRiskLevel: maxRiskLevel as HeatmapCell["maxRiskLevel"],
+    riskScore: matched.reduce((sum, c) => sum + c.riskScore, 0),
+    dependencies: matched.flatMap((c) => c.dependencies),
+  };
+}
+
+type HeatmapRow =
+  | { kind: "department"; department: Department; indent: boolean }
+  | { kind: "group"; department: Department; memberIds: number[]; expanded: boolean };
+
 export default function Heatmap() {
   const { data: heatmap, isLoading, error } = useGetDependencyHeatmap();
   const [selected, setSelected] = useState<SelectedCell | null>(null);
+  const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
   const { t, i18n } = useTranslation();
+
+  const displayRows = useMemo<HeatmapRow[]>(() => {
+    const groups = buildDepartmentGroups(heatmap?.rows, i18n.language);
+    const rows: HeatmapRow[] = [];
+    for (const group of groups) {
+      if (group.children.length > 0) {
+        const expanded = expandedGroups.has(group.department.id);
+        rows.push({
+          kind: "group",
+          department: group.department,
+          memberIds: [group.department.id, ...group.children.map((c) => c.id)],
+          expanded,
+        });
+        if (expanded) {
+          for (const child of group.children) {
+            rows.push({ kind: "department", department: child, indent: true });
+          }
+        }
+      } else {
+        rows.push({ kind: "department", department: group.department, indent: false });
+      }
+    }
+    return rows;
+  }, [heatmap, i18n.language, expandedGroups]);
+
+  const toggleGroup = (id: number) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   if (isLoading) {
     return <PageLoading label={t("heatmap.loading")} />;
@@ -68,18 +135,43 @@ export default function Heatmap() {
               </tr>
             </thead>
             <tbody>
-              {heatmap.rows.map((row) => (
-                <tr key={row.id} className="border-b last:border-0">
+              {displayRows.map((displayRow) => {
+                const row = displayRow.department;
+                const isGroup = displayRow.kind === "group";
+                return (
+                <tr key={`${displayRow.kind}-${row.id}`} className="border-b last:border-0">
                   <td className="sticky left-0 z-10 bg-background px-4 py-3 font-medium whitespace-nowrap shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: row.colorHex }} />
-                      {localizedName(row, i18n.language)}
-                    </div>
+                    {isGroup ? (
+                      <button
+                        type="button"
+                        onClick={() => toggleGroup(row.id)}
+                        className="flex items-center gap-2 font-semibold hover:opacity-80"
+                        aria-expanded={displayRow.expanded}
+                        aria-label={t("heatmap.toggleGroup", {
+                          name: localizedName(row, i18n.language),
+                        })}
+                      >
+                        <ChevronRight
+                          className={`h-4 w-4 shrink-0 transition-transform ${displayRow.expanded ? "rotate-90" : ""}`}
+                        />
+                        <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: row.colorHex }} />
+                        {localizedName(row, i18n.language)}
+                      </button>
+                    ) : (
+                      <div
+                        className={`flex items-center gap-2 ${displayRow.indent ? "pl-8 font-normal" : ""}`}
+                      >
+                        <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: row.colorHex }} />
+                        {localizedName(row, i18n.language)}
+                      </div>
+                    )}
                   </td>
                   {heatmap.columns.map((col) => {
-                    const cell = heatmap.cells.find(
-                      (c) => c.rowDepartmentId === row.id && c.columnKey === col.key
-                    );
+                    const cell = isGroup
+                      ? aggregateCells(displayRow.memberIds, col.key, heatmap.cells)
+                      : heatmap.cells.find(
+                          (c) => c.rowDepartmentId === row.id && c.columnKey === col.key
+                        );
 
                     let bgClass = "bg-transparent";
                     if (cell) {
@@ -126,7 +218,8 @@ export default function Heatmap() {
                     );
                   })}
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </CardContent>

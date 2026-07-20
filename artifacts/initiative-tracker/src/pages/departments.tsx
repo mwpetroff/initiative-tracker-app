@@ -17,12 +17,14 @@ import { DepartmentFormDialog } from "@/components/department-form-dialog";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { PageLoading, PageError } from "@/components/page-state";
+import { buildDepartmentGroups } from "@/lib/department-tree";
+import { CornerDownRight } from "lucide-react";
 
 export default function Departments() {
   const { data: departments, isLoading, error } = useListDepartments();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
@@ -98,35 +100,46 @@ export default function Departments() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {departments?.map((dept) => (
-                <TableRow key={dept.id}>
-                  <TableCell>
-                    <div
-                      className="w-4 h-4 rounded-full border border-border"
-                      style={{ backgroundColor: dept.colorHex }}
-                    />
-                  </TableCell>
-                  <TableCell className="font-medium">{dept.name}</TableCell>
-                  <TableCell>
-                    {dept.nameJa ?? <span className="text-muted-foreground">—</span>}
-                  </TableCell>
-                  <TableCell className="text-right space-x-1">
-                    <Button variant="ghost" size="sm" onClick={() => openEditForm(dept)}>
-                      <Pencil className="h-4 w-4 mr-1" />
-                      {t("common.edit")}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => setDeletingDepartment(dept)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      {t("common.delete")}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {buildDepartmentGroups(departments, i18n.language).flatMap((group) =>
+                [group.department, ...group.children].map((dept) => (
+                  <TableRow key={dept.id}>
+                    <TableCell>
+                      <div
+                        className="w-4 h-4 rounded-full border border-border"
+                        style={{ backgroundColor: dept.colorHex }}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {dept.parentId != null ? (
+                        <span className="flex items-center gap-2 pl-6 font-normal">
+                          <CornerDownRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          {dept.name}
+                        </span>
+                      ) : (
+                        dept.name
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {dept.nameJa ?? <span className="text-muted-foreground">—</span>}
+                    </TableCell>
+                    <TableCell className="text-right space-x-1">
+                      <Button variant="ghost" size="sm" onClick={() => openEditForm(dept)}>
+                        <Pencil className="h-4 w-4 mr-1" />
+                        {t("common.edit")}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => setDeletingDepartment(dept)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        {t("common.delete")}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )),
+              )}
               {!departments?.length && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">

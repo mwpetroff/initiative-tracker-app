@@ -109,6 +109,7 @@
     "riskMatrixDescription": "行は施策を持つ部門、列は依存先です。セルをクリックすると詳細が表示されます。",
     "department": "部門",
     "external": "（外部）",
+    "toggleGroup": "{{name}}グループを開閉",
     "dependencyCount_other": "このセルには{{count}}件の依存関係があります。"
   },
   "goals": {
@@ -178,7 +179,11 @@
     "updated": "部門を更新しました",
     "updateFailed": "部門の更新に失敗しました",
     "saveChanges": "変更を保存",
-    "create": "部門を作成"
+    "create": "部門を作成",
+    "parent": "親グループ",
+    "parentNone": "なし（最上位）",
+    "parentHint": "デリバリーやELTなどの親グループの下にこの部門を配置できます。",
+    "parentDisabledHint": "この部門には下位部門があるため、他のグループの下に配置できません。"
   },
   "riskCategories": {
     "title": "リスクカテゴリ",

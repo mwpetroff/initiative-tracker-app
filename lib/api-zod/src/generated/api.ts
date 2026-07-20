@@ -25,6 +25,7 @@ export const ListDepartmentsResponseItem = zod.object({
   "name": zod.string(),
   "nameJa": zod.string().nullable(),
   "colorHex": zod.string(),
+  "parentId": zod.number().nullable(),
   "createdAt": zod.coerce.date()
 })
 export const ListDepartmentsResponse = zod.array(ListDepartmentsResponseItem)
@@ -40,7 +41,8 @@ export const ListDepartmentsResponse = zod.array(ListDepartmentsResponseItem)
 export const CreateDepartmentBody = zod.object({
   "name": zod.string().min(1),
   "nameJa": zod.string().nullish(),
-  "colorHex": zod.string().min(1)
+  "colorHex": zod.string().min(1),
+  "parentId": zod.number().nullish()
 })
 
 export const CreateDepartmentResponse = zod.object({
@@ -48,6 +50,7 @@ export const CreateDepartmentResponse = zod.object({
   "name": zod.string(),
   "nameJa": zod.string().nullable(),
   "colorHex": zod.string(),
+  "parentId": zod.number().nullable(),
   "createdAt": zod.coerce.date()
 })
 
@@ -66,7 +69,8 @@ export const UpdateDepartmentParams = zod.object({
 export const UpdateDepartmentBody = zod.object({
   "name": zod.string().min(1).optional(),
   "nameJa": zod.string().nullish(),
-  "colorHex": zod.string().min(1).optional()
+  "colorHex": zod.string().min(1).optional(),
+  "parentId": zod.number().nullish()
 })
 
 export const UpdateDepartmentResponse = zod.object({
@@ -74,6 +78,7 @@ export const UpdateDepartmentResponse = zod.object({
   "name": zod.string(),
   "nameJa": zod.string().nullable(),
   "colorHex": zod.string(),
+  "parentId": zod.number().nullable(),
   "createdAt": zod.coerce.date()
 })
 
@@ -522,6 +527,7 @@ export const GetDependencyHeatmapResponse = zod.object({
   "name": zod.string(),
   "nameJa": zod.string().nullable(),
   "colorHex": zod.string(),
+  "parentId": zod.number().nullable(),
   "createdAt": zod.coerce.date()
 })),
   "columns": zod.array(zod.object({

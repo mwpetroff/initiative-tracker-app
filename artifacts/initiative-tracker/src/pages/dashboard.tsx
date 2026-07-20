@@ -1,5 +1,8 @@
-import { useGetDashboardSummary } from "@workspace/api-client-react";
+import { useGetDashboardSummary, useListDepartments } from "@workspace/api-client-react";
+import type { DepartmentStatusBreakdown } from "@workspace/api-client-react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { buildDepartmentGroups } from "@/lib/department-tree";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle, Target, Activity, PauseCircle, CalendarClock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -7,10 +10,72 @@ import { PageLoading, PageError } from "@/components/page-state";
 import { useDateLocale } from "@/i18n";
 import { localizedLabel } from "@/lib/localized-name";
 
+interface BreakdownGroup {
+  header: DepartmentStatusBreakdown | null;
+  rollup: { total: number; inProgress: number; blocked: number } | null;
+  items: DepartmentStatusBreakdown[];
+}
+
 export default function Dashboard() {
   const { data: summary, isLoading, error } = useGetDashboardSummary();
+  const { data: departments } = useListDepartments();
   const { t, i18n } = useTranslation();
   const dateLocale = useDateLocale();
+
+  const breakdownGroups = useMemo<BreakdownGroup[]>(() => {
+    const breakdown = summary?.departmentBreakdown ?? [];
+    const byId = new Map(breakdown.map((b) => [b.departmentId, b]));
+    const groups = buildDepartmentGroups(departments, i18n.language);
+    if (!groups.length) {
+      return breakdown.length ? [{ header: null, rollup: null, items: breakdown }] : [];
+    }
+    const result: BreakdownGroup[] = [];
+    const seen = new Set<number>();
+    for (const group of groups) {
+      const parentEntry = byId.get(group.department.id);
+      const childEntries = group.children
+        .map((c) => byId.get(c.id))
+        .filter((e): e is DepartmentStatusBreakdown => Boolean(e));
+      if (parentEntry) seen.add(parentEntry.departmentId);
+      for (const e of childEntries) seen.add(e.departmentId);
+
+      if (group.children.length > 0) {
+        const all = [...(parentEntry ? [parentEntry] : []), ...childEntries];
+        if (!all.length) continue;
+        const rollup = all.reduce(
+          (acc, e) => ({
+            total: acc.total + e.total,
+            inProgress: acc.inProgress + e.inProgress,
+            blocked: acc.blocked + e.blocked,
+          }),
+          { total: 0, inProgress: 0, blocked: 0 },
+        );
+        result.push({
+          header:
+            parentEntry ??
+            ({
+              departmentId: group.department.id,
+              departmentName: group.department.name,
+              departmentNameJa: group.department.nameJa,
+              colorHex: group.department.colorHex,
+              total: 0,
+              planning: 0,
+              inProgress: 0,
+              blocked: 0,
+              completed: 0,
+              onHold: 0,
+            } satisfies DepartmentStatusBreakdown),
+          rollup,
+          items: childEntries,
+        });
+      } else if (parentEntry) {
+        result.push({ header: null, rollup: null, items: [parentEntry] });
+      }
+    }
+    const leftovers = breakdown.filter((b) => !seen.has(b.departmentId) && !result.some((g) => g.items.includes(b)));
+    if (leftovers.length) result.push({ header: null, rollup: null, items: leftovers });
+    return result;
+  }, [summary, departments, i18n.language]);
 
   if (isLoading) {
     return <PageLoading label={t("dashboard.loading")} />;
@@ -83,23 +148,51 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {summary.departmentBreakdown.map((dept) => (
-                <div key={dept.departmentId} className="flex items-center">
-                  <div
-                    className="w-3 h-3 rounded-full mr-4"
-                    style={{ backgroundColor: dept.colorHex }}
-                  />
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {localizedLabel(dept.departmentName, dept.departmentNameJa, i18n.language)}
-                    </p>
-                    <div className="flex gap-2 text-xs text-muted-foreground">
-                      <span>{t("dashboard.activeCount", { count: dept.inProgress })}</span>
-                      <span>•</span>
-                      <span>{t("dashboard.blockedCount", { count: dept.blocked })}</span>
+              {breakdownGroups.map((group, groupIndex) => (
+                <div key={group.header?.departmentId ?? `standalone-${groupIndex}`} className="space-y-3">
+                  {group.header && group.rollup && (
+                    <div className="flex items-center rounded-md bg-muted/50 px-2 py-2">
+                      <div
+                        className="w-3 h-3 rounded-full mr-4"
+                        style={{ backgroundColor: group.header.colorHex }}
+                      />
+                      <div className="flex-1 space-y-1">
+                        <p className="text-sm font-semibold leading-none">
+                          {localizedLabel(group.header.departmentName, group.header.departmentNameJa, i18n.language)}
+                        </p>
+                        <div className="flex gap-2 text-xs text-muted-foreground">
+                          <span>{t("dashboard.activeCount", { count: group.rollup.inProgress })}</span>
+                          <span>•</span>
+                          <span>{t("dashboard.blockedCount", { count: group.rollup.blocked })}</span>
+                        </div>
+                      </div>
+                      <div className="font-semibold text-sm">
+                        {t("dashboard.totalCount", { count: group.rollup.total })}
+                      </div>
                     </div>
-                  </div>
-                  <div className="font-medium text-sm">{t("dashboard.totalCount", { count: dept.total })}</div>
+                  )}
+                  {group.items.map((dept) => (
+                    <div
+                      key={dept.departmentId}
+                      className={`flex items-center ${group.header ? "pl-6" : ""}`}
+                    >
+                      <div
+                        className="w-3 h-3 rounded-full mr-4"
+                        style={{ backgroundColor: dept.colorHex }}
+                      />
+                      <div className="flex-1 space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {localizedLabel(dept.departmentName, dept.departmentNameJa, i18n.language)}
+                        </p>
+                        <div className="flex gap-2 text-xs text-muted-foreground">
+                          <span>{t("dashboard.activeCount", { count: dept.inProgress })}</span>
+                          <span>•</span>
+                          <span>{t("dashboard.blockedCount", { count: dept.blocked })}</span>
+                        </div>
+                      </div>
+                      <div className="font-medium text-sm">{t("dashboard.totalCount", { count: dept.total })}</div>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>

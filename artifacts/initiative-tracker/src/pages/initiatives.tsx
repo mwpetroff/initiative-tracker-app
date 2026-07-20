@@ -35,6 +35,7 @@ import { exportInitiativesToExcel, type ExportLabels } from "@/lib/export-excel"
 import { filterInitiatives, paginate, isInitiativeOverdue } from "@/lib/initiative-filters";
 import { useDateLocale, useQuarterLocale } from "@/i18n";
 import { localizedName } from "@/lib/localized-name";
+import { departmentDisplayName } from "@/lib/department-tree";
 
 const STATUS_VALUES = ["planning", "in_progress", "blocked", "completed", "on_hold"] as const;
 const PRIORITY_VALUES = ["low", "medium", "high"] as const;
@@ -168,7 +169,7 @@ export default function Initiatives() {
                   filteredInitiatives,
                   departments?.map((d) => ({
                     ...d,
-                    name: localizedName(d, i18n.language) ?? d.name,
+                    name: departmentDisplayName(d, departments, i18n.language),
                   })),
                   undefined,
                   buildExportLabels(),

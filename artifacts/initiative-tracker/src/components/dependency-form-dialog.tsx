@@ -27,7 +27,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { buildDepartmentGroups } from "@/lib/department-tree";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { localizedName } from "@/lib/localized-name";
@@ -210,11 +219,25 @@ export function DependencyFormDialog({
                       <SelectValue placeholder={t("dependencyForm.selectDepartment")} />
                     </SelectTrigger>
                     <SelectContent>
-                      {departments?.map((dept) => (
-                        <SelectItem key={dept.id} value={String(dept.id)}>
-                          {localizedName(dept, i18n.language)}
-                        </SelectItem>
-                      ))}
+                      {buildDepartmentGroups(departments, i18n.language).map((group) =>
+                        group.children.length > 0 ? (
+                          <SelectGroup key={group.department.id}>
+                            <SelectLabel>{localizedName(group.department, i18n.language)}</SelectLabel>
+                            <SelectItem value={String(group.department.id)}>
+                              {localizedName(group.department, i18n.language)}
+                            </SelectItem>
+                            {group.children.map((child) => (
+                              <SelectItem key={child.id} value={String(child.id)} className="pl-8">
+                                {localizedName(child, i18n.language)}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        ) : (
+                          <SelectItem key={group.department.id} value={String(group.department.id)}>
+                            {localizedName(group.department, i18n.language)}
+                          </SelectItem>
+                        ),
+                      )}
                     </SelectContent>
                   </Select>
                 )}

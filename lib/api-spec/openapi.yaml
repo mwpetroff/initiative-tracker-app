@@ -465,13 +465,15 @@ components:
 
     Department:
       type: object
-      required: [id, name, nameJa, colorHex, createdAt]
+      required: [id, name, nameJa, colorHex, parentId, createdAt]
       properties:
         id: { type: integer }
         name: { type: string }
         nameJa:
           type: ["string", "null"]
         colorHex: { type: string }
+        parentId:
+          type: ["integer", "null"]
         createdAt: { type: string, format: date-time }
 
     DepartmentInput:
@@ -482,6 +484,8 @@ components:
         nameJa:
           type: ["string", "null"]
         colorHex: { type: string, minLength: 1 }
+        parentId:
+          type: ["integer", "null"]
 
     DepartmentUpdate:
       type: object
@@ -490,6 +494,8 @@ components:
         nameJa:
           type: ["string", "null"]
         colorHex: { type: string, minLength: 1 }
+        parentId:
+          type: ["integer", "null"]
 
     Initiative:
       type: object

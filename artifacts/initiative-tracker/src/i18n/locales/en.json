@@ -109,6 +109,7 @@
     "riskMatrixDescription": "Rows are departments with initiatives; columns are what they depend on. Click a cell for details.",
     "department": "Department",
     "external": "(Ext)",
+    "toggleGroup": "Toggle {{name}} group",
     "dependencyCount_one": "{{count}} dependency in this cell.",
     "dependencyCount_other": "{{count}} dependencies in this cell."
   },
@@ -179,7 +180,11 @@
     "updated": "Department updated",
     "updateFailed": "Failed to update department",
     "saveChanges": "Save Changes",
-    "create": "Create Department"
+    "create": "Create Department",
+    "parent": "Parent Group",
+    "parentNone": "None (top level)",
+    "parentHint": "Optionally nest this department under a parent group like Delivery or ELT.",
+    "parentDisabledHint": "This department has sub-departments, so it can't be nested under another group."
   },
   "riskCategories": {
     "title": "Risk Categories",

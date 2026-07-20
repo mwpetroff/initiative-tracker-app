@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
@@ -7,6 +7,7 @@ import type { TFunction } from "i18next";
 import {
   useCreateDepartment,
   useUpdateDepartment,
+  useListDepartments,
   getListDepartmentsQueryKey,
   getGetDashboardSummaryQueryKey,
   getGetDependencyHeatmapQueryKey,
@@ -25,7 +26,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { localizedName } from "@/lib/localized-name";
 
 function makeDepartmentFormSchema(t: TFunction) {
   return z.object({
@@ -35,6 +38,7 @@ function makeDepartmentFormSchema(t: TFunction) {
       .string()
       .min(1, t("departments.colorRequired"))
       .regex(/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/, t("departments.colorInvalid")),
+    parentId: z.string(),
   });
 }
 
@@ -50,13 +54,25 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
   const isEditing = Boolean(department);
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { data: departments } = useListDepartments();
 
   const schema = useMemo(() => makeDepartmentFormSchema(t), [t]);
 
+  const hasChildren = useMemo(
+    () => Boolean(department && departments?.some((d) => d.parentId === department.id)),
+    [department, departments],
+  );
+
+  const parentOptions = useMemo(
+    () =>
+      (departments ?? []).filter((d) => d.parentId == null && d.id !== department?.id),
+    [departments, department],
+  );
+
   const form = useForm<DepartmentFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", nameJa: "", colorHex: "#3B82F6" },
+    defaultValues: { name: "", nameJa: "", colorHex: "#3B82F6", parentId: "none" },
   });
 
   useEffect(() => {
@@ -65,6 +81,7 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
         name: department?.name ?? "",
         nameJa: department?.nameJa ?? "",
         colorHex: department?.colorHex ?? "#3B82F6",
+        parentId: department?.parentId != null ? String(department.parentId) : "none",
       });
     }
   }, [open, department, form]);
@@ -109,6 +126,7 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
       name: values.name,
       nameJa: values.nameJa.trim() ? values.nameJa.trim() : null,
       colorHex: values.colorHex,
+      parentId: values.parentId === "none" ? null : Number(values.parentId),
     };
     if (isEditing && department) {
       updateMutation.mutate({ id: department.id, data });
@@ -142,6 +160,31 @@ export function DepartmentFormDialog({ open, onOpenChange, department }: Departm
               {...form.register("nameJa")}
             />
             <p className="text-xs text-muted-foreground">{t("common.nameJaHint")}</p>
+          </div>
+          <div className="space-y-2">
+            <Label>{t("departments.parent")}</Label>
+            <Controller
+              control={form.control}
+              name="parentId"
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange} disabled={hasChildren}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t("departments.parentNone")}</SelectItem>
+                    {parentOptions.map((dept) => (
+                      <SelectItem key={dept.id} value={String(dept.id)}>
+                        {localizedName(dept, i18n.language)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            <p className="text-xs text-muted-foreground">
+              {hasChildren ? t("departments.parentDisabledHint") : t("departments.parentHint")}
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="dept-color">{t("departments.color")}</Label>

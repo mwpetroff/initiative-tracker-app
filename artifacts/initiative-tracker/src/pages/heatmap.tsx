@@ -119,15 +119,16 @@ export default function Heatmap() {
           <CardTitle>{t("heatmap.riskMatrix")}</CardTitle>
           <CardDescription>{t("heatmap.riskMatrixDescription")}</CardDescription>
         </CardHeader>
-        <CardContent className="overflow-auto">
+        <CardContent className="p-0">
+          <div className="overflow-auto max-h-[calc(100vh-16rem)] rounded-b-xl">
           <table className="w-full text-sm text-left border-separate border-spacing-0">
-            <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
+            <thead className="text-xs text-muted-foreground uppercase">
               <tr>
-                <th className="sticky left-0 z-10 bg-muted/50 px-4 py-3 font-medium shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]">
+                <th className="sticky left-0 top-0 z-30 bg-muted px-4 py-2 font-medium shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]">
                   {t("heatmap.department")}
                 </th>
                 {heatmap.columns.map((col) => (
-                  <th key={col.key} className="px-4 py-3 font-medium whitespace-nowrap">
+                  <th key={col.key} className="sticky top-0 z-20 bg-muted px-2 py-2 font-medium whitespace-nowrap text-center shadow-[0_2px_4px_-2px_rgba(0,0,0,0.15)]">
                     {localizedLabel(col.label, col.labelJa, i18n.language)}{" "}
                     {col.isExternal ? t("heatmap.external") : ""}
                   </th>
@@ -140,7 +141,7 @@ export default function Heatmap() {
                 const isGroup = displayRow.kind === "group";
                 return (
                 <tr key={`${displayRow.kind}-${row.id}`} className="border-b last:border-0">
-                  <td className="sticky left-0 z-10 bg-background px-4 py-3 font-medium whitespace-nowrap shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]">
+                  <td className="sticky left-0 z-10 bg-background px-4 py-1.5 font-medium whitespace-nowrap shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]">
                     {isGroup ? (
                       <button
                         type="button"
@@ -182,7 +183,7 @@ export default function Heatmap() {
                     }
 
                     return (
-                      <td key={col.key} className="p-1">
+                      <td key={col.key} className="p-0.5">
                         <div
                           role={cell ? "button" : undefined}
                           tabIndex={cell ? 0 : undefined}
@@ -210,9 +211,9 @@ export default function Heatmap() {
                                 }
                               : undefined
                           }
-                          className={`h-12 w-full rounded-md flex items-center justify-center ${bgClass} transition-colors ${cell ? "hover:opacity-80 cursor-pointer" : ""}`}
+                          className={`h-8 w-full min-w-12 rounded-md flex items-center justify-center ${bgClass} transition-colors ${cell ? "hover:opacity-80 cursor-pointer" : "text-muted-foreground/40"}`}
                         >
-                          {cell ? cell.dependencyCount : "-"}
+                          {cell ? cell.dependencyCount : "–"}
                         </div>
                       </td>
                     );
@@ -222,6 +223,7 @@ export default function Heatmap() {
               })}
             </tbody>
           </table>
+          </div>
         </CardContent>
       </Card>
 

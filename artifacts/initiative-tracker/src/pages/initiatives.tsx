@@ -452,12 +452,24 @@ export default function Initiatives() {
       </>
       )}
 
-      <InitiativeFormDialog open={formOpen} onOpenChange={setFormOpen} initiative={editingInitiative} />
+      <InitiativeFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        initiative={editingInitiative}
+        onUpdated={(updated) => {
+          setDetailInitiative((current) => (current && current.id === updated.id ? updated : current));
+        }}
+      />
 
       <InitiativeDetailDialog
         open={Boolean(detailInitiative)}
         onOpenChange={(open) => !open && setDetailInitiative(null)}
         initiative={detailInitiative}
+        onEditAssumptions={(initiative) => {
+          setEditingInitiative(initiative);
+          setFormOpen(true);
+        }}
+        onInitiativeUpdated={setDetailInitiative}
       />
 
       <ConfirmDeleteDialog

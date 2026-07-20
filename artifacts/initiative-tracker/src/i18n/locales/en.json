@@ -34,7 +34,8 @@
     "next": "Next",
     "morePages": "More pages",
     "goToPreviousPage": "Go to previous page",
-    "goToNextPage": "Go to next page"
+    "goToNextPage": "Go to next page",
+    "save": "Save"
   },
   "status": {
     "planning": "Planning",
@@ -256,13 +257,18 @@
     "dependencyResolved": "Dependency marked as resolved",
     "dependencyReopened": "Dependency reopened",
     "resolveFailed": "Failed to update dependency",
-    "removeFailed": "Failed to remove dependency"
+    "removeFailed": "Failed to remove dependency",
+    "editAssumptions": "Edit assumptions",
+    "quickStatus": "Status",
+    "quickProgress": "Progress (%)",
+    "quickUpdateSaved": "Initiative updated",
+    "quickUpdateFailed": "Failed to update initiative"
   },
   "initiativeForm": {
     "newTitle": "New Initiative",
-    "editTitle": "Edit Initiative",
+    "editTitle": "Edit Initiative Assumptions",
     "newDescription": "Track a new initiative for your team.",
-    "editDescription": "Update this initiative's details.",
+    "editDescription": "Change the setup assumptions: scope, department, owner, dates, and quarterly goal.",
     "titleLabel": "Title",
     "titlePlaceholder": "e.g. Migrate core API",
     "titleRequired": "Title is required",
@@ -290,7 +296,8 @@
     "updated": "Initiative updated",
     "updateFailed": "Failed to update initiative",
     "saveChanges": "Save Changes",
-    "create": "Create Initiative"
+    "create": "Create Initiative",
+    "dayToDayHint": "Status and progress are managed day-to-day from the initiative detail view."
   },
   "dependencyForm": {
     "addTitle": "Add Dependency",

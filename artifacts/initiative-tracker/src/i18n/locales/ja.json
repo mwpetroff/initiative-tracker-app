@@ -34,7 +34,8 @@
     "next": "次へ",
     "morePages": "その他のページ",
     "goToPreviousPage": "前のページへ",
-    "goToNextPage": "次のページへ"
+    "goToNextPage": "次のページへ",
+    "save": "保存"
   },
   "status": {
     "planning": "計画中",
@@ -255,13 +256,18 @@
     "dependencyResolved": "依存関係を解消済みにしました",
     "dependencyReopened": "依存関係を未解消に戻しました",
     "resolveFailed": "依存関係の更新に失敗しました",
-    "removeFailed": "依存関係の削除に失敗しました"
+    "removeFailed": "依存関係の削除に失敗しました",
+    "editAssumptions": "前提を編集",
+    "quickStatus": "ステータス",
+    "quickProgress": "進捗（%）",
+    "quickUpdateSaved": "施策を更新しました",
+    "quickUpdateFailed": "施策の更新に失敗しました"
   },
   "initiativeForm": {
     "newTitle": "新規施策",
-    "editTitle": "施策を編集",
+    "editTitle": "施策の前提を編集",
     "newDescription": "チームの新しい施策を登録します。",
-    "editDescription": "この施策の詳細を更新します。",
+    "editDescription": "施策の前提（範囲、部門、担当者、日程、四半期目標）を変更します。",
     "titleLabel": "タイトル",
     "titlePlaceholder": "例: コアAPIの移行",
     "titleRequired": "タイトルは必須です",
@@ -289,7 +295,8 @@
     "updated": "施策を更新しました",
     "updateFailed": "施策の更新に失敗しました",
     "saveChanges": "変更を保存",
-    "create": "施策を作成"
+    "create": "施策を作成",
+    "dayToDayHint": "ステータスと進捗は施策の詳細画面から日々更新できます。"
   },
   "dependencyForm": {
     "addTitle": "依存関係を追加",

@@ -66,9 +66,10 @@ interface InitiativeFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initiative?: Initiative | null;
+  onUpdated?: (initiative: Initiative) => void;
 }
 
-export function InitiativeFormDialog({ open, onOpenChange, initiative }: InitiativeFormDialogProps) {
+export function InitiativeFormDialog({ open, onOpenChange, initiative, onUpdated }: InitiativeFormDialogProps) {
   const isEditing = Boolean(initiative);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -136,8 +137,9 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
 
   const updateMutation = useUpdateInitiative({
     mutation: {
-      onSuccess: () => {
+      onSuccess: (updated) => {
         invalidateAll();
+        onUpdated?.(updated);
         toast({ title: t("initiativeForm.updated") });
         onOpenChange(false);
       },
@@ -150,14 +152,12 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   const onSubmit = (values: InitiativeFormValues) => {
-    const payload = {
+    const assumptions = {
       title: values.title,
       description: values.description,
       departmentId: Number(values.departmentId),
-      status: values.status,
       priority: values.priority,
       owner: values.owner,
-      progress: values.progress,
       startDate: values.startDate,
       targetDate: values.targetDate,
       quarterGoal: values.quarterGoal.trim() ? values.quarterGoal.trim() : null,
@@ -165,9 +165,11 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
     };
 
     if (isEditing && initiative) {
-      updateMutation.mutate({ id: initiative.id, data: payload });
+      updateMutation.mutate({ id: initiative.id, data: assumptions });
     } else {
-      createMutation.mutate({ data: payload });
+      createMutation.mutate({
+        data: { ...assumptions, status: values.status, progress: values.progress },
+      });
     }
   };
 
@@ -251,28 +253,30 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>{t("initiativeForm.status")}</Label>
-              <Controller
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="planning">{t("status.planning")}</SelectItem>
-                      <SelectItem value="in_progress">{t("status.in_progress")}</SelectItem>
-                      <SelectItem value="blocked">{t("status.blocked")}</SelectItem>
-                      <SelectItem value="completed">{t("status.completed")}</SelectItem>
-                      <SelectItem value="on_hold">{t("status.on_hold")}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
+          <div className={`grid grid-cols-1 gap-4 ${isEditing ? "sm:grid-cols-1" : "sm:grid-cols-3"}`}>
+            {!isEditing && (
+              <div className="space-y-2">
+                <Label>{t("initiativeForm.status")}</Label>
+                <Controller
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="planning">{t("status.planning")}</SelectItem>
+                        <SelectItem value="in_progress">{t("status.in_progress")}</SelectItem>
+                        <SelectItem value="blocked">{t("status.blocked")}</SelectItem>
+                        <SelectItem value="completed">{t("status.completed")}</SelectItem>
+                        <SelectItem value="on_hold">{t("status.on_hold")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label>{t("initiativeForm.priority")}</Label>
@@ -294,17 +298,23 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative }: Initiat
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="init-progress">{t("initiativeForm.progressLabel")}</Label>
-              <Input
-                id="init-progress"
-                type="number"
-                min={0}
-                max={100}
-                {...form.register("progress")}
-              />
-            </div>
+            {!isEditing && (
+              <div className="space-y-2">
+                <Label htmlFor="init-progress">{t("initiativeForm.progressLabel")}</Label>
+                <Input
+                  id="init-progress"
+                  type="number"
+                  min={0}
+                  max={100}
+                  {...form.register("progress")}
+                />
+              </div>
+            )}
           </div>
+
+          {isEditing && (
+            <p className="text-xs text-muted-foreground">{t("initiativeForm.dayToDayHint")}</p>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">

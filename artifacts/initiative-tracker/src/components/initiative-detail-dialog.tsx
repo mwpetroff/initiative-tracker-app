@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
@@ -11,6 +11,8 @@ import {
   useListInitiativeUpdates,
   useCreateInitiativeUpdate,
   useDeleteInitiativeUpdate,
+  useUpdateInitiative,
+  getListInitiativesQueryKey,
   getListInitiativeDependenciesQueryKey,
   getListInitiativeHistoryQueryKey,
   getListInitiativeUpdatesQueryKey,
@@ -27,6 +29,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -50,9 +61,17 @@ interface InitiativeDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initiative: Initiative | null;
+  onEditAssumptions?: (initiative: Initiative) => void;
+  onInitiativeUpdated?: (initiative: Initiative) => void;
 }
 
-export function InitiativeDetailDialog({ open, onOpenChange, initiative }: InitiativeDetailDialogProps) {
+export function InitiativeDetailDialog({
+  open,
+  onOpenChange,
+  initiative,
+  onEditAssumptions,
+  onInitiativeUpdated,
+}: InitiativeDetailDialogProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
@@ -83,9 +102,15 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
   });
 
   const [depFormOpen, setDepFormOpen] = useState(false);
+  const [progressDraft, setProgressDraft] = useState<string | null>(null);
   const [newUpdate, setNewUpdate] = useState("");
   const [editingDependency, setEditingDependency] = useState<Dependency | null>(null);
   const [deletingDependency, setDeletingDependency] = useState<Dependency | null>(null);
+
+  useEffect(() => {
+    setProgressDraft(null);
+    setNewUpdate("");
+  }, [initiative?.id, open]);
 
   const deleteMutation = useDeleteDependency({
     mutation: {
@@ -151,6 +176,25 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
     },
   });
 
+  const quickUpdateMutation = useUpdateInitiative({
+    mutation: {
+      onSuccess: (updated) => {
+        queryClient.invalidateQueries({ queryKey: getListInitiativesQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetDashboardSummaryQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetDependencyHeatmapQueryKey() });
+        if (initiative) {
+          queryClient.invalidateQueries({ queryKey: getListInitiativeHistoryQueryKey(initiative.id) });
+        }
+        onInitiativeUpdated?.(updated);
+        setProgressDraft(null);
+        toast({ title: t("detail.quickUpdateSaved") });
+      },
+      onError: () => {
+        toast({ title: t("detail.quickUpdateFailed"), variant: "destructive" });
+      },
+    },
+  });
+
   const departmentName = (id: number | null) =>
     localizedName(departments?.find((d) => d.id === id), i18n.language) ?? t("common.unknown");
   const riskCategoryName = (id: number | null) =>
@@ -162,7 +206,20 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{initiative.title}</DialogTitle>
+          <div className="flex items-start justify-between gap-3">
+            <DialogTitle className="flex-1">{initiative.title}</DialogTitle>
+            {onEditAssumptions && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0 mr-4"
+                onClick={() => onEditAssumptions(initiative)}
+              >
+                <Pencil className="h-4 w-4 mr-1" />
+                {t("detail.editAssumptions")}
+              </Button>
+            )}
+          </div>
           <DialogDescription>{initiative.description || t("detail.noDescription")}</DialogDescription>
         </DialogHeader>
 
@@ -180,14 +237,81 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
               </span>
             );
           })()}
-          <Badge variant="secondary">{t(`status.${initiative.status}`, initiative.status)}</Badge>
           <Badge variant="outline">
             {t("detail.priorityBadge", {
               label: t(`priority.${initiative.priority}`, initiative.priority),
             })}
           </Badge>
           <span>{t("detail.owner", { owner: initiative.owner })}</span>
-          <span>{t("detail.progress", { progress: initiative.progress })}</span>
+        </div>
+
+        <div className="rounded-md border p-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">{t("detail.quickStatus")}</Label>
+              <Select
+                value={initiative.status}
+                disabled={quickUpdateMutation.isPending}
+                onValueChange={(value) => {
+                  if (value !== initiative.status) {
+                    quickUpdateMutation.mutate({
+                      id: initiative.id,
+                      data: { status: value as Initiative["status"] },
+                    });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="planning">{t("status.planning")}</SelectItem>
+                  <SelectItem value="in_progress">{t("status.in_progress")}</SelectItem>
+                  <SelectItem value="blocked">{t("status.blocked")}</SelectItem>
+                  <SelectItem value="completed">{t("status.completed")}</SelectItem>
+                  <SelectItem value="on_hold">{t("status.on_hold")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="detail-progress" className="text-xs text-muted-foreground">
+                {t("detail.quickProgress")}
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="detail-progress"
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={progressDraft ?? String(initiative.progress)}
+                  onChange={(e) => setProgressDraft(e.target.value)}
+                />
+                <Button
+                  size="sm"
+                  disabled={(() => {
+                    if (quickUpdateMutation.isPending || progressDraft === null) return true;
+                    const parsed = Number(progressDraft);
+                    return (
+                      progressDraft.trim() === "" ||
+                      !Number.isFinite(parsed) ||
+                      !Number.isInteger(parsed) ||
+                      parsed < 0 ||
+                      parsed > 100 ||
+                      parsed === initiative.progress
+                    );
+                  })()}
+                  onClick={() =>
+                    quickUpdateMutation.mutate({
+                      id: initiative.id,
+                      data: { progress: Number(progressDraft) },
+                    })
+                  }
+                >
+                  {t("common.save")}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">

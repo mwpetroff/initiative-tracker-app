@@ -31,6 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { InlineLoading, PageError } from "@/components/page-state";
 import { useDateLocale } from "@/i18n";
 import { localizedName } from "@/lib/localized-name";
+import { departmentDisplayName } from "@/lib/department-tree";
 
 const riskVariant: Record<string, "secondary" | "outline" | "destructive"> = {
   low: "secondary",
@@ -105,6 +106,19 @@ export function InitiativeDetailDialog({ open, onOpenChange, initiative }: Initi
         </DialogHeader>
 
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          {(() => {
+            const dept = departments?.find((d) => d.id === initiative.departmentId);
+            if (!dept) return null;
+            return (
+              <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: dept.colorHex }}
+                />
+                {departmentDisplayName(dept, departments, i18n.language)}
+              </span>
+            );
+          })()}
           <Badge variant="secondary">{t(`status.${initiative.status}`, initiative.status)}</Badge>
           <Badge variant="outline">
             {t("detail.priorityBadge", {

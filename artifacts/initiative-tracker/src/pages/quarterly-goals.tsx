@@ -1,6 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useLocation } from "wouter";
 import { useGetSettings, useListInitiatives, useListDepartments } from "@workspace/api-client-react";
 import { useTranslation } from "react-i18next";
+import { DepartmentFilterSelect } from "@/components/department-filter-select";
+import { departmentMemberIds } from "@/lib/department-tree";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -19,6 +22,8 @@ export default function QuarterlyGoals() {
   const { data: departments } = useListDepartments();
   const { t, i18n } = useTranslation();
   const quarterLocale = useQuarterLocale();
+  const [, navigate] = useLocation();
+  const [departmentFilter, setDepartmentFilter] = useState<string>("all");
 
   const currentQuarter = useMemo(() => {
     if (!settings) return null;
@@ -32,7 +37,16 @@ export default function QuarterlyGoals() {
   const departmentName = (id: number | null) =>
     localizedName(departments?.find((d) => d.id === id), i18n.language) ?? t("common.unknown");
 
-  const goalInitiatives = (initiatives ?? []).filter((i) => i.quarterGoal);
+  const departmentIds = useMemo(() => {
+    if (departmentFilter === "all") return null;
+    return departmentMemberIds(Number(departmentFilter), departments);
+  }, [departmentFilter, departments]);
+
+  const goalInitiatives = (initiatives ?? []).filter(
+    (i) =>
+      i.quarterGoal &&
+      (!departmentIds || departmentIds.includes(i.departmentId)),
+  );
 
   const isLoading = settingsLoading || initiativesLoading;
   const isError = settingsError || initiativesError;
@@ -48,12 +62,19 @@ export default function QuarterlyGoals() {
           <h1 className="text-3xl font-bold tracking-tight">{t("goals.title")}</h1>
           <p className="text-muted-foreground mt-2">{t("goals.subtitle")}</p>
         </div>
-        {currentQuarter && (
-          <Badge variant="outline" className="text-sm py-1.5 px-3">
-            {currentQuarter.label} ·{" "}
-            {formatDateRange(currentQuarter.startDate, currentQuarter.endDate, quarterLocale)}
-          </Badge>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <DepartmentFilterSelect
+            departments={departments}
+            value={departmentFilter}
+            onValueChange={setDepartmentFilter}
+          />
+          {currentQuarter && (
+            <Badge variant="outline" className="text-sm py-1.5 px-3">
+              {currentQuarter.label} ·{" "}
+              {formatDateRange(currentQuarter.startDate, currentQuarter.endDate, quarterLocale)}
+            </Badge>
+          )}
+        </div>
       </div>
 
       {isLoading ? (
@@ -101,7 +122,19 @@ export default function QuarterlyGoals() {
               const hasTarget = target !== null && target !== undefined;
               const met = hasTarget && initiative.progress >= target;
               return (
-                <Card key={initiative.id}>
+                <Card
+                  key={initiative.id}
+                  role="link"
+                  tabIndex={0}
+                  className="cursor-pointer transition-shadow hover:shadow-md"
+                  onClick={() => navigate(`/initiatives?search=${encodeURIComponent(initiative.title)}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      navigate(`/initiatives?search=${encodeURIComponent(initiative.title)}`);
+                    }
+                  }}
+                >
                   <CardHeader className="pb-2">
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-base">{initiative.title}</CardTitle>

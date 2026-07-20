@@ -9,17 +9,21 @@ export interface FilterInitiativesOptions {
   quarterFilter: string;
   searchQuery: string;
   getQuarterKey: InitiativeQuarterLookup;
+  departmentIds?: number[] | null;
+  overdueOnly?: boolean;
 }
 
 export function filterInitiatives(
   initiatives: Initiative[],
-  { statusFilter, quarterFilter, searchQuery, getQuarterKey }: FilterInitiativesOptions,
+  { statusFilter, quarterFilter, searchQuery, getQuarterKey, departmentIds, overdueOnly }: FilterInitiativesOptions,
 ): Initiative[] {
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
   return initiatives.filter((initiative) => {
     if (statusFilter !== "all" && initiative.status !== statusFilter) return false;
     if (quarterFilter !== "all" && getQuarterKey(initiative) !== quarterFilter) return false;
+    if (departmentIds && departmentIds.length > 0 && !departmentIds.includes(initiative.departmentId)) return false;
+    if (overdueOnly && !isInitiativeOverdue(initiative)) return false;
     if (normalizedQuery) {
       const haystack = `${initiative.title} ${initiative.owner}`.toLowerCase();
       if (!haystack.includes(normalizedQuery)) return false;

@@ -32,6 +32,17 @@ export function buildDepartmentGroups(
   }));
 }
 
+export function departmentMemberIds(
+  departmentId: number,
+  departments: Department[] | undefined,
+): number[] {
+  if (!departments) return [departmentId];
+  return [
+    departmentId,
+    ...departments.filter((d) => d.parentId === departmentId).map((d) => d.id),
+  ];
+}
+
 export function departmentDisplayName(
   department: Department,
   departments: Department[] | undefined,

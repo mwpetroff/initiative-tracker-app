@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearch } from "wouter";
 import {
   useListInitiatives,
   useDeleteInitiative,
@@ -35,7 +36,8 @@ import { exportInitiativesToExcel, type ExportLabels } from "@/lib/export-excel"
 import { filterInitiatives, paginate, isInitiativeOverdue } from "@/lib/initiative-filters";
 import { useDateLocale, useQuarterLocale } from "@/i18n";
 import { localizedName } from "@/lib/localized-name";
-import { departmentDisplayName } from "@/lib/department-tree";
+import { departmentDisplayName, departmentMemberIds } from "@/lib/department-tree";
+import { DepartmentFilterSelect } from "@/components/department-filter-select";
 
 const STATUS_VALUES = ["planning", "in_progress", "blocked", "completed", "on_hold"] as const;
 const PRIORITY_VALUES = ["low", "medium", "high"] as const;
@@ -57,10 +59,31 @@ export default function Initiatives() {
   const [editingInitiative, setEditingInitiative] = useState<Initiative | null>(null);
   const [deletingInitiative, setDeletingInitiative] = useState<Initiative | null>(null);
   const [detailInitiative, setDetailInitiative] = useState<Initiative | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const search = useSearch();
+  const initialParams = useMemo(() => {
+    const params = new URLSearchParams(search);
+    const rawStatus = params.get("status");
+    const rawDepartment = params.get("department");
+    return {
+      status: rawStatus && (STATUS_VALUES as readonly string[]).includes(rawStatus) ? rawStatus : "all",
+      department: rawDepartment && /^\d+$/.test(rawDepartment) ? rawDepartment : "all",
+      overdue: params.get("overdue") === "1",
+      search: params.get("search") ?? "",
+    };
+  }, [search]);
+  const [statusFilter, setStatusFilter] = useState<string>(() => initialParams.status);
   const [quarterFilter, setQuarterFilter] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [departmentFilter, setDepartmentFilter] = useState<string>(() => initialParams.department);
+  const [overdueOnly, setOverdueOnly] = useState<boolean>(() => initialParams.overdue);
+  const [searchQuery, setSearchQuery] = useState<string>(() => initialParams.search);
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setStatusFilter(initialParams.status);
+    setDepartmentFilter(initialParams.department);
+    setOverdueOnly(initialParams.overdue);
+    setSearchQuery(initialParams.search);
+  }, [initialParams]);
 
   const anchorDate = useMemo(() => {
     if (!settings) return null;
@@ -88,18 +111,25 @@ export default function Initiatives() {
     return Array.from(map.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
   }, [initiatives, anchorDate, quarterLocale]);
 
+  const departmentIds = useMemo(() => {
+    if (departmentFilter === "all") return null;
+    return departmentMemberIds(Number(departmentFilter), departments);
+  }, [departmentFilter, departments]);
+
   const filteredInitiatives = useMemo(() => {
     return filterInitiatives(initiatives ?? [], {
       statusFilter,
       quarterFilter,
       searchQuery,
       getQuarterKey: initiativeQuarterKey,
+      departmentIds,
+      overdueOnly,
     });
-  }, [initiatives, statusFilter, quarterFilter, searchQuery, anchorDate]);
+  }, [initiatives, statusFilter, quarterFilter, searchQuery, anchorDate, departmentIds, overdueOnly]);
 
   useEffect(() => {
     setPage(1);
-  }, [statusFilter, quarterFilter, searchQuery]);
+  }, [statusFilter, quarterFilter, searchQuery, departmentFilter, overdueOnly]);
 
   const {
     items: pagedInitiatives,
@@ -234,13 +264,31 @@ export default function Initiatives() {
           </SelectContent>
         </Select>
 
-        {(statusFilter !== "all" || quarterFilter !== "all" || searchQuery) && (
+        <DepartmentFilterSelect
+          departments={departments}
+          value={departmentFilter}
+          onValueChange={setDepartmentFilter}
+        />
+
+        {overdueOnly && (
+          <Badge variant="destructive" className="h-8 items-center">
+            {t("initiatives.overdue")}
+          </Badge>
+        )}
+
+        {(statusFilter !== "all" ||
+          quarterFilter !== "all" ||
+          departmentFilter !== "all" ||
+          overdueOnly ||
+          searchQuery) && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => {
               setStatusFilter("all");
               setQuarterFilter("all");
+              setDepartmentFilter("all");
+              setOverdueOnly(false);
               setSearchQuery("");
             }}
           >
@@ -273,6 +321,19 @@ export default function Initiatives() {
                 <Badge variant="outline">{t(`priority.${initiative.priority}`, initiative.priority)}</Badge>
               </div>
               <CardTitle className="mt-4 text-lg">{initiative.title}</CardTitle>
+              {(() => {
+                const dept = departments?.find((d) => d.id === initiative.departmentId);
+                if (!dept) return null;
+                return (
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span
+                      className="h-2 w-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: dept.colorHex }}
+                    />
+                    <span>{departmentDisplayName(dept, departments, i18n.language)}</span>
+                  </div>
+                );
+              })()}
             </CardHeader>
             <CardContent>
               <div className="space-y-4">

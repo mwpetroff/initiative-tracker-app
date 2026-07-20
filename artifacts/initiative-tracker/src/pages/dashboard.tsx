@@ -1,6 +1,7 @@
 import { useGetDashboardSummary, useListDepartments } from "@workspace/api-client-react";
 import type { DepartmentStatusBreakdown } from "@workspace/api-client-react";
 import { useMemo } from "react";
+import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { buildDepartmentGroups } from "@/lib/department-tree";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -21,6 +22,20 @@ export default function Dashboard() {
   const { data: departments } = useListDepartments();
   const { t, i18n } = useTranslation();
   const dateLocale = useDateLocale();
+  const [, navigate] = useLocation();
+
+  const statCardProps = (href: string) => ({
+    role: "link" as const,
+    tabIndex: 0,
+    className: "cursor-pointer transition-shadow hover:shadow-md",
+    onClick: () => navigate(href),
+    onKeyDown: (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        navigate(href);
+      }
+    },
+  });
 
   const breakdownGroups = useMemo<BreakdownGroup[]>(() => {
     const breakdown = summary?.departmentBreakdown ?? [];
@@ -93,7 +108,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        <Card>
+        <Card {...statCardProps("/initiatives")}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t("dashboard.totalInitiatives")}</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
@@ -102,7 +117,7 @@ export default function Dashboard() {
             <div className="text-2xl font-bold">{summary.totalInitiatives}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card {...statCardProps("/initiatives?status=in_progress")}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t("dashboard.active")}</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
@@ -111,7 +126,7 @@ export default function Dashboard() {
             <div className="text-2xl font-bold">{summary.activeInitiatives}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card {...statCardProps("/initiatives?status=blocked")}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t("dashboard.blocked")}</CardTitle>
             <PauseCircle className="h-4 w-4 text-destructive" />
@@ -120,7 +135,7 @@ export default function Dashboard() {
             <div className="text-2xl font-bold">{summary.blockedInitiatives}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card {...statCardProps("/initiatives?overdue=1")}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t("dashboard.overdue")}</CardTitle>
             <CalendarClock className="h-4 w-4 text-destructive" />
@@ -129,7 +144,7 @@ export default function Dashboard() {
             <div className="text-2xl font-bold">{summary.overdueInitiatives}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card {...statCardProps("/heatmap")}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t("dashboard.highRiskDependencies")}</CardTitle>
             <AlertCircle className="h-4 w-4 text-destructive" />
@@ -151,7 +166,18 @@ export default function Dashboard() {
               {breakdownGroups.map((group, groupIndex) => (
                 <div key={group.header?.departmentId ?? `standalone-${groupIndex}`} className="space-y-3">
                   {group.header && group.rollup && (
-                    <div className="flex items-center rounded-md bg-muted/50 px-2 py-2">
+                    <div
+                      className="flex items-center rounded-md bg-muted/50 px-2 py-2 cursor-pointer hover:bg-muted transition-colors"
+                      role="link"
+                      tabIndex={0}
+                      onClick={() => navigate(`/initiatives?department=${group.header!.departmentId}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          navigate(`/initiatives?department=${group.header!.departmentId}`);
+                        }
+                      }}
+                    >
                       <div
                         className="w-3 h-3 rounded-full mr-4"
                         style={{ backgroundColor: group.header.colorHex }}
@@ -174,7 +200,16 @@ export default function Dashboard() {
                   {group.items.map((dept) => (
                     <div
                       key={dept.departmentId}
-                      className={`flex items-center ${group.header ? "pl-6" : ""}`}
+                      className={`flex items-center rounded-md px-2 py-1 -mx-2 cursor-pointer hover:bg-muted/50 transition-colors ${group.header ? "pl-6" : ""}`}
+                      role="link"
+                      tabIndex={0}
+                      onClick={() => navigate(`/initiatives?department=${dept.departmentId}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          navigate(`/initiatives?department=${dept.departmentId}`);
+                        }
+                      }}
                     >
                       <div
                         className="w-3 h-3 rounded-full mr-4"
@@ -207,7 +242,19 @@ export default function Dashboard() {
           <CardContent>
             <div className="space-y-4">
               {summary.recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start gap-4">
+                <div
+                  key={activity.id}
+                  className="flex items-start gap-4 rounded-md px-2 py-1 -mx-2 cursor-pointer hover:bg-muted/50 transition-colors"
+                  role="link"
+                  tabIndex={0}
+                  onClick={() => navigate(`/initiatives?search=${encodeURIComponent(activity.title)}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      navigate(`/initiatives?search=${encodeURIComponent(activity.title)}`);
+                    }
+                  }}
+                >
                   <div className="space-y-1">
                     <p className="text-sm font-medium leading-none">{activity.title}</p>
                     <div className="text-sm text-muted-foreground flex items-center gap-1 flex-wrap">

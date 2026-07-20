@@ -114,7 +114,8 @@
     "department": "部門",
     "external": "（外部）",
     "toggleGroup": "{{name}}グループを開閉",
-    "dependencyCount_other": "このセルには{{count}}件の依存関係があります。"
+    "dependencyCount_other": "このセルには{{count}}件の依存関係があります。",
+    "blockedOnly": "ブロック中の施策のみ"
   },
   "goals": {
     "title": "四半期目標",

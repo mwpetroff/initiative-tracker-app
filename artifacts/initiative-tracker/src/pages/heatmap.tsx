@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useGetDependencyHeatmap } from "@workspace/api-client-react";
+import { useGetDependencyHeatmap, getGetDependencyHeatmapQueryKey } from "@workspace/api-client-react";
 import type { HeatmapCell, Department } from "@workspace/api-client-react";
 import { useTranslation } from "react-i18next";
 import { ChevronRight } from "lucide-react";
@@ -13,6 +13,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { PageLoading, PageError } from "@/components/page-state";
 import { localizedName, localizedLabel, compareLocalized } from "@/lib/localized-name";
 
@@ -61,7 +63,18 @@ type HeatmapRow =
   | { kind: "group"; department: Department; memberIds: number[]; expanded: boolean };
 
 export default function Heatmap() {
-  const { data: heatmap, isLoading, error } = useGetDependencyHeatmap();
+  const [blockedOnly, setBlockedOnly] = useState(false);
+  const params = blockedOnly ? { blockedOnly: true } : undefined;
+  const {
+    data: heatmap,
+    isLoading,
+    error,
+  } = useGetDependencyHeatmap(params, {
+    query: {
+      queryKey: getGetDependencyHeatmapQueryKey(params),
+      placeholderData: (prev) => prev,
+    },
+  });
   const [selected, setSelected] = useState<SelectedCell | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
   const { t, i18n } = useTranslation();
@@ -120,9 +133,17 @@ export default function Heatmap() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t("heatmap.title")}</h1>
-        <p className="text-muted-foreground mt-2">{t("heatmap.subtitle")}</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{t("heatmap.title")}</h1>
+          <p className="text-muted-foreground mt-2">{t("heatmap.subtitle")}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Switch id="blocked-only" checked={blockedOnly} onCheckedChange={setBlockedOnly} />
+          <Label htmlFor="blocked-only" className="cursor-pointer">
+            {t("heatmap.blockedOnly")}
+          </Label>
+        </div>
       </div>
 
       <Card>

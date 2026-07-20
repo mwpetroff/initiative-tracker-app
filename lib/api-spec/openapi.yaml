@@ -451,6 +451,13 @@ paths:
       tags: [insights]
       summary: Dependency heatmap matrix
       description: Cross-department and external-factor dependency risk matrix
+      parameters:
+        - name: blockedOnly
+          in: query
+          required: false
+          description: When true, only include dependencies whose initiative has status 'blocked'
+          schema:
+            type: boolean
       responses:
         "200":
           description: Heatmap data

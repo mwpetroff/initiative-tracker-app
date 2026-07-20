@@ -352,3 +352,10 @@ departmentId?: number;
 status?: InitiativeStatus;
 };
 
+export type GetDependencyHeatmapParams = {
+/**
+ * When true, only include dependencies whose initiative has status 'blocked'
+ */
+blockedOnly?: boolean;
+};
+

@@ -84,11 +84,20 @@ router.get("/insights/dashboard", async (_req, res): Promise<void> => {
   res.json(GetDashboardSummaryResponse.parse(summary));
 });
 
-router.get("/insights/heatmap", async (_req, res): Promise<void> => {
+router.get("/insights/heatmap", async (req, res): Promise<void> => {
+  const blockedOnly = req.query.blockedOnly === "true";
+
   const departments = await db.select().from(departmentsTable).orderBy(departmentsTable.name);
   const initiatives = await db.select().from(initiativesTable);
-  const dependencies = await db.select().from(dependenciesTable);
+  const allDependencies = await db.select().from(dependenciesTable);
   const riskCategories = await db.select().from(riskCategoriesTable).orderBy(riskCategoriesTable.name);
+
+  const blockedInitiativeIds = new Set(
+    initiatives.filter((i) => i.status === "blocked").map((i) => i.id),
+  );
+  const dependencies = blockedOnly
+    ? allDependencies.filter((d) => blockedInitiativeIds.has(d.initiativeId))
+    : allDependencies;
 
   const initiativeDeptMap = new Map(initiatives.map((i) => [i.id, i.departmentId]));
   const initiativeTitleMap = new Map(initiatives.map((i) => [i.id, i.title]));

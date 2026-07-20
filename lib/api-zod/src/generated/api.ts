@@ -579,6 +579,10 @@ export const GetDashboardSummaryResponse = zod.object({
  * Cross-department and external-factor dependency risk matrix
  * @summary Dependency heatmap matrix
  */
+export const GetDependencyHeatmapQueryParams = zod.object({
+  "blockedOnly": zod.coerce.boolean().optional().describe('When true, only include dependencies whose initiative has status \'blocked\'')
+})
+
 export const GetDependencyHeatmapResponse = zod.object({
   "rows": zod.array(zod.object({
   "id": zod.number(),

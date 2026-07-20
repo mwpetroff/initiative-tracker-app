@@ -15,6 +15,7 @@ export * from './dependency';
 export * from './dependencyInput';
 export * from './dependencyUpdate';
 export * from './errorResponse';
+export * from './getDependencyHeatmapParams';
 export * from './healthStatus';
 export * from './heatmapCell';
 export * from './heatmapCellDependency';

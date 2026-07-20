@@ -28,6 +28,7 @@ import type {
   DependencyInput,
   DependencyUpdate,
   ErrorResponse,
+  GetDependencyHeatmapParams,
   HealthStatus,
   HeatmapData,
   Initiative,
@@ -1984,21 +1985,28 @@ export function useGetDashboardSummary<TData = Awaited<ReturnType<typeof getDash
 
 
 
-export const getGetDependencyHeatmapUrl = () => {
+export const getGetDependencyHeatmapUrl = (params?: GetDependencyHeatmapParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/insights/heatmap`
+  return stringifiedParams.length > 0 ? `/api/insights/heatmap?${stringifiedParams}` : `/api/insights/heatmap`
 }
 
 /**
  * Cross-department and external-factor dependency risk matrix
  * @summary Dependency heatmap matrix
  */
-export const getDependencyHeatmap = async ( options?: RequestInit): Promise<HeatmapData> => {
+export const getDependencyHeatmap = async (params?: GetDependencyHeatmapParams, options?: RequestInit): Promise<HeatmapData> => {
 
-  return customFetch<HeatmapData>(getGetDependencyHeatmapUrl(),
+  return customFetch<HeatmapData>(getGetDependencyHeatmapUrl(params),
   {
     ...options,
     method: 'GET'
@@ -2011,23 +2019,23 @@ export const getDependencyHeatmap = async ( options?: RequestInit): Promise<Heat
 
 
 
-export const getGetDependencyHeatmapQueryKey = () => {
+export const getGetDependencyHeatmapQueryKey = (params?: GetDependencyHeatmapParams,) => {
     return [
-    `/api/insights/heatmap`
+    `/api/insights/heatmap`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetDependencyHeatmapQueryOptions = <TData = Awaited<ReturnType<typeof getDependencyHeatmap>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDependencyHeatmap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetDependencyHeatmapQueryOptions = <TData = Awaited<ReturnType<typeof getDependencyHeatmap>>, TError = ErrorType<unknown>>(params?: GetDependencyHeatmapParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDependencyHeatmap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetDependencyHeatmapQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetDependencyHeatmapQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDependencyHeatmap>>> = ({ signal }) => getDependencyHeatmap({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDependencyHeatmap>>> = ({ signal }) => getDependencyHeatmap(params, { signal, ...requestOptions });
 
 
 
@@ -2045,11 +2053,11 @@ export type GetDependencyHeatmapQueryError = ErrorType<unknown>
  */
 
 export function useGetDependencyHeatmap<TData = Awaited<ReturnType<typeof getDependencyHeatmap>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDependencyHeatmap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: GetDependencyHeatmapParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDependencyHeatmap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetDependencyHeatmapQueryOptions(options)
+  const queryOptions = getGetDependencyHeatmapQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

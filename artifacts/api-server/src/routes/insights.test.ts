@@ -216,6 +216,27 @@ describe("GET /api/insights/heatmap", () => {
     await request(app).patch(`/api/dependencies/${dependencyIds[1]}`).send({ resolved: false });
   });
 
+  it("filters to blocked initiatives' dependencies when blockedOnly=true", async () => {
+    const res = await request(app).get("/api/insights/heatmap?blockedOnly=true");
+    expect(res.status).toBe(200);
+
+    const blockedCell = res.body.cells.find(
+      (c: { rowDepartmentId: number; columnKey: string }) =>
+        c.rowDepartmentId === deptA && c.columnKey === `dept-${deptB}`,
+    );
+    expect(blockedCell).toBeDefined();
+    expect(blockedCell.dependencies[0].initiativeTitle).toBe("Insights blocked initiative");
+
+    const nonBlockedCell = res.body.cells.find(
+      (c: { rowDepartmentId: number; columnKey: string }) =>
+        c.rowDepartmentId === deptB && c.columnKey === `cat-${riskCategoryId}`,
+    );
+    expect(nonBlockedCell).toBeUndefined();
+
+    const columnKeys = res.body.columns.map((c: { key: string }) => c.key);
+    expect(columnKeys).not.toContain(`cat-${riskCategoryId}`);
+  });
+
   it("excludes resolved high-risk dependencies from the dashboard count", async () => {
     const before = await request(app).get("/api/insights/dashboard");
     await request(app).patch(`/api/dependencies/${dependencyIds[0]}`).send({ resolved: true });

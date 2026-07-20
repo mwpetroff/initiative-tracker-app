@@ -115,7 +115,8 @@
     "external": "(Ext)",
     "toggleGroup": "Toggle {{name}} group",
     "dependencyCount_one": "{{count}} dependency in this cell.",
-    "dependencyCount_other": "{{count}} dependencies in this cell."
+    "dependencyCount_other": "{{count}} dependencies in this cell.",
+    "blockedOnly": "Blocked initiatives only"
   },
   "goals": {
     "title": "Quarterly Goals",

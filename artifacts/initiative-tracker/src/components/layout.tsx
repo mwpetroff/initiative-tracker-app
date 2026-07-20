@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Target, Grid3X3, Menu, Goal, Settings as SettingsIcon } from "lucide-react";
+import { LayoutDashboard, Grid3X3, Menu, Goal, Settings as SettingsIcon, Target } from "lucide-react";
+import { NriLogo } from "@/components/nri-logo";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -53,9 +54,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <div className="hidden border-r border-sidebar-border w-64 lg:block bg-gradient-to-b from-[#001178] to-[#415e9b] text-sidebar-foreground">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b border-sidebar-border/60 px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Target className="h-6 w-6 text-sidebar-primary" />
-              <span className="">{t("app.title")}</span>
+            <Link href="/" className="flex items-center gap-3 font-semibold">
+              <NriLogo className="h-[18px] w-auto shrink-0 text-white" />
+              <span className="border-l border-sidebar-border/60 pl-3 text-sm">{t("app.title")}</span>
             </Link>
           </div>
           <div className="flex-1 overflow-auto py-2">
@@ -85,8 +86,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     className="flex items-center gap-2 font-semibold"
                     onClick={() => setMobileNavOpen(false)}
                   >
-                    <Target className="h-6 w-6 text-sidebar-primary" />
-                    <span>{t("app.title")}</span>
+                    <NriLogo className="h-[18px] w-auto shrink-0 text-white" />
+                    <span className="border-l border-sidebar-border/60 pl-3 text-sm">{t("app.title")}</span>
                   </Link>
                 </div>
                 <div className="flex-1 overflow-auto py-2">
@@ -98,9 +99,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </SheetContent>
           </Sheet>
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <Target className="h-5 w-5 text-primary" />
-            <span>{t("app.title")}</span>
+          <Link href="/" className="flex items-center gap-3 font-semibold">
+            <NriLogo className="h-4 w-auto shrink-0 text-[#001178]" />
+            <span className="border-l pl-3 text-sm">{t("app.title")}</span>
           </Link>
           <div className="ml-auto">
             <LanguageSwitcher />

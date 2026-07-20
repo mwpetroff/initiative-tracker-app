@@ -1,0 +1,825 @@
+{
+  "departments": [
+    {
+      "id": 108,
+      "name": "Sales",
+      "color_hex": "#415e9b",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "営業",
+      "parent_id": null
+    },
+    {
+      "id": 109,
+      "name": "Marketing",
+      "color_hex": "#5da0c8",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "マーケティング",
+      "parent_id": null
+    },
+    {
+      "id": 110,
+      "name": "Pre-Sales / Solution Architecture",
+      "color_hex": "#94bcf5",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "プリセールス / ソリューションアーキテクチャ",
+      "parent_id": null
+    },
+    {
+      "id": 111,
+      "name": "AI",
+      "color_hex": "#001178",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "AI",
+      "parent_id": 126
+    },
+    {
+      "id": 112,
+      "name": "Modern Applications",
+      "color_hex": "#536dfe",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "モダンアプリケーション",
+      "parent_id": 126
+    },
+    {
+      "id": 113,
+      "name": "Data Analytics & Data Platform",
+      "color_hex": "#00838f",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "データ分析・データプラットフォーム",
+      "parent_id": 126
+    },
+    {
+      "id": 114,
+      "name": "Managed Services",
+      "color_hex": "#2bb3a3",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "マネージドサービス",
+      "parent_id": 126
+    },
+    {
+      "id": 115,
+      "name": "Modern Infrastructure",
+      "color_hex": "#3f9c5a",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "モダンインフラストラクチャ",
+      "parent_id": 126
+    },
+    {
+      "id": 116,
+      "name": "Modern Work",
+      "color_hex": "#6b7f2d",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "モダンワーク",
+      "parent_id": 126
+    },
+    {
+      "id": 117,
+      "name": "Security",
+      "color_hex": "#d94f4f",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "セキュリティ",
+      "parent_id": 126
+    },
+    {
+      "id": 118,
+      "name": "BTO",
+      "color_hex": "#7c4dbe",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "BTO",
+      "parent_id": 127
+    },
+    {
+      "id": 119,
+      "name": "Delivery Quality",
+      "color_hex": "#b8578f",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "デリバリー品質",
+      "parent_id": 127
+    },
+    {
+      "id": 120,
+      "name": "Operations",
+      "color_hex": "#e8973a",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "オペレーション",
+      "parent_id": null
+    },
+    {
+      "id": 121,
+      "name": "Finance",
+      "color_hex": "#c9a227",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "財務",
+      "parent_id": null
+    },
+    {
+      "id": 122,
+      "name": "HR / Talent",
+      "color_hex": "#ad1457",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "人事 / タレント",
+      "parent_id": null
+    },
+    {
+      "id": 123,
+      "name": "IT",
+      "color_hex": "#4a6572",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "IT",
+      "parent_id": null
+    },
+    {
+      "id": 124,
+      "name": "Legal & Compliance",
+      "color_hex": "#5d4037",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "法務・コンプライアンス",
+      "parent_id": null
+    },
+    {
+      "id": 125,
+      "name": "Learning & Development / Enablement",
+      "color_hex": "#8c5a3c",
+      "created_at": "2026-07-20T18:21:47.519Z",
+      "name_ja": "研修・能力開発 / イネーブルメント",
+      "parent_id": null
+    },
+    {
+      "id": 126,
+      "name": "Delivery",
+      "color_hex": "#001178",
+      "created_at": "2026-07-20T18:25:53.546Z",
+      "name_ja": "デリバリー",
+      "parent_id": null
+    },
+    {
+      "id": 127,
+      "name": "ELT",
+      "color_hex": "#7c4dbe",
+      "created_at": "2026-07-20T18:25:53.546Z",
+      "name_ja": "ELT",
+      "parent_id": null
+    }
+  ],
+  "risk_categories": [
+    {
+      "id": 1,
+      "name": "Cloud vendor capacity",
+      "created_at": "2026-07-03T02:58:36.831Z",
+      "name_ja": null
+    },
+    {
+      "id": 2,
+      "name": "Regulatory compliance review",
+      "created_at": "2026-07-03T02:58:36.831Z",
+      "name_ja": null
+    },
+    {
+      "id": 3,
+      "name": "Agency creative delivery",
+      "created_at": "2026-07-03T02:58:36.831Z",
+      "name_ja": null
+    },
+    {
+      "id": 4,
+      "name": "Third-party data connector licensing",
+      "created_at": "2026-07-03T02:58:36.831Z",
+      "name_ja": null
+    }
+  ],
+  "settings": [
+    {
+      "id": 1,
+      "quarter_start_date": "2026-04-01T00:00:00.000Z",
+      "updated_at": "2026-07-20T21:23:02.038Z",
+      "language": "en"
+    }
+  ],
+  "initiatives": [
+    {
+      "id": 139,
+      "title": "GenAI Assistant Rollout",
+      "description": "Deploy an internal GenAI assistant to consulting and delivery teams, with guardrails, usage analytics, and role-based knowledge access.",
+      "department_id": 111,
+      "status": "in_progress",
+      "priority": "high",
+      "owner": "Sarah Mitchell",
+      "progress": 55,
+      "start_date": "2026-06-01T00:00:00.000Z",
+      "target_date": "2026-09-15T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.334Z",
+      "updated_at": "2026-07-20T19:38:47.638Z",
+      "quarter_goal": "Deploy GenAI assistant to 3 client accounts",
+      "quarter_goal_target": 60
+    },
+    {
+      "id": 140,
+      "title": "LLM Evaluation Framework",
+      "description": "Build a standardized framework for benchmarking LLM accuracy, cost, and latency across our top client use cases before production adoption.",
+      "department_id": 111,
+      "status": "in_progress",
+      "priority": "medium",
+      "owner": "James Carter",
+      "progress": 10,
+      "start_date": "2026-07-10T00:00:00.000Z",
+      "target_date": "2026-10-30T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.353Z",
+      "updated_at": "2026-07-20T19:38:47.449Z",
+      "quarter_goal": "Stand up an evaluation harness and baseline scores for the top 3 LLM use cases",
+      "quarter_goal_target": 25
+    },
+    {
+      "id": 141,
+      "title": "Customer Portal Modernization",
+      "description": "Rebuild the legacy customer portal on a modern stack with self-service reporting, SSO, and a refreshed responsive UI.",
+      "department_id": 112,
+      "status": "in_progress",
+      "priority": "high",
+      "owner": "Emily Rodriguez",
+      "progress": 40,
+      "start_date": "2026-05-15T00:00:00.000Z",
+      "target_date": "2026-09-30T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.360Z",
+      "updated_at": "2026-07-20T19:38:47.509Z",
+      "quarter_goal": "Migrate portal to new stack",
+      "quarter_goal_target": 50
+    },
+    {
+      "id": 142,
+      "title": "Data Lakehouse Migration",
+      "description": "Migrate analytics workloads from the on-prem warehouse to a cloud lakehouse to cut reporting latency and infrastructure cost.",
+      "department_id": 113,
+      "status": "blocked",
+      "priority": "high",
+      "owner": "Michael Thompson",
+      "progress": 35,
+      "start_date": "2026-04-20T00:00:00.000Z",
+      "target_date": "2026-08-31T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.370Z",
+      "updated_at": "2026-07-20T19:34:04.732Z",
+      "quarter_goal": "Complete lakehouse phase 1",
+      "quarter_goal_target": 70
+    },
+    {
+      "id": 143,
+      "title": "24/7 Monitoring Expansion",
+      "description": "Extend round-the-clock monitoring coverage to all managed-service clients with automated alert triage and escalation runbooks.",
+      "department_id": 114,
+      "status": "in_progress",
+      "priority": "medium",
+      "owner": "Jessica Bennett",
+      "progress": 65,
+      "start_date": "2026-05-01T00:00:00.000Z",
+      "target_date": "2026-08-15T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.377Z",
+      "updated_at": "2026-07-20T19:34:04.623Z",
+      "quarter_goal": "Bring the remaining 4 managed-service clients onto 24/7 coverage",
+      "quarter_goal_target": 75
+    },
+    {
+      "id": 144,
+      "title": "Kubernetes Platform Upgrade",
+      "description": "Upgrade shared Kubernetes clusters to the latest LTS version, improving autoscaling, security posture, and developer tooling.",
+      "department_id": 115,
+      "status": "in_progress",
+      "priority": "medium",
+      "owner": "David Kowalski",
+      "progress": 70,
+      "start_date": "2026-06-10T00:00:00.000Z",
+      "target_date": "2026-08-31T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.388Z",
+      "updated_at": "2026-07-20T19:34:04.634Z",
+      "quarter_goal": "Upgrade all shared clusters to the new platform version with zero client downtime",
+      "quarter_goal_target": 85
+    },
+    {
+      "id": 145,
+      "title": "Hybrid Workplace Toolkit",
+      "description": "Roll out standardized collaboration tools, room tech, and policies to support hybrid work across all offices.",
+      "department_id": 116,
+      "status": "completed",
+      "priority": "low",
+      "owner": "Amanda Foster",
+      "progress": 100,
+      "start_date": "2026-04-01T00:00:00.000Z",
+      "target_date": "2026-07-10T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.408Z",
+      "updated_at": "2026-07-20T19:34:04.740Z",
+      "quarter_goal": null,
+      "quarter_goal_target": null
+    },
+    {
+      "id": 146,
+      "title": "Zero Trust Rollout Phase 2",
+      "description": "Expand zero-trust network access to all internal applications, replacing legacy VPN access for remaining teams.",
+      "department_id": 117,
+      "status": "blocked",
+      "priority": "high",
+      "owner": "Ryan O'Brien",
+      "progress": 25,
+      "start_date": "2026-05-20T00:00:00.000Z",
+      "target_date": "2026-10-15T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.415Z",
+      "updated_at": "2026-07-20T19:34:04.747Z",
+      "quarter_goal": "Enroll all Delivery teams in zero trust",
+      "quarter_goal_target": 40
+    },
+    {
+      "id": 147,
+      "title": "Process Automation Wave 3",
+      "description": "Automate the next wave of high-volume back-office processes in finance and HR using workflow tooling and RPA.",
+      "department_id": 118,
+      "status": "on_hold",
+      "priority": "medium",
+      "owner": "Lauren Hayes",
+      "progress": 45,
+      "start_date": "2026-06-01T00:00:00.000Z",
+      "target_date": "2026-09-30T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.428Z",
+      "updated_at": "2026-07-20T19:38:47.520Z",
+      "quarter_goal": "Automate 5 additional back-office processes and retire their manual runbooks",
+      "quarter_goal_target": 60
+    },
+    {
+      "id": 148,
+      "title": "Delivery QA Standards v2",
+      "description": "Refresh delivery quality standards with updated code review, testing, and release checklists adopted across all project teams.",
+      "department_id": 119,
+      "status": "completed",
+      "priority": "medium",
+      "owner": "Kevin Walsh",
+      "progress": 30,
+      "start_date": "2026-07-01T00:00:00.000Z",
+      "target_date": "2026-09-30T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.439Z",
+      "updated_at": "2026-07-20T19:38:47.531Z",
+      "quarter_goal": "Publish QA standards v2",
+      "quarter_goal_target": 80
+    },
+    {
+      "id": 149,
+      "title": "Enterprise Pipeline Push",
+      "description": "Coordinated push to grow the enterprise sales pipeline through targeted account plans and executive sponsor engagement.",
+      "department_id": 108,
+      "status": "in_progress",
+      "priority": "high",
+      "owner": "Brian Sullivan",
+      "progress": 50,
+      "start_date": "2026-07-01T00:00:00.000Z",
+      "target_date": "2026-09-30T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.445Z",
+      "updated_at": "2026-07-20T19:34:04.661Z",
+      "quarter_goal": "Grow qualified pipeline 20%",
+      "quarter_goal_target": 55
+    },
+    {
+      "id": 150,
+      "title": "Brand Refresh Campaign",
+      "description": "Refresh the corporate brand identity and launch an integrated campaign across web, social, and industry events.",
+      "department_id": 109,
+      "status": "in_progress",
+      "priority": "medium",
+      "owner": "Megan Price",
+      "progress": 15,
+      "start_date": "2026-07-15T00:00:00.000Z",
+      "target_date": "2026-11-30T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.525Z",
+      "updated_at": "2026-07-20T19:38:47.540Z",
+      "quarter_goal": "Finalize the new brand system and launch the refreshed website",
+      "quarter_goal_target": 30
+    },
+    {
+      "id": 151,
+      "title": "Solution Demo Library",
+      "description": "Create a curated library of reusable, industry-specific solution demos to accelerate pre-sales cycles.",
+      "department_id": 110,
+      "status": "in_progress",
+      "priority": "low",
+      "owner": "Chris Anderson",
+      "progress": 60,
+      "start_date": "2026-05-01T00:00:00.000Z",
+      "target_date": "2026-08-31T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.550Z",
+      "updated_at": "2026-07-20T19:34:04.680Z",
+      "quarter_goal": "Publish 10 reusable solution demos for the top pre-sales scenarios",
+      "quarter_goal_target": 70
+    },
+    {
+      "id": 152,
+      "title": "Vendor Contract Consolidation",
+      "description": "Consolidate overlapping vendor contracts to reduce spend and simplify renewals under a unified procurement policy.",
+      "department_id": 120,
+      "status": "in_progress",
+      "priority": "low",
+      "owner": "Rachel Kim",
+      "progress": 20,
+      "start_date": "2026-04-10T00:00:00.000Z",
+      "target_date": "2026-12-20T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.558Z",
+      "updated_at": "2026-07-20T19:38:47.550Z",
+      "quarter_goal": null,
+      "quarter_goal_target": null
+    },
+    {
+      "id": 153,
+      "title": "FY26 Budget Reforecast",
+      "description": "Mid-year reforecast of the FY26 budget reflecting updated revenue outlook and cost-saving initiatives.",
+      "department_id": 121,
+      "status": "in_progress",
+      "priority": "high",
+      "owner": "Daniel Murphy",
+      "progress": 75,
+      "start_date": "2026-06-15T00:00:00.000Z",
+      "target_date": "2026-08-10T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.564Z",
+      "updated_at": "2026-07-20T19:34:04.700Z",
+      "quarter_goal": "Deliver reforecast to ELT",
+      "quarter_goal_target": 90
+    },
+    {
+      "id": 154,
+      "title": "Engineering Hiring Sprint",
+      "description": "Focused hiring sprint to fill open engineering roles across Delivery sub-teams, with streamlined interview loops.",
+      "department_id": 122,
+      "status": "blocked",
+      "priority": "high",
+      "owner": "Nicole Turner",
+      "progress": 40,
+      "start_date": "2026-06-01T00:00:00.000Z",
+      "target_date": "2026-09-30T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.569Z",
+      "updated_at": "2026-07-20T19:38:47.559Z",
+      "quarter_goal": "Close 12 of the 20 open engineering roles across Delivery teams",
+      "quarter_goal_target": 55
+    },
+    {
+      "id": 155,
+      "title": "Identity Platform Consolidation",
+      "description": "Consolidate multiple identity providers into a single platform to simplify access management and reduce license costs.",
+      "department_id": 123,
+      "status": "planning",
+      "priority": "medium",
+      "owner": "Matt Reynolds",
+      "progress": 5,
+      "start_date": "2026-08-01T00:00:00.000Z",
+      "target_date": "2026-12-15T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.576Z",
+      "updated_at": "2026-07-20T19:34:04.718Z",
+      "quarter_goal": null,
+      "quarter_goal_target": null
+    },
+    {
+      "id": 156,
+      "title": "APAC Data Privacy Review",
+      "description": "Comprehensive review of APAC client engagements for compliance with regional data privacy regulations.",
+      "department_id": 124,
+      "status": "completed",
+      "priority": "high",
+      "owner": "Stephanie Cole",
+      "progress": 55,
+      "start_date": "2026-05-10T00:00:00.000Z",
+      "target_date": "2026-09-01T00:00:00.000Z",
+      "created_at": "2026-07-20T18:38:15.582Z",
+      "updated_at": "2026-07-20T19:38:47.569Z",
+      "quarter_goal": "Complete privacy assessments for all APAC client engagements",
+      "quarter_goal_target": 65
+    }
+  ],
+  "dependencies": [
+    {
+      "id": 101,
+      "initiative_id": 139,
+      "depends_on_department_id": 113,
+      "risk_level": "high",
+      "notes": "Needs curated training data from Data Analytics platform.",
+      "created_at": "2026-07-20T18:38:15.589Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 102,
+      "initiative_id": 139,
+      "depends_on_department_id": null,
+      "risk_level": "medium",
+      "notes": "GPU capacity commitments from cloud vendor pending.",
+      "created_at": "2026-07-20T18:38:15.596Z",
+      "depends_on_risk_category_id": 1,
+      "resolved": false
+    },
+    {
+      "id": 103,
+      "initiative_id": 141,
+      "depends_on_department_id": 115,
+      "risk_level": "medium",
+      "notes": "Waiting on shared Kubernetes cluster upgrade.",
+      "created_at": "2026-07-20T18:38:15.601Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 104,
+      "initiative_id": 141,
+      "depends_on_department_id": 117,
+      "risk_level": "high",
+      "notes": "Security sign-off required before go-live.",
+      "created_at": "2026-07-20T18:38:15.607Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 105,
+      "initiative_id": 142,
+      "depends_on_department_id": 123,
+      "risk_level": "critical",
+      "notes": "Blocked on IT identity platform for cross-account access.",
+      "created_at": "2026-07-20T18:38:15.619Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 106,
+      "initiative_id": 142,
+      "depends_on_department_id": null,
+      "risk_level": "high",
+      "notes": "Regulatory review of cross-border data residency in progress.",
+      "created_at": "2026-07-20T18:38:15.628Z",
+      "depends_on_risk_category_id": 2,
+      "resolved": false
+    },
+    {
+      "id": 107,
+      "initiative_id": 146,
+      "depends_on_department_id": 123,
+      "risk_level": "critical",
+      "notes": "Depends on identity platform consolidation timeline.",
+      "created_at": "2026-07-20T18:38:15.636Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 108,
+      "initiative_id": 146,
+      "depends_on_department_id": 122,
+      "risk_level": "medium",
+      "notes": "Needs security champions hired in each team.",
+      "created_at": "2026-07-20T18:38:15.646Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 109,
+      "initiative_id": 147,
+      "depends_on_department_id": 112,
+      "risk_level": "medium",
+      "notes": "Reuses portal team's workflow components.",
+      "created_at": "2026-07-20T18:38:15.653Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 110,
+      "initiative_id": 148,
+      "depends_on_department_id": 119,
+      "risk_level": "low",
+      "notes": "Internal review cycle.",
+      "created_at": "2026-07-20T18:38:15.664Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 111,
+      "initiative_id": 149,
+      "depends_on_department_id": 110,
+      "risk_level": "medium",
+      "notes": "Pre-sales capacity for solution demos.",
+      "created_at": "2026-07-20T18:38:15.670Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 112,
+      "initiative_id": 149,
+      "depends_on_department_id": 109,
+      "risk_level": "low",
+      "notes": "Campaign assets for outbound sequences.",
+      "created_at": "2026-07-20T18:38:15.675Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 113,
+      "initiative_id": 150,
+      "depends_on_department_id": null,
+      "risk_level": "high",
+      "notes": "Agency creative delivery slipping two weeks.",
+      "created_at": "2026-07-20T18:38:15.681Z",
+      "depends_on_risk_category_id": 3,
+      "resolved": false
+    },
+    {
+      "id": 114,
+      "initiative_id": 153,
+      "depends_on_department_id": 108,
+      "risk_level": "medium",
+      "notes": "Needs updated pipeline forecast from Sales.",
+      "created_at": "2026-07-20T18:38:15.686Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 115,
+      "initiative_id": 156,
+      "depends_on_department_id": 113,
+      "risk_level": "high",
+      "notes": "Data inventory export from lakehouse required.",
+      "created_at": "2026-07-20T18:38:15.691Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 116,
+      "initiative_id": 154,
+      "depends_on_department_id": 125,
+      "risk_level": "low",
+      "notes": "Onboarding curriculum from L&D.",
+      "created_at": "2026-07-20T18:38:15.696Z",
+      "depends_on_risk_category_id": null,
+      "resolved": false
+    },
+    {
+      "id": 135,
+      "initiative_id": 143,
+      "depends_on_department_id": 114,
+      "risk_level": "medium",
+      "notes": "",
+      "created_at": "2026-07-20T19:53:29.328Z",
+      "depends_on_risk_category_id": null,
+      "resolved": true
+    }
+  ],
+  "initiative_history": [
+    {
+      "id": 23,
+      "initiative_id": 142,
+      "old_status": "blocked",
+      "new_status": "in_progress",
+      "changed_at": "2026-07-20T18:38:15.702Z"
+    },
+    {
+      "id": 24,
+      "initiative_id": 142,
+      "old_status": "in_progress",
+      "new_status": "blocked",
+      "changed_at": "2026-07-20T18:38:15.711Z"
+    },
+    {
+      "id": 25,
+      "initiative_id": 145,
+      "old_status": "completed",
+      "new_status": "in_progress",
+      "changed_at": "2026-07-20T18:38:15.718Z"
+    },
+    {
+      "id": 26,
+      "initiative_id": 145,
+      "old_status": "in_progress",
+      "new_status": "completed",
+      "changed_at": "2026-07-20T18:38:15.725Z"
+    },
+    {
+      "id": 27,
+      "initiative_id": 146,
+      "old_status": "blocked",
+      "new_status": "in_progress",
+      "changed_at": "2026-07-20T18:38:15.733Z"
+    },
+    {
+      "id": 28,
+      "initiative_id": 146,
+      "old_status": "in_progress",
+      "new_status": "blocked",
+      "changed_at": "2026-07-20T18:38:15.743Z"
+    },
+    {
+      "id": 34,
+      "initiative_id": 140,
+      "old_status": "planning",
+      "new_status": "in_progress",
+      "changed_at": "2026-07-20T19:38:47.436Z"
+    },
+    {
+      "id": 35,
+      "initiative_id": 141,
+      "old_status": "in_progress",
+      "new_status": "blocked",
+      "changed_at": "2026-07-20T19:38:47.498Z"
+    },
+    {
+      "id": 36,
+      "initiative_id": 141,
+      "old_status": "blocked",
+      "new_status": "in_progress",
+      "changed_at": "2026-07-20T19:38:47.508Z"
+    },
+    {
+      "id": 37,
+      "initiative_id": 147,
+      "old_status": "in_progress",
+      "new_status": "on_hold",
+      "changed_at": "2026-07-20T19:38:47.520Z"
+    },
+    {
+      "id": 38,
+      "initiative_id": 148,
+      "old_status": "in_progress",
+      "new_status": "completed",
+      "changed_at": "2026-07-20T19:38:47.530Z"
+    },
+    {
+      "id": 39,
+      "initiative_id": 150,
+      "old_status": "planning",
+      "new_status": "in_progress",
+      "changed_at": "2026-07-20T19:38:47.539Z"
+    },
+    {
+      "id": 40,
+      "initiative_id": 152,
+      "old_status": "on_hold",
+      "new_status": "in_progress",
+      "changed_at": "2026-07-20T19:38:47.548Z"
+    },
+    {
+      "id": 41,
+      "initiative_id": 154,
+      "old_status": "in_progress",
+      "new_status": "blocked",
+      "changed_at": "2026-07-20T19:38:47.558Z"
+    },
+    {
+      "id": 42,
+      "initiative_id": 156,
+      "old_status": "in_progress",
+      "new_status": "completed",
+      "changed_at": "2026-07-20T19:38:47.567Z"
+    },
+    {
+      "id": 43,
+      "initiative_id": 139,
+      "old_status": "in_progress",
+      "new_status": "blocked",
+      "changed_at": "2026-07-20T19:38:47.629Z"
+    },
+    {
+      "id": 44,
+      "initiative_id": 139,
+      "old_status": "blocked",
+      "new_status": "in_progress",
+      "changed_at": "2026-07-20T19:38:47.638Z"
+    }
+  ],
+  "initiative_updates": [
+    {
+      "id": 1,
+      "initiative_id": 142,
+      "content": "Still blocked on legal sign-off for cross-border data transfer.",
+      "author": "Michael Thompson",
+      "created_at": "2026-07-20T19:50:32.756Z"
+    },
+    {
+      "id": 2,
+      "initiative_id": 141,
+      "content": "SSO integration cleared UAT; migration of remaining tenants resumes Monday.",
+      "author": "Emily Rodriguez",
+      "created_at": "2026-07-20T19:50:32.810Z"
+    },
+    {
+      "id": 3,
+      "initiative_id": 148,
+      "content": "Final checklist published and adopted by all project teams. Marking complete.",
+      "author": "Kevin Walsh",
+      "created_at": "2026-07-20T19:50:32.820Z"
+    },
+    {
+      "id": 4,
+      "initiative_id": 154,
+      "content": "Blocked: budget approval for 4 senior roles pending FY26 reforecast.",
+      "author": "Nicole Turner",
+      "created_at": "2026-07-20T19:50:32.832Z"
+    },
+    {
+      "id": 5,
+      "initiative_id": 139,
+      "content": "Pilot expanded to 120 consultants; satisfaction score 4.4/5.",
+      "author": "Sarah Mitchell",
+      "created_at": "2026-07-20T19:50:32.841Z"
+    },
+    {
+      "id": 6,
+      "initiative_id": 139,
+      "content": "Was blocked on security review; approved and back on track.",
+      "author": "Sarah Mitchell",
+      "created_at": "2026-07-20T19:50:32.851Z"
+    }
+  ]
+}

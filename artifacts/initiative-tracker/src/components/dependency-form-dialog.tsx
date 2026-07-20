@@ -39,7 +39,7 @@ import {
 import { buildDepartmentGroups } from "@/lib/department-tree";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { localizedName } from "@/lib/localized-name";
+import { localizedName, sortByLocalizedName } from "@/lib/localized-name";
 
 function makeDependencyFormSchema(t: TFunction) {
   return z
@@ -255,7 +255,7 @@ export function DependencyFormDialog({
                       <SelectValue placeholder={t("dependencyForm.selectRiskCategory")} />
                     </SelectTrigger>
                     <SelectContent>
-                      {riskCategories?.map((category) => (
+                      {sortByLocalizedName(riskCategories, i18n.language).map((category) => (
                         <SelectItem key={category.id} value={String(category.id)}>
                           {localizedName(category, i18n.language)}
                         </SelectItem>

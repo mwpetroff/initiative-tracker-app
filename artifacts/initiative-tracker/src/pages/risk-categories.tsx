@@ -16,12 +16,14 @@ import { RiskCategoryFormDialog } from "@/components/risk-category-form-dialog";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { PageLoading, PageError } from "@/components/page-state";
+import { sortByLocalizedName } from "@/lib/localized-name";
 
 export default function RiskCategories() {
   const { data: riskCategories, isLoading, error } = useListRiskCategories();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const sortedRiskCategories = sortByLocalizedName(riskCategories, i18n.language);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingRiskCategory, setEditingRiskCategory] = useState<RiskCategory | null>(null);
@@ -99,7 +101,7 @@ export default function RiskCategories() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {riskCategories?.map((category) => (
+              {sortedRiskCategories.map((category) => (
                 <TableRow key={category.id}>
                   <TableCell className="font-medium">{category.name}</TableCell>
                   <TableCell>
@@ -122,7 +124,7 @@ export default function RiskCategories() {
                   </TableCell>
                 </TableRow>
               ))}
-              {!riskCategories?.length && (
+              {!sortedRiskCategories.length && (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
                     {t("riskCategories.empty")}

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { PageLoading, PageError } from "@/components/page-state";
-import { localizedName, localizedLabel } from "@/lib/localized-name";
+import { localizedName, localizedLabel, compareLocalized } from "@/lib/localized-name";
 
 const RISK_BADGE_VARIANT: Record<string, "destructive" | "secondary" | "outline"> = {
   critical: "destructive",
@@ -107,6 +107,17 @@ export default function Heatmap() {
     return <PageError title={t("heatmap.loadError")} description={t("common.refreshHint")} />;
   }
 
+  const sortedColumns = [...heatmap.columns].sort((a, b) => {
+    if (a.isExternal !== b.isExternal) {
+      return a.isExternal ? 1 : -1;
+    }
+    return compareLocalized(
+      localizedLabel(a.label, a.labelJa, i18n.language),
+      localizedLabel(b.label, b.labelJa, i18n.language),
+      i18n.language,
+    );
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -127,7 +138,7 @@ export default function Heatmap() {
                 <th className="sticky left-0 top-0 z-30 bg-muted px-4 py-2 font-medium shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]">
                   {t("heatmap.department")}
                 </th>
-                {heatmap.columns.map((col) => (
+                {sortedColumns.map((col) => (
                   <th key={col.key} className="sticky top-0 z-20 bg-muted px-2 py-2 font-medium whitespace-nowrap text-center shadow-[0_2px_4px_-2px_rgba(0,0,0,0.15)]">
                     {localizedLabel(col.label, col.labelJa, i18n.language)}{" "}
                     {col.isExternal ? t("heatmap.external") : ""}
@@ -167,7 +178,7 @@ export default function Heatmap() {
                       </div>
                     )}
                   </td>
-                  {heatmap.columns.map((col) => {
+                  {sortedColumns.map((col) => {
                     const cell = isGroup
                       ? aggregateCells(displayRow.memberIds, col.key, heatmap.cells)
                       : heatmap.cells.find(

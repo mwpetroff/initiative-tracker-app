@@ -19,3 +19,20 @@ export function localizedLabel(
   }
   return label;
 }
+
+export function compareLocalized(a: string, b: string, language: string): number {
+  return a.localeCompare(b, language.startsWith("ja") ? "ja" : language);
+}
+
+export function sortByLocalizedName<T extends { name: string; nameJa?: string | null }>(
+  items: readonly T[] | null | undefined,
+  language: string,
+): T[] {
+  return [...(items ?? [])].sort((a, b) =>
+    compareLocalized(
+      localizedName(a, language) ?? a.name,
+      localizedName(b, language) ?? b.name,
+      language,
+    ),
+  );
+}

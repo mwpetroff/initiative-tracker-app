@@ -9,7 +9,7 @@ import { AlertCircle, Target, Activity, PauseCircle, CalendarClock } from "lucid
 import { Badge } from "@/components/ui/badge";
 import { PageLoading, PageError } from "@/components/page-state";
 import { useDateLocale } from "@/i18n";
-import { localizedLabel } from "@/lib/localized-name";
+import { localizedLabel, compareLocalized } from "@/lib/localized-name";
 
 interface BreakdownGroup {
   header: DepartmentStatusBreakdown | null;

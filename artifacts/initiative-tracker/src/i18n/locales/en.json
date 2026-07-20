@@ -326,6 +326,8 @@
     "progress": "Progress",
     "startDate": "Start Date",
     "targetDate": "Target Date",
+    "latestUpdateDate": "Latest Update Date",
+    "latestUpdate": "Latest Update",
     "quarterGoal": "Quarter Goal",
     "quarterGoalTarget": "Quarter Goal Target",
     "description": "Description"

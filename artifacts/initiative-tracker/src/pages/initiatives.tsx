@@ -8,6 +8,7 @@ import {
   getListInitiativesQueryKey,
   getGetDashboardSummaryQueryKey,
   getGetDependencyHeatmapQueryKey,
+  listInitiativeUpdates,
 } from "@workspace/api-client-react";
 import type { Initiative } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -168,6 +169,8 @@ export default function Initiatives() {
       progress: t("export.progress"),
       startDate: t("export.startDate"),
       targetDate: t("export.targetDate"),
+      latestUpdateDate: t("export.latestUpdateDate"),
+      latestUpdate: t("export.latestUpdate"),
       quarterGoal: t("export.quarterGoal"),
       quarterGoalTarget: t("export.quarterGoalTarget"),
       description: t("export.description"),
@@ -195,6 +198,17 @@ export default function Initiatives() {
             onClick={async () => {
               setIsExporting(true);
               try {
+                const latestUpdates: Record<number, { content: string; createdAt: string } | undefined> = {};
+                await Promise.all(
+                  filteredInitiatives.map(async (initiative) => {
+                    try {
+                      const updates = await listInitiativeUpdates(initiative.id);
+                      latestUpdates[initiative.id] = updates[0];
+                    } catch {
+                      latestUpdates[initiative.id] = undefined;
+                    }
+                  }),
+                );
                 await exportInitiativesToExcel(
                   filteredInitiatives,
                   departments?.map((d) => ({
@@ -203,6 +217,7 @@ export default function Initiatives() {
                   })),
                   undefined,
                   buildExportLabels(),
+                  latestUpdates,
                 );
                 toast({
                   title: t("initiatives.exportComplete"),

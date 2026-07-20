@@ -12,6 +12,8 @@ export interface ExportLabels {
     progress: string;
     startDate: string;
     targetDate: string;
+    latestUpdateDate: string;
+    latestUpdate: string;
     quarterGoal: string;
     quarterGoalTarget: string;
     description: string;
@@ -32,6 +34,8 @@ const DEFAULT_LABELS: ExportLabels = {
     progress: "Progress",
     startDate: "Start Date",
     targetDate: "Target Date",
+    latestUpdateDate: "Latest Update Date",
+    latestUpdate: "Latest Update",
     quarterGoal: "Quarter Goal",
     quarterGoalTarget: "Quarter Goal Target",
     description: "Description",
@@ -69,11 +73,17 @@ function downloadWorkbookBuffer(buffer: ArrayBuffer, filename: string) {
   URL.revokeObjectURL(url);
 }
 
+export interface LatestUpdateEntry {
+  content: string;
+  createdAt: string;
+}
+
 export async function exportInitiativesToExcel(
   initiatives: Initiative[],
   departments: Department[] | undefined,
   filename = `initiative-status-${new Date().toISOString().slice(0, 10)}.xlsx`,
   labels: ExportLabels = DEFAULT_LABELS,
+  latestUpdates: Record<number, LatestUpdateEntry | undefined> = {},
 ) {
   const departmentName = (id: number) => departments?.find((d) => d.id === id)?.name ?? labels.unknown;
 
@@ -94,6 +104,8 @@ export async function exportInitiativesToExcel(
     { header: labels.headers.progress, key: "progress", width: 12 },
     { header: labels.headers.startDate, key: "startDate", width: 14 },
     { header: labels.headers.targetDate, key: "targetDate", width: 14 },
+    { header: labels.headers.latestUpdateDate, key: "latestUpdateDate", width: 16 },
+    { header: labels.headers.latestUpdate, key: "latestUpdate", width: 40 },
     { header: labels.headers.quarterGoal, key: "quarterGoal", width: 30 },
     { header: labels.headers.quarterGoalTarget, key: "quarterGoalTarget", width: 18 },
     { header: labels.headers.description, key: "description", width: 40 },
@@ -118,6 +130,7 @@ export async function exportInitiativesToExcel(
   headerRow.height = 20;
 
   for (const initiative of initiatives) {
+    const latestUpdate = latestUpdates[initiative.id];
     const row = sheet.addRow({
       title: initiative.title,
       department: departmentName(initiative.departmentId),
@@ -127,6 +140,8 @@ export async function exportInitiativesToExcel(
       progress: initiative.progress / 100,
       startDate: toDate(initiative.startDate),
       targetDate: toDate(initiative.targetDate),
+      latestUpdateDate: latestUpdate ? toDate(latestUpdate.createdAt) : "",
+      latestUpdate: latestUpdate?.content ?? "",
       quarterGoal: initiative.quarterGoal ?? "",
       quarterGoalTarget:
         initiative.quarterGoalTarget !== null && initiative.quarterGoalTarget !== undefined
@@ -138,6 +153,9 @@ export async function exportInitiativesToExcel(
     row.getCell("progress").numFmt = "0%";
     row.getCell("startDate").numFmt = "yyyy-mm-dd";
     row.getCell("targetDate").numFmt = "yyyy-mm-dd";
+    if (row.getCell("latestUpdateDate").value !== "") {
+      row.getCell("latestUpdateDate").numFmt = "yyyy-mm-dd";
+    }
     if (row.getCell("quarterGoalTarget").value !== "") {
       row.getCell("quarterGoalTarget").numFmt = "0%";
     }

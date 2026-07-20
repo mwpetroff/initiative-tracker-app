@@ -91,8 +91,9 @@ describe("exportInitiativesToExcel", () => {
 
     expect(sheet!.rowCount).toBe(3); // header + 2 initiatives
 
-    // Column order: title(1), department(2), status(3), priority(4), owner(5),
-    // progress(6), startDate(7), targetDate(8), quarterGoal(9), quarterGoalTarget(10), description(11)
+    // Column order: title(1), department(2), status(3), priority(4), owner(5), progress(6),
+    // startDate(7), targetDate(8), latestUpdateDate(9), latestUpdate(10),
+    // quarterGoal(11), quarterGoalTarget(12), description(13)
     const firstDataRow = sheet!.getRow(2);
     expect(firstDataRow.getCell(1).value).toBe("First");
     expect(firstDataRow.getCell(3).value).toBe("Planning");
@@ -109,6 +110,32 @@ describe("exportInitiativesToExcel", () => {
     const sheet = workbook.getWorksheet("Initiative Status");
     const row = sheet!.getRow(2);
     expect(row.getCell(2).value).toBe("Unknown");
+  });
+
+  it("includes the latest narrative update between Target Date and Quarter Goal", async () => {
+    const initiatives = [makeInitiative({ id: 1 }), makeInitiative({ id: 2, title: "No updates" })];
+
+    await exportInitiativesToExcel(initiatives, departments, "test.xlsx", undefined, {
+      1: { content: "Vendor contract signed", createdAt: "2026-07-15T09:30:00.000Z" },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(capturedBuffer as ArrayBuffer);
+    const sheet = workbook.getWorksheet("Initiative Status");
+
+    const headerRow = sheet!.getRow(1).values as unknown[];
+    expect(headerRow[8]).toBe("Target Date");
+    expect(headerRow[9]).toBe("Latest Update Date");
+    expect(headerRow[10]).toBe("Latest Update");
+    expect(headerRow[11]).toBe("Quarter Goal");
+
+    const rowWithUpdate = sheet!.getRow(2);
+    expect(rowWithUpdate.getCell(10).value).toBe("Vendor contract signed");
+    expect((rowWithUpdate.getCell(9).value as Date).toISOString().slice(0, 10)).toBe("2026-07-15");
+
+    const rowWithoutUpdate = sheet!.getRow(3);
+    expect(rowWithoutUpdate.getCell(9).value ?? "").toBe("");
+    expect(rowWithoutUpdate.getCell(10).value ?? "").toBe("");
   });
 
   it("handles an empty initiatives list by producing only the header row", async () => {

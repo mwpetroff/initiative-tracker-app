@@ -325,6 +325,8 @@
     "progress": "進捗",
     "startDate": "開始日",
     "targetDate": "目標日",
+    "latestUpdateDate": "最新更新日",
+    "latestUpdate": "最新の更新",
     "quarterGoal": "四半期目標",
     "quarterGoalTarget": "四半期目標値",
     "description": "説明"

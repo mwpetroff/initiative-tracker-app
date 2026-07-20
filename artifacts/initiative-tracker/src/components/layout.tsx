@@ -51,7 +51,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full bg-muted/40">
-      <div className="hidden border-r border-sidebar-border w-64 lg:block bg-gradient-to-b from-[#001178] to-[#415e9b] text-sidebar-foreground">
+      <div className="hidden border-r border-sidebar-border w-64 lg:block bg-gradient-to-b from-[#001178] to-[#415e9b] text-sidebar-foreground sticky top-0 h-screen shrink-0">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b border-sidebar-border/60 px-6">
             <Link href="/" className="flex items-center gap-3 font-semibold">

@@ -4,7 +4,7 @@ import type { HeatmapCell, Department, InitiativeStatus, RiskLevel } from "@work
 import { useSearch } from "wouter";
 import { useTranslation } from "react-i18next";
 import { ChevronRight, ChevronLeft } from "lucide-react";
-import { buildDepartmentGroups } from "@/lib/department-tree";
+import { buildDepartmentGroups, departmentDisplayName } from "@/lib/department-tree";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Dialog,
@@ -400,7 +400,7 @@ export default function Heatmap() {
                             className="w-2 h-2 rounded-full shrink-0"
                             style={{ backgroundColor: sourceDept.colorHex }}
                           />
-                          {localizedName(sourceDept, i18n.language)}
+                          {departmentDisplayName(sourceDept, heatmap.rows, i18n.language)}
                         </div>
                       )}
                       {dep.notes && <p className="text-sm text-muted-foreground">{dep.notes}</p>}

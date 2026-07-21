@@ -563,13 +563,15 @@ export const GetDashboardSummaryResponse = zod.object({
   "onHold": zod.number()
 })),
   "recentActivity": zod.array(zod.object({
-  "id": zod.number(),
+  "id": zod.string(),
+  "activityType": zod.enum(['status_change', 'created', 'update_posted']),
   "initiativeId": zod.number(),
   "title": zod.string(),
   "departmentName": zod.string(),
   "departmentNameJa": zod.string().nullable(),
-  "oldStatus": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
-  "newStatus": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
+  "oldStatus": zod.union([zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),zod.null()]),
+  "newStatus": zod.union([zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),zod.null()]),
+  "summary": zod.string().nullish(),
   "changedAt": zod.coerce.date()
 }))
 })

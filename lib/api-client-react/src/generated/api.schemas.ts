@@ -252,15 +252,27 @@ export interface DepartmentStatusBreakdown {
   onHold: number;
 }
 
+export type RecentActivityItemActivityType = typeof RecentActivityItemActivityType[keyof typeof RecentActivityItemActivityType];
+
+
+export const RecentActivityItemActivityType = {
+  status_change: 'status_change',
+  created: 'created',
+  update_posted: 'update_posted',
+} as const;
+
 export interface RecentActivityItem {
-  id: number;
+  id: string;
+  activityType: RecentActivityItemActivityType;
   initiativeId: number;
   title: string;
   departmentName: string;
   /** @nullable */
   departmentNameJa: string | null;
-  oldStatus: InitiativeStatus;
-  newStatus: InitiativeStatus;
+  oldStatus: InitiativeStatus | null;
+  newStatus: InitiativeStatus | null;
+  /** @nullable */
+  summary?: string | null;
   changedAt: string;
 }
 

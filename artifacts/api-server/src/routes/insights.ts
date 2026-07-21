@@ -7,6 +7,7 @@ import {
   dependenciesTable,
   riskCategoriesTable,
   initiativeHistoryTable,
+  initiativeUpdatesTable,
 } from "@workspace/db";
 import { GetDashboardSummaryResponse, GetDependencyHeatmapResponse } from "@workspace/api-zod";
 
@@ -54,7 +55,7 @@ router.get("/insights/dashboard", async (_req, res): Promise<void> => {
     };
   });
 
-  const recentActivityRows = await db
+  const statusChangeRows = await db
     .select({
       id: initiativeHistoryTable.id,
       initiativeId: initiativeHistoryTable.initiativeId,
@@ -70,6 +71,77 @@ router.get("/insights/dashboard", async (_req, res): Promise<void> => {
     .innerJoin(departmentsTable, eq(initiativesTable.departmentId, departmentsTable.id))
     .orderBy(desc(initiativeHistoryTable.changedAt))
     .limit(10);
+
+  const createdRows = await db
+    .select({
+      id: initiativesTable.id,
+      title: initiativesTable.title,
+      departmentName: departmentsTable.name,
+      departmentNameJa: departmentsTable.nameJa,
+      createdAt: initiativesTable.createdAt,
+    })
+    .from(initiativesTable)
+    .innerJoin(departmentsTable, eq(initiativesTable.departmentId, departmentsTable.id))
+    .orderBy(desc(initiativesTable.createdAt))
+    .limit(10);
+
+  const updatePostRows = await db
+    .select({
+      id: initiativeUpdatesTable.id,
+      initiativeId: initiativeUpdatesTable.initiativeId,
+      content: initiativeUpdatesTable.content,
+      author: initiativeUpdatesTable.author,
+      createdAt: initiativeUpdatesTable.createdAt,
+      title: initiativesTable.title,
+      departmentName: departmentsTable.name,
+      departmentNameJa: departmentsTable.nameJa,
+    })
+    .from(initiativeUpdatesTable)
+    .innerJoin(initiativesTable, eq(initiativeUpdatesTable.initiativeId, initiativesTable.id))
+    .innerJoin(departmentsTable, eq(initiativesTable.departmentId, departmentsTable.id))
+    .orderBy(desc(initiativeUpdatesTable.createdAt))
+    .limit(10);
+
+  const recentActivityRows = [
+    ...statusChangeRows.map((r) => ({
+      id: `history-${r.id}`,
+      activityType: "status_change" as const,
+      initiativeId: r.initiativeId,
+      title: r.title,
+      departmentName: r.departmentName,
+      departmentNameJa: r.departmentNameJa,
+      oldStatus: r.oldStatus,
+      newStatus: r.newStatus,
+      summary: null,
+      changedAt: r.changedAt,
+    })),
+    ...createdRows.map((r) => ({
+      id: `created-${r.id}`,
+      activityType: "created" as const,
+      initiativeId: r.id,
+      title: r.title,
+      departmentName: r.departmentName,
+      departmentNameJa: r.departmentNameJa,
+      oldStatus: null,
+      newStatus: null,
+      summary: null,
+      changedAt: r.createdAt,
+    })),
+    ...updatePostRows.map((r) => ({
+      id: `update-${r.id}`,
+      activityType: "update_posted" as const,
+      initiativeId: r.initiativeId,
+      title: r.title,
+      departmentName: r.departmentName,
+      departmentNameJa: r.departmentNameJa,
+      oldStatus: null,
+      newStatus: null,
+      summary: r.content.length > 120 ? `${r.content.slice(0, 120)}…` : r.content,
+      changedAt: r.createdAt,
+    })),
+  ]
+    .sort((a, b) => new Date(b.changedAt).getTime() - new Date(a.changedAt).getTime())
+    .slice(0, 10);
 
   const summary = {
     totalInitiatives,

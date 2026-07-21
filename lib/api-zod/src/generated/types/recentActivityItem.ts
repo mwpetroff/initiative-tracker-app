@@ -6,15 +6,19 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { InitiativeStatus } from './initiativeStatus';
+import type { RecentActivityItemActivityType } from './recentActivityItemActivityType';
 
 export interface RecentActivityItem {
-  id: number;
+  id: string;
+  activityType: RecentActivityItemActivityType;
   initiativeId: number;
   title: string;
   departmentName: string;
   /** @nullable */
   departmentNameJa: string | null;
-  oldStatus: InitiativeStatus;
-  newStatus: InitiativeStatus;
+  oldStatus: InitiativeStatus | null;
+  newStatus: InitiativeStatus | null;
+  /** @nullable */
+  summary?: string | null;
   changedAt: Date;
 }

@@ -32,6 +32,7 @@ export * from './initiativeUpdateEntry';
 export * from './initiativeUpdateInput';
 export * from './listInitiativesParams';
 export * from './recentActivityItem';
+export * from './recentActivityItemActivityType';
 export * from './riskCategory';
 export * from './riskCategoryInput';
 export * from './riskCategoryUpdate';

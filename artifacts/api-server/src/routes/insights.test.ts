@@ -159,9 +159,41 @@ describe("GET /api/insights/dashboard", () => {
     expect(entry).toBeDefined();
     expect(entry.title).toBe("Insights history initiative");
     expect(entry.departmentName).toBe("Contract Test Insights Dept C");
+    expect(entry.activityType).toBe("status_change");
+    expect(typeof entry.id).toBe("string");
     expect(entry.oldStatus).toBe("planning");
     expect(entry.newStatus).toBe("in_progress");
     expect(typeof entry.changedAt).toBe("string");
+  });
+
+  it("includes initiative creations and posted updates in recent activity", async () => {
+    const post = await request(app)
+      .post(`/api/initiatives/${historyInitiativeId}/updates`)
+      .send({ content: "Contract test narrative update", author: "Contract Tester" });
+    expect(post.status).toBe(201);
+
+    try {
+      const res = await request(app).get("/api/insights/dashboard");
+
+      const created = res.body.recentActivity.find(
+        (a: { activityType: string; initiativeId: number }) =>
+          a.activityType === "created" && a.initiativeId === historyInitiativeId,
+      );
+      expect(created).toBeDefined();
+      expect(created.oldStatus).toBeNull();
+      expect(created.newStatus).toBeNull();
+
+      const posted = res.body.recentActivity.find(
+        (a: { activityType: string; initiativeId: number }) =>
+          a.activityType === "update_posted" && a.initiativeId === historyInitiativeId,
+      );
+      expect(posted).toBeDefined();
+      expect(posted.summary).toBe("Contract test narrative update");
+      expect(posted.oldStatus).toBeNull();
+      expect(posted.newStatus).toBeNull();
+    } finally {
+      await request(app).delete(`/api/initiative-updates/${post.body.id}`);
+    }
   });
 });
 

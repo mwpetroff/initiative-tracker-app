@@ -71,8 +71,10 @@
     "blockedCount": "ブロック中 {{count}}件",
     "totalCount": "合計 {{count}}件",
     "recentActivity": "最近のアクティビティ",
-    "recentActivitySubtitle": "最新のステータス変更。",
-    "noActivity": "まだステータス変更は記録されていません。"
+    "recentActivitySubtitle": "最新の変更と更新。",
+    "noActivity": "最近のアクティビティはまだありません。",
+    "activityCreated": "新規施策",
+    "activityUpdatePosted": "更新投稿"
   },
   "initiatives": {
     "title": "施策",

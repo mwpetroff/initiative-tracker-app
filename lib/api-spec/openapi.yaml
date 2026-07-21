@@ -752,18 +752,27 @@ components:
 
     RecentActivityItem:
       type: object
-      required: [id, initiativeId, title, departmentName, departmentNameJa, oldStatus, newStatus, changedAt]
+      required: [id, activityType, initiativeId, title, departmentName, departmentNameJa, oldStatus, newStatus, changedAt]
       properties:
-        id: { type: integer }
+        id: { type: string }
+        activityType:
+          type: string
+          enum: [status_change, created, update_posted]
         initiativeId: { type: integer }
         title: { type: string }
         departmentName: { type: string }
         departmentNameJa:
           type: ["string", "null"]
         oldStatus:
-          $ref: "#/components/schemas/InitiativeStatus"
+          oneOf:
+            - $ref: "#/components/schemas/InitiativeStatus"
+            - type: "null"
         newStatus:
-          $ref: "#/components/schemas/InitiativeStatus"
+          oneOf:
+            - $ref: "#/components/schemas/InitiativeStatus"
+            - type: "null"
+        summary:
+          type: ["string", "null"]
         changedAt: { type: string, format: date-time }
 
     DashboardSummary:

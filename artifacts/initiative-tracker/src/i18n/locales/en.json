@@ -71,8 +71,10 @@
     "blockedCount": "{{count}} Blocked",
     "totalCount": "{{count}} Total",
     "recentActivity": "Recent Activity",
-    "recentActivitySubtitle": "Latest status changes.",
-    "noActivity": "No status changes recorded yet."
+    "recentActivitySubtitle": "Latest changes and updates.",
+    "noActivity": "No recent activity yet.",
+    "activityCreated": "New initiative",
+    "activityUpdatePosted": "Update posted"
   },
   "initiatives": {
     "title": "Initiatives",

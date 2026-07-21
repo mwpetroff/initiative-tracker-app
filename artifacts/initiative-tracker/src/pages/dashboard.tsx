@@ -260,17 +260,32 @@ export default function Dashboard() {
                     <div className="text-sm text-muted-foreground flex items-center gap-1 flex-wrap">
                       <span>{localizedLabel(activity.departmentName, activity.departmentNameJa, i18n.language)}</span>
                       <span>•</span>
-                      <Badge variant="outline" className="font-normal">
-                        {t(`status.${activity.oldStatus}`, activity.oldStatus)}
-                      </Badge>
-                      <span>→</span>
-                      <Badge
-                        variant={activity.newStatus === "blocked" ? "destructive" : "secondary"}
-                        className="font-normal"
-                      >
-                        {t(`status.${activity.newStatus}`, activity.newStatus)}
-                      </Badge>
+                      {activity.activityType === "status_change" && activity.oldStatus && activity.newStatus ? (
+                        <>
+                          <Badge variant="outline" className="font-normal">
+                            {t(`status.${activity.oldStatus}`, activity.oldStatus)}
+                          </Badge>
+                          <span>→</span>
+                          <Badge
+                            variant={activity.newStatus === "blocked" ? "destructive" : "secondary"}
+                            className="font-normal"
+                          >
+                            {t(`status.${activity.newStatus}`, activity.newStatus)}
+                          </Badge>
+                        </>
+                      ) : activity.activityType === "created" ? (
+                        <Badge variant="secondary" className="font-normal">
+                          {t("dashboard.activityCreated")}
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="font-normal">
+                          {t("dashboard.activityUpdatePosted")}
+                        </Badge>
+                      )}
                     </div>
+                    {activity.activityType === "update_posted" && activity.summary && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">{activity.summary}</p>
+                    )}
                   </div>
                   <div className="ml-auto text-xs text-muted-foreground whitespace-nowrap">
                     {new Date(activity.changedAt).toLocaleDateString(dateLocale)}

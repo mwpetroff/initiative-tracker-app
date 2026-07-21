@@ -31,10 +31,19 @@ const RISK_BADGE_VARIANT: Record<string, "destructive" | "secondary" | "outline"
   low: "outline",
 };
 
+type AnnotatedDependency = HeatmapCell["dependencies"][number] & {
+  sourceDepartmentId?: number;
+};
+
+type AnnotatedCell = Omit<HeatmapCell, "dependencies"> & {
+  dependencies: AnnotatedDependency[];
+};
+
 interface SelectedCell {
-  cell: HeatmapCell;
+  cell: AnnotatedCell;
   rowName: string;
   columnLabel: string;
+  isGroup: boolean;
 }
 
 const RISK_ORDER: Record<string, number> = { low: 1, medium: 2, high: 3, critical: 4 };
@@ -43,7 +52,7 @@ function aggregateCells(
   memberIds: number[],
   columnKey: string,
   cells: HeatmapCell[],
-): HeatmapCell | null {
+): AnnotatedCell | null {
   const matched = cells.filter(
     (c) => c.columnKey === columnKey && memberIds.includes(c.rowDepartmentId),
   );
@@ -60,7 +69,9 @@ function aggregateCells(
     dependencyCount: matched.reduce((sum, c) => sum + c.dependencyCount, 0),
     maxRiskLevel: maxRiskLevel as HeatmapCell["maxRiskLevel"],
     riskScore: matched.reduce((sum, c) => sum + c.riskScore, 0),
-    dependencies: matched.flatMap((c) => c.dependencies),
+    dependencies: matched.flatMap((c) =>
+      c.dependencies.map((dep) => ({ ...dep, sourceDepartmentId: c.rowDepartmentId })),
+    ),
   };
 }
 
@@ -288,6 +299,7 @@ export default function Heatmap() {
                                     cell,
                                     rowName: localizedName(row, i18n.language) ?? row.name,
                                     columnLabel: localizedLabel(col.label, col.labelJa, i18n.language),
+                                    isGroup,
                                   })
                               : undefined
                           }
@@ -300,6 +312,7 @@ export default function Heatmap() {
                                       cell,
                                       rowName: localizedName(row, i18n.language) ?? row.name,
                                       columnLabel: localizedLabel(col.label, col.labelJa, i18n.language),
+                                      isGroup,
                                     });
                                   }
                                 }
@@ -335,17 +348,32 @@ export default function Heatmap() {
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-                {selected.cell.dependencies.map((dep) => (
-                  <div key={dep.dependencyId} className="rounded-md border p-3 space-y-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-medium">{dep.initiativeTitle}</p>
-                      <Badge variant={RISK_BADGE_VARIANT[dep.riskLevel] ?? "outline"}>
-                        {t(`risk.${dep.riskLevel}`, dep.riskLevel)}
-                      </Badge>
+                {selected.cell.dependencies.map((dep) => {
+                  const sourceDept =
+                    selected.isGroup && dep.sourceDepartmentId != null
+                      ? heatmap.rows.find((r) => r.id === dep.sourceDepartmentId)
+                      : undefined;
+                  return (
+                    <div key={dep.dependencyId} className="rounded-md border p-3 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium">{dep.initiativeTitle}</p>
+                        <Badge variant={RISK_BADGE_VARIANT[dep.riskLevel] ?? "outline"}>
+                          {t(`risk.${dep.riskLevel}`, dep.riskLevel)}
+                        </Badge>
+                      </div>
+                      {sourceDept && (
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <div
+                            className="w-2 h-2 rounded-full shrink-0"
+                            style={{ backgroundColor: sourceDept.colorHex }}
+                          />
+                          {localizedName(sourceDept, i18n.language)}
+                        </div>
+                      )}
+                      {dep.notes && <p className="text-sm text-muted-foreground">{dep.notes}</p>}
                     </div>
-                    {dep.notes && <p className="text-sm text-muted-foreground">{dep.notes}</p>}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}

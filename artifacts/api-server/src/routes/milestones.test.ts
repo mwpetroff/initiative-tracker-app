@@ -83,6 +83,23 @@ describe("milestones", () => {
     expect(res.body.note).toBeNull();
   });
 
+  it("accepts the blocked status", async () => {
+    const res = await request(app)
+      .post(`/api/initiatives/${initiativeId}/milestones`)
+      .send({
+        title: "Blocked step",
+        startDate: "2026-04-01",
+        endDate: "2026-04-10",
+        owner: "Dana",
+        status: "blocked",
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.status).toBe("blocked");
+
+    const del = await request(app).delete(`/api/milestones/${res.body.id}`);
+    expect(del.status).toBe(204);
+  });
+
   it("rejects end date before start date with 400", async () => {
     const res = await request(app)
       .post(`/api/initiatives/${initiativeId}/milestones`)

@@ -390,7 +390,7 @@ export const ListMilestonesResponseItem = zod.object({
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "owner": zod.string(),
-  "status": zod.enum(['planned', 'in_progress', 'completed']),
+  "status": zod.enum(['planned', 'in_progress', 'blocked', 'completed']),
   "note": zod.string().nullable(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -414,7 +414,7 @@ export const CreateMilestoneBody = zod.object({
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "owner": zod.string().min(1),
-  "status": zod.enum(['planned', 'in_progress', 'completed']),
+  "status": zod.enum(['planned', 'in_progress', 'blocked', 'completed']),
   "note": zod.string().nullish()
 })
 
@@ -425,7 +425,7 @@ export const CreateMilestoneResponse = zod.object({
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "owner": zod.string(),
-  "status": zod.enum(['planned', 'in_progress', 'completed']),
+  "status": zod.enum(['planned', 'in_progress', 'blocked', 'completed']),
   "note": zod.string().nullable(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -448,7 +448,7 @@ export const UpdateMilestoneBody = zod.object({
   "startDate": zod.coerce.date().optional(),
   "endDate": zod.coerce.date().optional(),
   "owner": zod.string().min(1).optional(),
-  "status": zod.enum(['planned', 'in_progress', 'completed']).optional(),
+  "status": zod.enum(['planned', 'in_progress', 'blocked', 'completed']).optional(),
   "note": zod.string().nullish()
 })
 
@@ -459,7 +459,7 @@ export const UpdateMilestoneResponse = zod.object({
   "startDate": zod.coerce.date(),
   "endDate": zod.coerce.date(),
   "owner": zod.string(),
-  "status": zod.enum(['planned', 'in_progress', 'completed']),
+  "status": zod.enum(['planned', 'in_progress', 'blocked', 'completed']),
   "note": zod.string().nullable(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()

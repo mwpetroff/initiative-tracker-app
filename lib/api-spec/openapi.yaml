@@ -723,7 +723,7 @@ components:
 
     MilestoneStatus:
       type: string
-      enum: [planned, in_progress, completed]
+      enum: [planned, in_progress, blocked, completed]
 
     Milestone:
       type: object

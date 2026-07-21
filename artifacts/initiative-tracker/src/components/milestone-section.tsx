@@ -25,10 +25,18 @@ import { useToast } from "@/hooks/use-toast";
 import { InlineLoading, PageError } from "@/components/page-state";
 import { useDateLocale } from "@/i18n";
 
-const STATUS_VARIANT: Record<MilestoneStatus, "outline" | "secondary" | "default"> = {
+const STATUS_CLASS: Record<MilestoneStatus, string> = {
+  planned: "",
+  in_progress: "",
+  blocked: "border-transparent bg-red-600 text-white hover:bg-red-600/90",
+  completed: "border-transparent bg-green-600 text-white hover:bg-green-600/90",
+};
+
+const STATUS_VARIANT: Record<MilestoneStatus, "outline" | "secondary"> = {
   planned: "outline",
   in_progress: "secondary",
-  completed: "default",
+  blocked: "outline",
+  completed: "outline",
 };
 
 interface MilestoneDraft {
@@ -262,6 +270,7 @@ export function MilestoneSection({ initiativeId }: MilestoneSectionProps) {
                 <SelectContent>
                   <SelectItem value="planned">{t("milestones.statusPlanned")}</SelectItem>
                   <SelectItem value="in_progress">{t("status.in_progress")}</SelectItem>
+                  <SelectItem value="blocked">{t("status.blocked")}</SelectItem>
                   <SelectItem value="completed">{t("status.completed")}</SelectItem>
                 </SelectContent>
               </Select>
@@ -304,7 +313,10 @@ export function MilestoneSection({ initiativeId }: MilestoneSectionProps) {
                 <div className="flex-1 min-w-0 space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-medium">{m.title}</p>
-                    <Badge variant={STATUS_VARIANT[m.status] ?? "outline"}>
+                    <Badge
+                      variant={STATUS_VARIANT[m.status] ?? "outline"}
+                      className={STATUS_CLASS[m.status] ?? ""}
+                    >
                       {m.status === "planned"
                         ? t("milestones.statusPlanned")
                         : t(`status.${m.status}`, m.status)}

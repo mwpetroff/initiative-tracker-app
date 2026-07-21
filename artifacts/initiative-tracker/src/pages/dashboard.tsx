@@ -3,20 +3,14 @@ import type { DepartmentStatusBreakdown } from "@workspace/api-client-react";
 import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
-import { buildDepartmentGroups } from "@/lib/department-tree";
+import { buildDepartmentGroups, departmentMemberIds } from "@/lib/department-tree";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle, Target, Activity, PauseCircle, CalendarClock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { DepartmentFilterSelect } from "@/components/department-filter-select";
 import { PageLoading, PageError } from "@/components/page-state";
 import { useDateLocale } from "@/i18n";
-import { localizedLabel, compareLocalized } from "@/lib/localized-name";
+import { localizedLabel } from "@/lib/localized-name";
 
 interface BreakdownGroup {
   header: DepartmentStatusBreakdown | null;
@@ -32,23 +26,15 @@ export default function Dashboard() {
   const [, navigate] = useLocation();
   const [activityDept, setActivityDept] = useState<string>("all");
 
-  const sortedDepartments = useMemo(
-    () =>
-      [...(departments ?? [])].sort((a, b) =>
-        compareLocalized(
-          localizedLabel(a.name, a.nameJa, i18n.language),
-          localizedLabel(b.name, b.nameJa, i18n.language),
-          i18n.language,
-        ),
-      ),
-    [departments, i18n.language],
-  );
-
   const filteredActivity = useMemo(() => {
     const items = summary?.recentActivity ?? [];
     if (activityDept === "all") return items;
-    return items.filter((a) => a.departmentName === activityDept);
-  }, [summary, activityDept]);
+    const memberIds = new Set(departmentMemberIds(Number(activityDept), departments));
+    const acceptedNames = new Set(
+      (departments ?? []).filter((d) => memberIds.has(d.id)).map((d) => d.name),
+    );
+    return items.filter((a) => acceptedNames.has(a.departmentName));
+  }, [summary, activityDept, departments]);
 
   const statCardProps = (href: string) => ({
     role: "link" as const,
@@ -266,19 +252,12 @@ export default function Dashboard() {
               <CardTitle>{t("dashboard.recentActivity")}</CardTitle>
               <CardDescription>{t("dashboard.recentActivitySubtitle")}</CardDescription>
             </div>
-            <Select value={activityDept} onValueChange={setActivityDept}>
-              <SelectTrigger className="w-52" aria-label={t("dashboard.activityDeptFilter")}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("dashboard.allDepartments")}</SelectItem>
-                {sortedDepartments.map((dept) => (
-                  <SelectItem key={dept.id} value={dept.name}>
-                    {localizedLabel(dept.name, dept.nameJa, i18n.language)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <DepartmentFilterSelect
+              departments={departments}
+              value={activityDept}
+              onValueChange={setActivityDept}
+              className="w-52"
+            />
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

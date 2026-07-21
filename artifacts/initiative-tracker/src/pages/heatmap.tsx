@@ -197,16 +197,16 @@ export default function Heatmap() {
             {canScrollLeft && (
               <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-40 flex items-center">
                 <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-black/10 to-transparent" />
-                <div className="relative ml-1 rounded-full bg-background/90 border shadow-sm p-1">
-                  <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+                <div className="relative ml-1 rounded-full bg-primary text-primary-foreground shadow-md p-1.5">
+                  <ChevronLeft className="h-4 w-4" />
                 </div>
               </div>
             )}
             {canScrollRight && (
               <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-40 flex items-center justify-end">
                 <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-black/10 to-transparent" />
-                <div className="relative mr-1 animate-pulse rounded-full bg-background/90 border shadow-sm p-1">
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <div className="relative mr-1 animate-pulse rounded-full bg-primary text-primary-foreground shadow-md p-1.5">
+                  <ChevronRight className="h-4 w-4" />
                 </div>
               </div>
             )}

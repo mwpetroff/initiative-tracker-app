@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useGetDependencyHeatmap, getGetDependencyHeatmapQueryKey } from "@workspace/api-client-react";
 import type { HeatmapCell, Department, InitiativeStatus } from "@workspace/api-client-react";
 import { useTranslation } from "react-i18next";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import { buildDepartmentGroups } from "@/lib/department-tree";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
@@ -87,6 +87,26 @@ export default function Heatmap() {
   const [selected, setSelected] = useState<SelectedCell | null>(null);
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
   const { t, i18n } = useTranslation();
+
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollHints = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 2);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 2);
+  }, []);
+
+  useEffect(() => {
+    updateScrollHints();
+    const el = scrollRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(updateScrollHints);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [updateScrollHints, heatmap]);
 
   const displayRows = useMemo<HeatmapRow[]>(() => {
     const groups = buildDepartmentGroups(heatmap?.rows, i18n.language);
@@ -173,7 +193,28 @@ export default function Heatmap() {
           <CardDescription>{t("heatmap.riskMatrixDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-auto max-h-[calc(100vh-16rem)] rounded-b-xl">
+          <div className="relative">
+            {canScrollLeft && (
+              <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-40 flex items-center">
+                <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-black/10 to-transparent" />
+                <div className="relative ml-1 rounded-full bg-background/90 border shadow-sm p-1">
+                  <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </div>
+            )}
+            {canScrollRight && (
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-40 flex items-center justify-end">
+                <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-black/10 to-transparent" />
+                <div className="relative mr-1 animate-pulse rounded-full bg-background/90 border shadow-sm p-1">
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </div>
+            )}
+          <div
+            ref={scrollRef}
+            onScroll={updateScrollHints}
+            className="overflow-auto max-h-[calc(100vh-16rem)] rounded-b-xl"
+          >
           <table className="w-full text-sm text-left border-separate border-spacing-0">
             <thead className="text-xs text-muted-foreground uppercase">
               <tr>
@@ -276,6 +317,7 @@ export default function Heatmap() {
               })}
             </tbody>
           </table>
+          </div>
           </div>
         </CardContent>
       </Card>

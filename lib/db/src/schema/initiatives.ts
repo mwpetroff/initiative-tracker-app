@@ -13,6 +13,7 @@ export const initiativesTable = pgTable("initiatives", {
   status: text("status").notNull(), // planning | in_progress | blocked | completed | on_hold
   priority: text("priority").notNull(), // low | medium | high
   owner: text("owner").notNull(),
+  sponsor: text("sponsor"),
   progress: integer("progress").notNull().default(0),
   startDate: date("start_date", { mode: "string" }).notNull(),
   targetDate: date("target_date", { mode: "string" }).notNull(),

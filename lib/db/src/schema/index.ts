@@ -5,4 +5,5 @@ export * from "./dependencies";
 export * from "./settings";
 export * from "./initiative-history";
 export * from "./initiative-updates";
+export * from "./milestones";
 export * from "./seed-state";

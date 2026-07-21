@@ -84,6 +84,8 @@ export interface Initiative {
   status: InitiativeStatus;
   priority: InitiativePriority;
   owner: string;
+  /** @nullable */
+  sponsor: string | null;
   /**
      * @minimum 0
      * @maximum 100
@@ -112,6 +114,8 @@ export interface InitiativeInput {
   priority: InitiativePriority;
   /** @minLength 1 */
   owner: string;
+  /** @nullable */
+  sponsor?: string | null;
   /**
      * @minimum 0
      * @maximum 100
@@ -138,6 +142,8 @@ export interface InitiativeUpdate {
   priority?: InitiativePriority;
   /** @minLength 1 */
   owner?: string;
+  /** @nullable */
+  sponsor?: string | null;
   /**
      * @minimum 0
      * @maximum 100
@@ -153,6 +159,53 @@ export interface InitiativeUpdate {
      * @nullable
      */
   quarterGoalTarget?: number | null;
+}
+
+export type MilestoneStatus = typeof MilestoneStatus[keyof typeof MilestoneStatus];
+
+
+export const MilestoneStatus = {
+  planned: 'planned',
+  in_progress: 'in_progress',
+  completed: 'completed',
+} as const;
+
+export interface Milestone {
+  id: number;
+  initiativeId: number;
+  title: string;
+  startDate: string;
+  endDate: string;
+  owner: string;
+  status: MilestoneStatus;
+  /** @nullable */
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MilestoneInput {
+  /** @minLength 1 */
+  title: string;
+  startDate: string;
+  endDate: string;
+  /** @minLength 1 */
+  owner: string;
+  status: MilestoneStatus;
+  /** @nullable */
+  note?: string | null;
+}
+
+export interface MilestonePatch {
+  /** @minLength 1 */
+  title?: string;
+  startDate?: string;
+  endDate?: string;
+  /** @minLength 1 */
+  owner?: string;
+  status?: MilestoneStatus;
+  /** @nullable */
+  note?: string | null;
 }
 
 export interface Dependency {

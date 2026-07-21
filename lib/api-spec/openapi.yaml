@@ -269,6 +269,78 @@ paths:
         "204":
           description: Deleted
 
+  /initiatives/{id}/milestones:
+    get:
+      operationId: listMilestones
+      tags: [initiatives]
+      summary: List milestones for an initiative
+      parameters:
+        - $ref: "#/components/parameters/InitiativeId"
+      responses:
+        "200":
+          description: List of milestones ordered by start date
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Milestone"
+    post:
+      operationId: createMilestone
+      tags: [initiatives]
+      summary: Add a milestone to an initiative
+      parameters:
+        - $ref: "#/components/parameters/InitiativeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MilestoneInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Milestone"
+
+  /milestones/{id}:
+    patch:
+      operationId: updateMilestone
+      tags: [initiatives]
+      summary: Update a milestone
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MilestonePatch"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Milestone"
+    delete:
+      operationId: deleteMilestone
+      tags: [initiatives]
+      summary: Delete a milestone
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
   /dependencies:
     get:
       operationId: listDependencies
@@ -570,6 +642,7 @@ components:
         - status
         - priority
         - owner
+        - sponsor
         - progress
         - startDate
         - targetDate
@@ -587,6 +660,8 @@ components:
         priority:
           $ref: "#/components/schemas/InitiativePriority"
         owner: { type: string }
+        sponsor:
+          type: ["string", "null"]
         progress: { type: integer, minimum: 0, maximum: 100 }
         startDate: { type: string, format: date }
         targetDate: { type: string, format: date }
@@ -611,6 +686,8 @@ components:
         priority:
           $ref: "#/components/schemas/InitiativePriority"
         owner: { type: string, minLength: 1 }
+        sponsor:
+          type: ["string", "null"]
         progress: { type: integer, minimum: 0, maximum: 100 }
         startDate: { type: string, format: date }
         targetDate: { type: string, format: date }
@@ -632,6 +709,8 @@ components:
         priority:
           $ref: "#/components/schemas/InitiativePriority"
         owner: { type: string, minLength: 1 }
+        sponsor:
+          type: ["string", "null"]
         progress: { type: integer, minimum: 0, maximum: 100 }
         startDate: { type: string, format: date }
         targetDate: { type: string, format: date }
@@ -641,6 +720,52 @@ components:
           type: ["integer", "null"]
           minimum: 0
           maximum: 100
+
+    MilestoneStatus:
+      type: string
+      enum: [planned, in_progress, completed]
+
+    Milestone:
+      type: object
+      required: [id, initiativeId, title, startDate, endDate, owner, status, note, createdAt, updatedAt]
+      properties:
+        id: { type: integer }
+        initiativeId: { type: integer }
+        title: { type: string }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        owner: { type: string }
+        status:
+          $ref: "#/components/schemas/MilestoneStatus"
+        note:
+          type: ["string", "null"]
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    MilestoneInput:
+      type: object
+      required: [title, startDate, endDate, owner, status]
+      properties:
+        title: { type: string, minLength: 1 }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        owner: { type: string, minLength: 1 }
+        status:
+          $ref: "#/components/schemas/MilestoneStatus"
+        note:
+          type: ["string", "null"]
+
+    MilestonePatch:
+      type: object
+      properties:
+        title: { type: string, minLength: 1 }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        owner: { type: string, minLength: 1 }
+        status:
+          $ref: "#/components/schemas/MilestoneStatus"
+        note:
+          type: ["string", "null"]
 
     Dependency:
       type: object

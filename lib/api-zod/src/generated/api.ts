@@ -117,6 +117,7 @@ export const ListInitiativesResponseItem = zod.object({
   "status": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
   "priority": zod.enum(['low', 'medium', 'high']),
   "owner": zod.string(),
+  "sponsor": zod.string().nullable(),
   "progress": zod.number().min(listInitiativesResponseProgressMin).max(listInitiativesResponseProgressMax),
   "startDate": zod.coerce.date(),
   "targetDate": zod.coerce.date(),
@@ -148,6 +149,7 @@ export const CreateInitiativeBody = zod.object({
   "status": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
   "priority": zod.enum(['low', 'medium', 'high']),
   "owner": zod.string().min(1),
+  "sponsor": zod.string().nullish(),
   "progress": zod.number().min(createInitiativeBodyProgressMin).max(createInitiativeBodyProgressMax),
   "startDate": zod.coerce.date(),
   "targetDate": zod.coerce.date(),
@@ -171,6 +173,7 @@ export const CreateInitiativeResponse = zod.object({
   "status": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
   "priority": zod.enum(['low', 'medium', 'high']),
   "owner": zod.string(),
+  "sponsor": zod.string().nullable(),
   "progress": zod.number().min(createInitiativeResponseProgressMin).max(createInitiativeResponseProgressMax),
   "startDate": zod.coerce.date(),
   "targetDate": zod.coerce.date(),
@@ -204,6 +207,7 @@ export const GetInitiativeResponse = zod.object({
   "status": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
   "priority": zod.enum(['low', 'medium', 'high']),
   "owner": zod.string(),
+  "sponsor": zod.string().nullable(),
   "progress": zod.number().min(getInitiativeResponseProgressMin).max(getInitiativeResponseProgressMax),
   "startDate": zod.coerce.date(),
   "targetDate": zod.coerce.date(),
@@ -238,6 +242,7 @@ export const UpdateInitiativeBody = zod.object({
   "status": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']).optional(),
   "priority": zod.enum(['low', 'medium', 'high']).optional(),
   "owner": zod.string().min(1).optional(),
+  "sponsor": zod.string().nullish(),
   "progress": zod.number().min(updateInitiativeBodyProgressMin).max(updateInitiativeBodyProgressMax).optional(),
   "startDate": zod.coerce.date().optional(),
   "targetDate": zod.coerce.date().optional(),
@@ -261,6 +266,7 @@ export const UpdateInitiativeResponse = zod.object({
   "status": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),
   "priority": zod.enum(['low', 'medium', 'high']),
   "owner": zod.string(),
+  "sponsor": zod.string().nullable(),
   "progress": zod.number().min(updateInitiativeResponseProgressMin).max(updateInitiativeResponseProgressMax),
   "startDate": zod.coerce.date(),
   "targetDate": zod.coerce.date(),
@@ -368,6 +374,106 @@ export const DeleteInitiativeUpdateParams = zod.object({
 })
 
 export const DeleteInitiativeUpdateResponse = zod.void()
+
+
+/**
+ * @summary List milestones for an initiative
+ */
+export const ListMilestonesParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ListMilestonesResponseItem = zod.object({
+  "id": zod.number(),
+  "initiativeId": zod.number(),
+  "title": zod.string(),
+  "startDate": zod.coerce.date(),
+  "endDate": zod.coerce.date(),
+  "owner": zod.string(),
+  "status": zod.enum(['planned', 'in_progress', 'completed']),
+  "note": zod.string().nullable(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListMilestonesResponse = zod.array(ListMilestonesResponseItem)
+
+
+/**
+ * @summary Add a milestone to an initiative
+ */
+export const CreateMilestoneParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+
+export const CreateMilestoneBody = zod.object({
+  "title": zod.string().min(1),
+  "startDate": zod.coerce.date(),
+  "endDate": zod.coerce.date(),
+  "owner": zod.string().min(1),
+  "status": zod.enum(['planned', 'in_progress', 'completed']),
+  "note": zod.string().nullish()
+})
+
+export const CreateMilestoneResponse = zod.object({
+  "id": zod.number(),
+  "initiativeId": zod.number(),
+  "title": zod.string(),
+  "startDate": zod.coerce.date(),
+  "endDate": zod.coerce.date(),
+  "owner": zod.string(),
+  "status": zod.enum(['planned', 'in_progress', 'completed']),
+  "note": zod.string().nullable(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update a milestone
+ */
+export const UpdateMilestoneParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+
+export const UpdateMilestoneBody = zod.object({
+  "title": zod.string().min(1).optional(),
+  "startDate": zod.coerce.date().optional(),
+  "endDate": zod.coerce.date().optional(),
+  "owner": zod.string().min(1).optional(),
+  "status": zod.enum(['planned', 'in_progress', 'completed']).optional(),
+  "note": zod.string().nullish()
+})
+
+export const UpdateMilestoneResponse = zod.object({
+  "id": zod.number(),
+  "initiativeId": zod.number(),
+  "title": zod.string(),
+  "startDate": zod.coerce.date(),
+  "endDate": zod.coerce.date(),
+  "owner": zod.string(),
+  "status": zod.enum(['planned', 'in_progress', 'completed']),
+  "note": zod.string().nullable(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a milestone
+ */
+export const DeleteMilestoneParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteMilestoneResponse = zod.void()
 
 
 /**

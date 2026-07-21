@@ -52,6 +52,7 @@ function makeInitiativeFormSchema(t: TFunction) {
     status: z.enum(["planning", "in_progress", "blocked", "completed", "on_hold"]),
     priority: z.enum(["low", "medium", "high"]),
     owner: z.string().min(1, t("initiativeForm.ownerRequired")),
+    sponsor: z.string(),
     progress: z.coerce.number().min(0).max(100),
     startDate: z.string().min(1, t("initiativeForm.startDateRequired")),
     targetDate: z.string().min(1, t("initiativeForm.targetDateRequired")),
@@ -87,6 +88,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative, onUpdated
       status: "planning",
       priority: "medium",
       owner: "",
+      sponsor: "",
       progress: 0,
       startDate: "",
       targetDate: "",
@@ -104,6 +106,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative, onUpdated
         status: initiative?.status ?? "planning",
         priority: initiative?.priority ?? "medium",
         owner: initiative?.owner ?? "",
+        sponsor: initiative?.sponsor ?? "",
         progress: initiative?.progress ?? 0,
         startDate: toDateInputValue(initiative?.startDate),
         targetDate: toDateInputValue(initiative?.targetDate),
@@ -158,6 +161,7 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative, onUpdated
       departmentId: Number(values.departmentId),
       priority: values.priority,
       owner: values.owner,
+      sponsor: values.sponsor.trim() ? values.sponsor.trim() : null,
       startDate: values.startDate,
       targetDate: values.targetDate,
       quarterGoal: values.quarterGoal.trim() ? values.quarterGoal.trim() : null,
@@ -251,6 +255,15 @@ export function InitiativeFormDialog({ open, onOpenChange, initiative, onUpdated
                 <p className="text-sm text-destructive">{form.formState.errors.owner.message}</p>
               )}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="init-sponsor">{t("initiativeForm.sponsor")}</Label>
+            <Input
+              id="init-sponsor"
+              placeholder={t("initiativeForm.sponsorPlaceholder")}
+              {...form.register("sponsor")}
+            />
           </div>
 
           <div className={`grid grid-cols-1 gap-4 ${isEditing ? "sm:grid-cols-1" : "sm:grid-cols-3"}`}>

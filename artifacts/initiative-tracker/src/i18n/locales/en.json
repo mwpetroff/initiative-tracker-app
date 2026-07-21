@@ -269,7 +269,8 @@
     "quickStatus": "Status",
     "quickProgress": "Progress (%)",
     "quickUpdateSaved": "Initiative updated",
-    "quickUpdateFailed": "Failed to update initiative"
+    "quickUpdateFailed": "Failed to update initiative",
+    "sponsor": "Sponsor: {{sponsor}}"
   },
   "initiativeForm": {
     "newTitle": "New Initiative",
@@ -304,7 +305,9 @@
     "updateFailed": "Failed to update initiative",
     "saveChanges": "Save Changes",
     "create": "Create Initiative",
-    "dayToDayHint": "Status and progress are managed day-to-day from the initiative detail view."
+    "dayToDayHint": "Status and progress are managed day-to-day from the initiative detail view.",
+    "sponsor": "Sponsor (optional)",
+    "sponsorPlaceholder": "e.g. VP of Operations"
   },
   "dependencyForm": {
     "addTitle": "Add Dependency",
@@ -345,5 +348,36 @@
     "quarterGoal": "Quarter Goal",
     "quarterGoalTarget": "Quarter Goal Target",
     "description": "Description"
+  },
+  "milestones": {
+    "title": "Milestones",
+    "add": "Add Milestone",
+    "newTitle": "New Milestone",
+    "editTitle": "Edit Milestone",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g. Vendor selection complete",
+    "titleRequired": "Title is required",
+    "owner": "Owner",
+    "ownerPlaceholder": "e.g. Jane Doe",
+    "ownerRequired": "Owner is required",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "datesRequired": "Start and end dates are required",
+    "dateOrderError": "End date must be on or after the start date",
+    "status": "Status",
+    "statusPlanned": "Planned",
+    "note": "Note (optional)",
+    "notePlaceholder": "Brief note...",
+    "save": "Save Changes",
+    "create": "Add",
+    "added": "Milestone added",
+    "addFailed": "Couldn't add milestone",
+    "updated": "Milestone updated",
+    "updateFailed": "Couldn't update milestone",
+    "removed": "Milestone removed",
+    "removeFailed": "Couldn't remove milestone",
+    "loading": "Loading milestones...",
+    "loadError": "Couldn't load milestones",
+    "empty": "No milestones yet."
   }
 }

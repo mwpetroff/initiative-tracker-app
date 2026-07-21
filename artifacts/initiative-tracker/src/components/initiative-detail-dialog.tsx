@@ -43,6 +43,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, CheckCircle2, Undo2 } from "lucide-react";
 import { DependencyFormDialog } from "@/components/dependency-form-dialog";
+import { MilestoneSection } from "@/components/milestone-section";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { InlineLoading, PageError } from "@/components/page-state";
@@ -243,6 +244,7 @@ export function InitiativeDetailDialog({
             })}
           </Badge>
           <span>{t("detail.owner", { owner: initiative.owner })}</span>
+          {initiative.sponsor && <span>{t("detail.sponsor", { sponsor: initiative.sponsor })}</span>}
         </div>
 
         <div className="rounded-md border p-3">
@@ -337,6 +339,8 @@ export function InitiativeDetailDialog({
             )}
           </div>
         )}
+
+        <MilestoneSection initiativeId={initiative.id} />
 
         <div className="mt-2">
           <h3 className="font-semibold text-sm mb-2">{t("detail.updates")}</h3>

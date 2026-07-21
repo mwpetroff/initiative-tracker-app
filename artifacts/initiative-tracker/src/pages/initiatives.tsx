@@ -26,7 +26,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Plus, Pencil, Trash2, FileSpreadsheet, Search } from "lucide-react";
+import { Plus, Trash2, FileSpreadsheet, Search } from "lucide-react";
 import { InitiativeFormDialog } from "@/components/initiative-form-dialog";
 import { InitiativeDetailDialog } from "@/components/initiative-detail-dialog";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
@@ -376,17 +376,6 @@ export default function Initiatives() {
                   </span>
                 </div>
                 <div className="flex items-center justify-end gap-1 pt-2 border-t" onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setEditingInitiative(initiative);
-                      setFormOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-4 w-4 mr-1" />
-                    {t("common.edit")}
-                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"

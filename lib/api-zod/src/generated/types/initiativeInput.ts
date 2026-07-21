@@ -17,6 +17,8 @@ export interface InitiativeInput {
   priority: InitiativePriority;
   /** @minLength 1 */
   owner: string;
+  /** @nullable */
+  sponsor?: string | null;
   /**
      * @minimum 0
      * @maximum 100

@@ -16,6 +16,8 @@ export interface Initiative {
   status: InitiativeStatus;
   priority: InitiativePriority;
   owner: string;
+  /** @nullable */
+  sponsor: string | null;
   /**
      * @minimum 0
      * @maximum 100

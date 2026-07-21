@@ -268,7 +268,8 @@
     "quickStatus": "ステータス",
     "quickProgress": "進捗（%）",
     "quickUpdateSaved": "施策を更新しました",
-    "quickUpdateFailed": "施策の更新に失敗しました"
+    "quickUpdateFailed": "施策の更新に失敗しました",
+    "sponsor": "スポンサー：{{sponsor}}"
   },
   "initiativeForm": {
     "newTitle": "新規施策",
@@ -303,7 +304,9 @@
     "updateFailed": "施策の更新に失敗しました",
     "saveChanges": "変更を保存",
     "create": "施策を作成",
-    "dayToDayHint": "ステータスと進捗は施策の詳細画面から日々更新できます。"
+    "dayToDayHint": "ステータスと進捗は施策の詳細画面から日々更新できます。",
+    "sponsor": "スポンサー（任意）",
+    "sponsorPlaceholder": "例：業務担当役員"
   },
   "dependencyForm": {
     "addTitle": "依存関係を追加",
@@ -344,5 +347,36 @@
     "quarterGoal": "四半期目標",
     "quarterGoalTarget": "四半期目標値",
     "description": "説明"
+  },
+  "milestones": {
+    "title": "マイルストーン",
+    "add": "マイルストーンを追加",
+    "newTitle": "新しいマイルストーン",
+    "editTitle": "マイルストーンを編集",
+    "titleLabel": "タイトル",
+    "titlePlaceholder": "例：ベンダー選定完了",
+    "titleRequired": "タイトルは必須です",
+    "owner": "担当者",
+    "ownerPlaceholder": "例：山田 花子",
+    "ownerRequired": "担当者は必須です",
+    "startDate": "開始日",
+    "endDate": "終了日",
+    "datesRequired": "開始日と終了日は必須です",
+    "dateOrderError": "終了日は開始日以降にしてください",
+    "status": "ステータス",
+    "statusPlanned": "予定",
+    "note": "メモ（任意）",
+    "notePlaceholder": "簡単なメモ...",
+    "save": "変更を保存",
+    "create": "追加",
+    "added": "マイルストーンを追加しました",
+    "addFailed": "マイルストーンを追加できませんでした",
+    "updated": "マイルストーンを更新しました",
+    "updateFailed": "マイルストーンを更新できませんでした",
+    "removed": "マイルストーンを削除しました",
+    "removeFailed": "マイルストーンを削除できませんでした",
+    "loading": "マイルストーンを読み込み中...",
+    "loadError": "マイルストーンを読み込めませんでした",
+    "empty": "マイルストーンはまだありません。"
   }
 }

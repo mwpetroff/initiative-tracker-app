@@ -376,16 +376,20 @@ export default function Heatmap() {
                               title={subDeptDots
                                 .map((d) => localizedName(d, i18n.language))
                                 .join(", ")}
+                              aria-label={subDeptDots
+                                .map((d) => localizedName(d, i18n.language))
+                                .join(", ")}
                             >
                               {subDeptDots.slice(0, 4).map((d) => (
                                 <span
                                   key={d.id}
+                                  aria-hidden="true"
                                   className="w-1.5 h-1.5 rounded-full ring-1 ring-white/70"
                                   style={{ backgroundColor: d.colorHex }}
                                 />
                               ))}
                               {subDeptDots.length > 4 && (
-                                <span className="text-[8px] leading-none">+</span>
+                                <span aria-hidden="true" className="text-[8px] leading-none">+</span>
                               )}
                             </div>
                           )}

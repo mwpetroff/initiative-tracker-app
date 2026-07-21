@@ -320,6 +320,22 @@ export default function Heatmap() {
                       else if (cell.maxRiskLevel === "low") bgClass = "bg-blue-500/80 text-white";
                     }
 
+                    const subDeptDots: Department[] = [];
+                    if (isGroup && cell) {
+                      const seen = new Set<number>();
+                      for (const dep of cell.dependencies as AnnotatedDependency[]) {
+                        if (
+                          dep.sourceDepartmentId != null &&
+                          dep.sourceDepartmentId !== row.id &&
+                          !seen.has(dep.sourceDepartmentId)
+                        ) {
+                          seen.add(dep.sourceDepartmentId);
+                          const d = heatmap.rows.find((r) => r.id === dep.sourceDepartmentId);
+                          if (d) subDeptDots.push(d);
+                        }
+                      }
+                    }
+
                     return (
                       <td key={col.key} className="p-0.5">
                         <div
@@ -351,9 +367,28 @@ export default function Heatmap() {
                                 }
                               : undefined
                           }
-                          className={`h-8 w-full min-w-12 rounded-md flex items-center justify-center ${bgClass} transition-colors ${cell ? "hover:opacity-80 cursor-pointer" : "text-muted-foreground/40"}`}
+                          className={`relative h-8 w-full min-w-12 rounded-md flex items-center justify-center ${bgClass} transition-colors ${cell ? "hover:opacity-80 cursor-pointer" : "text-muted-foreground/40"}`}
                         >
                           {cell ? cell.dependencyCount : "–"}
+                          {subDeptDots.length > 0 && (
+                            <div
+                              className="absolute bottom-0.5 left-0 right-0 flex items-center justify-center gap-0.5"
+                              title={subDeptDots
+                                .map((d) => localizedName(d, i18n.language))
+                                .join(", ")}
+                            >
+                              {subDeptDots.slice(0, 4).map((d) => (
+                                <span
+                                  key={d.id}
+                                  className="w-1.5 h-1.5 rounded-full ring-1 ring-white/70"
+                                  style={{ backgroundColor: d.colorHex }}
+                                />
+                              ))}
+                              {subDeptDots.length > 4 && (
+                                <span className="text-[8px] leading-none">+</span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </td>
                     );

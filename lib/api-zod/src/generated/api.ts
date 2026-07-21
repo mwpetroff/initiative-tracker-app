@@ -567,6 +567,7 @@ export const GetDashboardSummaryResponse = zod.object({
   "activityType": zod.enum(['status_change', 'created', 'update_posted']),
   "initiativeId": zod.number(),
   "title": zod.string(),
+  "departmentId": zod.number(),
   "departmentName": zod.string(),
   "departmentNameJa": zod.string().nullable(),
   "oldStatus": zod.union([zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']),zod.null()]),

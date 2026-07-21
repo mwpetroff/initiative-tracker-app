@@ -123,7 +123,7 @@ titles, and narrative updates.
 4. **Logging:** pino already writes structured JSON to stdout; App Service +
    Application Insights collect it. Remove the pino-pretty dev transport in
    production builds (already gated by `NODE_ENV`).
-5. **Health endpoint:** add `GET /healthz` for App Service health checks.
+5. **Health endpoint:** `GET /healthz` already exists (`artifacts/api-server/src/routes/health.ts`) — point App Service health checks at it.
 
 ## 5. Frontend Changes (`artifacts/initiative-tracker`)
 
@@ -183,7 +183,7 @@ publish profiles).
 ## 8. Suggested Migration Order
 
 1. Stand up Azure SQL (serverless) + Key Vault + App Service + Static Web App (IaC via Bicep or Terraform).
-2. Port `lib/db` to Prisma `sqlserver`; update `db-errors.ts` for SQL Server error numbers; run all 62 API contract tests against a local SQL Server container.
+2. Port `lib/db` to Prisma `sqlserver`; update `db-errors.ts` for SQL Server error numbers; run the full API contract test suite (`pnpm --filter @workspace/api-server test`) against a local SQL Server container.
 3. Migrate data (Section 3.3) into a staging Azure SQL database and re-run tests against it.
 4. Deploy API to App Service; smoke-test with `curl` against `/api/*`.
 5. Deploy frontend to Static Web Apps with linked backend; verify EN/JA flows end-to-end.

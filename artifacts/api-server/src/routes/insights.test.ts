@@ -158,6 +158,7 @@ describe("GET /api/insights/dashboard", () => {
     );
     expect(entry).toBeDefined();
     expect(entry.title).toBe("Insights history initiative");
+    expect(entry.departmentId).toBe(deptC);
     expect(entry.departmentName).toBe("Contract Test Insights Dept C");
     expect(entry.activityType).toBe("status_change");
     expect(typeof entry.id).toBe("string");
@@ -180,6 +181,7 @@ describe("GET /api/insights/dashboard", () => {
           a.activityType === "created" && a.initiativeId === historyInitiativeId,
       );
       expect(created).toBeDefined();
+      expect(created.departmentId).toBe(deptC);
       expect(created.oldStatus).toBeNull();
       expect(created.newStatus).toBeNull();
 
@@ -191,6 +193,34 @@ describe("GET /api/insights/dashboard", () => {
       expect(posted.summary).toBe("Contract test narrative update");
       expect(posted.oldStatus).toBeNull();
       expect(posted.newStatus).toBeNull();
+    } finally {
+      await request(app).delete(`/api/initiative-updates/${post.body.id}`);
+    }
+  });
+
+  it("truncates long update summaries to 120 chars and caps the feed at 10 newest-first items", async () => {
+    const longContent = "x".repeat(150);
+    const post = await request(app)
+      .post(`/api/initiatives/${historyInitiativeId}/updates`)
+      .send({ content: longContent, author: "Contract Tester" });
+    expect(post.status).toBe(201);
+
+    try {
+      const res = await request(app).get("/api/insights/dashboard");
+
+      const posted = res.body.recentActivity.find(
+        (a: { activityType: string; summary: string | null }) =>
+          a.activityType === "update_posted" && a.summary?.startsWith("xxx"),
+      );
+      expect(posted).toBeDefined();
+      expect(posted.summary).toBe(`${"x".repeat(120)}…`);
+
+      expect(res.body.recentActivity.length).toBeLessThanOrEqual(10);
+      const times = res.body.recentActivity.map((a: { changedAt: string }) =>
+        new Date(a.changedAt).getTime(),
+      );
+      const sorted = [...times].sort((a: number, b: number) => b - a);
+      expect(times).toEqual(sorted);
     } finally {
       await request(app).delete(`/api/initiative-updates/${post.body.id}`);
     }

@@ -752,7 +752,7 @@ components:
 
     RecentActivityItem:
       type: object
-      required: [id, activityType, initiativeId, title, departmentName, departmentNameJa, oldStatus, newStatus, changedAt]
+      required: [id, activityType, initiativeId, title, departmentId, departmentName, departmentNameJa, oldStatus, newStatus, changedAt]
       properties:
         id: { type: string }
         activityType:
@@ -760,6 +760,7 @@ components:
           enum: [status_change, created, update_posted]
         initiativeId: { type: integer }
         title: { type: string }
+        departmentId: { type: integer }
         departmentName: { type: string }
         departmentNameJa:
           type: ["string", "null"]

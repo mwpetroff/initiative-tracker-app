@@ -30,10 +30,7 @@ export default function Dashboard() {
     const items = summary?.recentActivity ?? [];
     if (activityDept === "all") return items;
     const memberIds = new Set(departmentMemberIds(Number(activityDept), departments));
-    const acceptedNames = new Set(
-      (departments ?? []).filter((d) => memberIds.has(d.id)).map((d) => d.name),
-    );
-    return items.filter((a) => acceptedNames.has(a.departmentName));
+    return items.filter((a) => memberIds.has(a.departmentId));
   }, [summary, activityDept, departments]);
 
   const statCardProps = (href: string) => ({

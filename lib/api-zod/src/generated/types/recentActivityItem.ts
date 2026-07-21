@@ -13,6 +13,7 @@ export interface RecentActivityItem {
   activityType: RecentActivityItemActivityType;
   initiativeId: number;
   title: string;
+  departmentId: number;
   departmentName: string;
   /** @nullable */
   departmentNameJa: string | null;

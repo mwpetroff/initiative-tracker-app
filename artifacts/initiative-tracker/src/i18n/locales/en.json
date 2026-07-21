@@ -74,7 +74,9 @@
     "recentActivitySubtitle": "Latest changes and updates.",
     "noActivity": "No recent activity yet.",
     "activityCreated": "New initiative",
-    "activityUpdatePosted": "Update posted"
+    "activityUpdatePosted": "Update posted",
+    "activityDeptFilter": "Filter by department",
+    "allDepartments": "All departments"
   },
   "initiatives": {
     "title": "Initiatives",

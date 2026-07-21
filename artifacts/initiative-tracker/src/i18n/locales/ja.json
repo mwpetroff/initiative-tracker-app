@@ -74,7 +74,9 @@
     "recentActivitySubtitle": "最新の変更と更新。",
     "noActivity": "最近のアクティビティはまだありません。",
     "activityCreated": "新規施策",
-    "activityUpdatePosted": "更新投稿"
+    "activityUpdatePosted": "更新投稿",
+    "activityDeptFilter": "部門で絞り込み",
+    "allDepartments": "すべての部門"
   },
   "initiatives": {
     "title": "施策",

@@ -1,12 +1,19 @@
 import { useGetDashboardSummary, useListDepartments } from "@workspace/api-client-react";
 import type { DepartmentStatusBreakdown } from "@workspace/api-client-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { buildDepartmentGroups } from "@/lib/department-tree";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle, Target, Activity, PauseCircle, CalendarClock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PageLoading, PageError } from "@/components/page-state";
 import { useDateLocale } from "@/i18n";
 import { localizedLabel, compareLocalized } from "@/lib/localized-name";
@@ -23,6 +30,25 @@ export default function Dashboard() {
   const { t, i18n } = useTranslation();
   const dateLocale = useDateLocale();
   const [, navigate] = useLocation();
+  const [activityDept, setActivityDept] = useState<string>("all");
+
+  const sortedDepartments = useMemo(
+    () =>
+      [...(departments ?? [])].sort((a, b) =>
+        compareLocalized(
+          localizedLabel(a.name, a.nameJa, i18n.language),
+          localizedLabel(b.name, b.nameJa, i18n.language),
+          i18n.language,
+        ),
+      ),
+    [departments, i18n.language],
+  );
+
+  const filteredActivity = useMemo(() => {
+    const items = summary?.recentActivity ?? [];
+    if (activityDept === "all") return items;
+    return items.filter((a) => a.departmentName === activityDept);
+  }, [summary, activityDept]);
 
   const statCardProps = (href: string) => ({
     role: "link" as const,
@@ -156,7 +182,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+        <Card className="col-span-3">
           <CardHeader>
             <CardTitle>{t("dashboard.departmentBreakdown")}</CardTitle>
             <CardDescription>{t("dashboard.departmentBreakdownSubtitle")}</CardDescription>
@@ -234,14 +260,29 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>{t("dashboard.recentActivity")}</CardTitle>
-            <CardDescription>{t("dashboard.recentActivitySubtitle")}</CardDescription>
+        <Card className="col-span-4">
+          <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0">
+            <div className="space-y-1.5">
+              <CardTitle>{t("dashboard.recentActivity")}</CardTitle>
+              <CardDescription>{t("dashboard.recentActivitySubtitle")}</CardDescription>
+            </div>
+            <Select value={activityDept} onValueChange={setActivityDept}>
+              <SelectTrigger className="w-52" aria-label={t("dashboard.activityDeptFilter")}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("dashboard.allDepartments")}</SelectItem>
+                {sortedDepartments.map((dept) => (
+                  <SelectItem key={dept.id} value={dept.name}>
+                    {localizedLabel(dept.name, dept.nameJa, i18n.language)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {summary.recentActivity.map((activity) => (
+              {filteredActivity.map((activity) => (
                 <div
                   key={activity.id}
                   className="flex items-start gap-4 rounded-md px-2 py-1 -mx-2 cursor-pointer hover:bg-muted/50 transition-colors"
@@ -292,7 +333,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               ))}
-              {!summary.recentActivity.length && (
+              {!filteredActivity.length && (
                 <p className="text-sm text-muted-foreground">{t("dashboard.noActivity")}</p>
               )}
             </div>

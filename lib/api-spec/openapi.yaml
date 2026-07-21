@@ -458,6 +458,12 @@ paths:
           description: Only include dependencies whose initiative has this status
           schema:
             $ref: "#/components/schemas/InitiativeStatus"
+        - name: minRisk
+          in: query
+          required: false
+          description: Only include dependencies at or above this risk level
+          schema:
+            $ref: "#/components/schemas/RiskLevel"
       responses:
         "200":
           description: Heatmap data

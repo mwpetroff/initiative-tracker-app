@@ -119,7 +119,10 @@
     "dependencyCount_one": "{{count}} dependency in this cell.",
     "dependencyCount_other": "{{count}} dependencies in this cell.",
     "statusFilter": "Initiative status",
-    "allStatuses": "All statuses"
+    "allStatuses": "All statuses",
+    "riskFilter": "Risk",
+    "allRiskLevels": "All risk levels",
+    "riskAtLeast": "{{level}} & above"
   },
   "goals": {
     "title": "Quarterly Goals",

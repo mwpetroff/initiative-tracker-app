@@ -118,7 +118,10 @@
     "toggleGroup": "{{name}}グループを開閉",
     "dependencyCount_other": "このセルには{{count}}件の依存関係があります。",
     "statusFilter": "施策のステータス",
-    "allStatuses": "すべてのステータス"
+    "allStatuses": "すべてのステータス",
+    "riskFilter": "リスク",
+    "allRiskLevels": "すべてのリスクレベル",
+    "riskAtLeast": "{{level}}以上"
   },
   "goals": {
     "title": "四半期目標",

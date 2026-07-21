@@ -583,7 +583,8 @@ export const GetDashboardSummaryResponse = zod.object({
  * @summary Dependency heatmap matrix
  */
 export const GetDependencyHeatmapQueryParams = zod.object({
-  "status": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']).optional().describe('Only include dependencies whose initiative has this status')
+  "status": zod.enum(['planning', 'in_progress', 'blocked', 'completed', 'on_hold']).optional().describe('Only include dependencies whose initiative has this status'),
+  "minRisk": zod.enum(['low', 'medium', 'high', 'critical']).optional().describe('Only include dependencies at or above this risk level')
 })
 
 export const GetDependencyHeatmapResponse = zod.object({

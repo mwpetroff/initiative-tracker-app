@@ -153,7 +153,7 @@ export default function Dashboard() {
             <div className="text-2xl font-bold">{summary.overdueInitiatives}</div>
           </CardContent>
         </Card>
-        <Card {...statCardProps("/heatmap")}>
+        <Card {...statCardProps("/heatmap?minRisk=high")}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t("dashboard.highRiskDependencies")}</CardTitle>
             <AlertCircle className="h-4 w-4 text-destructive" />

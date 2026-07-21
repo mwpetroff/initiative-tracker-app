@@ -168,6 +168,10 @@ router.get("/insights/heatmap", async (req, res): Promise<void> => {
     typeof req.query.status === "string" && VALID_STATUSES.includes(req.query.status)
       ? req.query.status
       : null;
+  const minRiskFilter =
+    typeof req.query.minRisk === "string" && RISK_ORDER.includes(req.query.minRisk)
+      ? req.query.minRisk
+      : null;
 
   const departments = await db.select().from(departmentsTable).orderBy(departmentsTable.name);
   const initiatives = await db.select().from(initiativesTable);
@@ -177,9 +181,14 @@ router.get("/insights/heatmap", async (req, res): Promise<void> => {
   const matchingInitiativeIds = new Set(
     initiatives.filter((i) => statusFilter === null || i.status === statusFilter).map((i) => i.id),
   );
-  const dependencies = statusFilter
+  const statusFiltered = statusFilter
     ? allDependencies.filter((d) => matchingInitiativeIds.has(d.initiativeId))
     : allDependencies;
+  const dependencies = minRiskFilter
+    ? statusFiltered.filter(
+        (d) => RISK_ORDER.indexOf(d.riskLevel) >= RISK_ORDER.indexOf(minRiskFilter),
+      )
+    : statusFiltered;
 
   const initiativeDeptMap = new Map(initiatives.map((i) => [i.id, i.departmentId]));
   const initiativeTitleMap = new Map(initiatives.map((i) => [i.id, i.title]));

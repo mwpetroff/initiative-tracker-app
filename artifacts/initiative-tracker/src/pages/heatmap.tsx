@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { useGetDependencyHeatmap, getGetDependencyHeatmapQueryKey } from "@workspace/api-client-react";
-import type { HeatmapCell, Department, InitiativeStatus } from "@workspace/api-client-react";
+import type { HeatmapCell, Department, InitiativeStatus, RiskLevel } from "@workspace/api-client-react";
+import { useSearch } from "wouter";
 import { useTranslation } from "react-i18next";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { buildDepartmentGroups } from "@/lib/department-tree";
@@ -79,11 +80,25 @@ type HeatmapRow =
   | { kind: "department"; department: Department; indent: boolean }
   | { kind: "group"; department: Department; memberIds: number[]; expanded: boolean };
 
+const RISK_VALUES = ["low", "medium", "high", "critical"] as const;
+
 export default function Heatmap() {
+  const search = useSearch();
+  const initialMinRisk = useMemo(() => {
+    const raw = new URLSearchParams(search).get("minRisk");
+    return raw && (RISK_VALUES as readonly string[]).includes(raw) ? raw : "all";
+  }, [search]);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [riskFilter, setRiskFilter] = useState<string>(() => initialMinRisk);
+  useEffect(() => {
+    setRiskFilter(initialMinRisk);
+  }, [initialMinRisk]);
   const params =
-    statusFilter !== "all"
-      ? { status: statusFilter as InitiativeStatus }
+    statusFilter !== "all" || riskFilter !== "all"
+      ? {
+          ...(statusFilter !== "all" ? { status: statusFilter as InitiativeStatus } : {}),
+          ...(riskFilter !== "all" ? { minRisk: riskFilter as RiskLevel } : {}),
+        }
       : undefined;
   const {
     data: heatmap,
@@ -178,23 +193,41 @@ export default function Heatmap() {
           <h1 className="text-3xl font-bold tracking-tight">{t("heatmap.title")}</h1>
           <p className="text-muted-foreground mt-2">{t("heatmap.subtitle")}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Label htmlFor="heatmap-status-filter" className="text-sm text-muted-foreground">
-            {t("heatmap.statusFilter")}
-          </Label>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger id="heatmap-status-filter" className="w-44">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("heatmap.allStatuses")}</SelectItem>
-              <SelectItem value="planning">{t("status.planning")}</SelectItem>
-              <SelectItem value="in_progress">{t("status.in_progress")}</SelectItem>
-              <SelectItem value="blocked">{t("status.blocked")}</SelectItem>
-              <SelectItem value="completed">{t("status.completed")}</SelectItem>
-              <SelectItem value="on_hold">{t("status.on_hold")}</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="heatmap-status-filter" className="text-sm text-muted-foreground">
+              {t("heatmap.statusFilter")}
+            </Label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger id="heatmap-status-filter" className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("heatmap.allStatuses")}</SelectItem>
+                <SelectItem value="planning">{t("status.planning")}</SelectItem>
+                <SelectItem value="in_progress">{t("status.in_progress")}</SelectItem>
+                <SelectItem value="blocked">{t("status.blocked")}</SelectItem>
+                <SelectItem value="completed">{t("status.completed")}</SelectItem>
+                <SelectItem value="on_hold">{t("status.on_hold")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="heatmap-risk-filter" className="text-sm text-muted-foreground">
+              {t("heatmap.riskFilter")}
+            </Label>
+            <Select value={riskFilter} onValueChange={setRiskFilter}>
+              <SelectTrigger id="heatmap-risk-filter" className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("heatmap.allRiskLevels")}</SelectItem>
+                <SelectItem value="medium">{t("heatmap.riskAtLeast", { level: t("risk.medium") })}</SelectItem>
+                <SelectItem value="high">{t("heatmap.riskAtLeast", { level: t("risk.high") })}</SelectItem>
+                <SelectItem value="critical">{t("risk.critical")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 

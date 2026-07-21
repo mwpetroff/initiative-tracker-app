@@ -299,6 +299,32 @@ describe("GET /api/insights/heatmap", () => {
     expect(columnKeys).not.toContain(`cat-${riskCategoryId}`);
   });
 
+  it("filters dependencies by minimum risk level when minRisk param is set", async () => {
+    const res = await request(app).get("/api/insights/heatmap?minRisk=high");
+    expect(res.status).toBe(200);
+
+    const highCell = res.body.cells.find(
+      (c: { rowDepartmentId: number; columnKey: string }) =>
+        c.rowDepartmentId === deptA && c.columnKey === `dept-${deptB}`,
+    );
+    expect(highCell).toBeDefined();
+    expect(highCell.dependencies[0].riskLevel).toBe("high");
+
+    const lowCell = res.body.cells.find(
+      (c: { rowDepartmentId: number; columnKey: string }) =>
+        c.rowDepartmentId === deptB && c.columnKey === `cat-${riskCategoryId}`,
+    );
+    expect(lowCell).toBeUndefined();
+    const columnKeys = res.body.columns.map((c: { key: string }) => c.key);
+    expect(columnKeys).not.toContain(`cat-${riskCategoryId}`);
+
+    for (const cell of res.body.cells) {
+      for (const dep of cell.dependencies) {
+        expect(["high", "critical"]).toContain(dep.riskLevel);
+      }
+    }
+  });
+
   it("excludes resolved high-risk dependencies from the dashboard count", async () => {
     const before = await request(app).get("/api/insights/dashboard");
     await request(app).patch(`/api/dependencies/${dependencyIds[0]}`).send({ resolved: true });

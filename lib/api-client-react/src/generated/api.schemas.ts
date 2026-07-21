@@ -370,5 +370,9 @@ export type GetDependencyHeatmapParams = {
  * Only include dependencies whose initiative has this status
  */
 status?: InitiativeStatus;
+/**
+ * Only include dependencies at or above this risk level
+ */
+minRisk?: RiskLevel;
 };
 
